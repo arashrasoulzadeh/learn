@@ -20,15 +20,16 @@ function useReducedMotion(){
   return reduced;
 }
 function LabFrame({title,label,steps,renderScene,alt}:LabProps){
-  const [step,setStep]=useState(0),[playing,setPlaying]=useState(false),[speed,setSpeed]=useState(1);
+  const [step,setStep]=useState(0),[playing,setPlaying]=useState(false),[speed,setSpeed]=useState(1),[hydrated,setHydrated]=useState(false);
   const reduced=useReducedMotion(),last=step===steps.length-1;
+  useEffect(()=>setHydrated(true),[]);
   useEffect(()=>{
     if(!playing)return;
     const id=window.setTimeout(()=>{if(last)setPlaying(false);else setStep(v=>v+1)},1800/speed);
     return()=>clearTimeout(id);
   },[playing,step,last,speed]);
   const jump=(n:number)=>{setPlaying(false);setStep(Math.max(0,Math.min(steps.length-1,n)))};
-  return <section className="lab server-lab" aria-label={title}>
+  return <section className="lab server-lab" aria-label={title} data-hydrated={hydrated?'true':'false'}>
     <div className="lab-head"><h3>{title}</h3><span className="lab-label">{label}</span></div>
     <div className="lab-controls">
       <label>Speed<select value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
@@ -205,7 +206,7 @@ const poolSteps:Step[]=[
 export function ConnectionPoolingLab(){
  return <LabFrame title="Connection pooling: borrow, query, return, reuse" label="SERVER LAB / 08" steps={poolSteps} alt="Five requests sharing four numbered database connections" renderScene={(s,m)=><>
    <Box x={20} y={105} w={150} h={135} title="HTTP Requests" lines={['A  B  C  D  E',s===4?'E waiting':'arriving'] } active={s===0||s===4}/><Box x={240} y={65} w={260} h={210} title="Connection Pool" lines={['4 warm DB connections','[#1] [#2] [#3] [#4]',s===2?'A → #1 → return':s===3?'B → reuse #1':s===4?'all 4 busy':'bounded slots']} active={s>=1} accent/><Box x={585} y={105} w={145} h={135} title="Database" lines={['max 100',s===0?'new sessions':'active: 4']} active={s===0||s===1}/>
-   {s===0?<Flow d="M170 170 L585 170" label="TCP + TLS + auth" x={377} y={154} active motion={m}/>:<><Flow d="M170 170 L240 170" label={s===4?'E waits':'borrow'} x={205} y={155} active={s>=2} motion={m}/><Flow d="M500 170 L585 170" label={s===4?'4 open':'query'} x={542} y={155} active={s>=1} motion={m}/></>}
+   {s===0?<Flow d="M170 145 L360 42 L585 145" label="TCP + TLS + auth" x={378} y={56} active motion={m}/>:<><Flow d="M170 170 L240 170" label={s===4?'E waits':'borrow'} x={205} y={155} active={s>=2} motion={m}/><Flow d="M500 170 L585 170" label={s===4?'4 open':'query'} x={542} y={155} active={s>=1} motion={m}/></>}
    {s===2&&<Pill x={370} y={315} text="A returns #1"/>}{s===3&&<Pill x={370} y={315} text="B reuses #1"/>}{s===4&&<Pill x={370} y={315} text="POOL FULL · E waits" bad/>}</>}/>;
 }
 
@@ -233,6 +234,6 @@ const affinitySteps:Step[]=[
 export function SessionAffinityLab(){
  return <LabFrame title="Session affinity: routing locality versus durable state" label="SERVER LAB / 10" steps={affinitySteps} alt="User affinity cookie routing to App 1 and later recovering session state on App 2" renderScene={(s,m)=><>
    <Box x={20} y={115} w={150} h={125} title="User A" lines={['GET /cart',s>=1?'cookie: route=app1':'cookie: —']} active={s===0||s===1}/><Box x={225} y={105} w={165} h={145} title="Load Balancer" lines={['affinity cookie',s===4?'fallback → App2':'route=app1']} active={s===0||s===4} accent/><Box x={475} y={40} w={210} h={105} title="App 1" lines={[s>=3?'DOWN':'session A: cart=3',s===2?'load 90%':'local state']} danger={s>=3} active={s===1||s===2}/><Box x={475} y={215} w={210} h={105} title="App 2" lines={[s===4?'cart=3 via Shared Store':'no local session A',s===2?'load 30%':'healthy']} active={s===4}/>{s===4&&<Box x={225} y={285} w={165} h={70} title="Shared Session Store" lines={['A → cart=3']} active/>}
-   <Flow d="M170 177 L225 177 L475 92" label={s===0?'first request':'sticky'} x={335} y={112} active={s<=3} bad={s===3} motion={m}/>{s===4&&<><Flow d="M170 195 L225 195 L475 267" label="route App2" x={335} y={260} active motion={m}/><Flow d="M475 290 L390 320" label="read A" x={430} y={330} active motion={m}/></>}
+   <Flow d="M170 177 L225 177 L390 177 L475 92" label={s===0?'first request':'sticky'} x={365} y={164} active={s<=3} bad={s===3} motion={m}/>{s===4&&<><Flow d="M170 195 L225 195 L475 267" label="route App2" x={335} y={260} active motion={m}/><Flow d="M475 290 L390 320" label="read A" x={430} y={330} active motion={m}/></>}
    {s===0&&<Pill x={307} y={290} text="Set-Cookie: route=app1"/>}{s===1&&<Pill x={580} y={180} text="cart=3 found"/>}{s===2&&<Pill x={580} y={180} text="LOAD SKEW" bad/>}{s===3&&<Pill x={307} y={290} text="session unavailable" bad/>}</>}/>;
 }
