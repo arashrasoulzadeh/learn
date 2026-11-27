@@ -307,7 +307,10 @@ for(const [category,slug,key,first,second] of fixtures){
   await player.getByRole('button',{name:'توقف آزمایش',exact:true}).click();
   await assertTraceGeometry(player.locator('.deep-event-row[data-revealed=true]').first());
   await page.screenshot({path:'test-results/deep/'+slug+'-mobile.png',animations:'disabled'});
-  await dialog.getByRole('button',{name:'بستن پنجره',exact:true}).click();
+  const close=dialog.getByRole('button',{name:'بستن پنجره',exact:true});
+  await expect(close).toBeInViewport({ratio:1});
+  await expect.poll(()=>close.evaluate(el=>{const r=el.getBoundingClientRect();const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return hit===el||el.contains(hit);})).toBe(true);
+  await close.click();
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
   expect(errors).toEqual([]);

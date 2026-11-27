@@ -30,6 +30,7 @@ for(let i=0;i<slugs.length;i++){
   const actors=scenario.actors??l.actors,edges=scenario.edges??l.edges;
   assert.ok(actors.length>=2&&actors.length<=5);
   assert.ok(edges.every(([a,b])=>Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b>=0&&a<actors.length&&b<actors.length));
+  assert.ok(scenario.steps[0].explanation.startsWith('وضعیت پس از این گام:'),slug+' initial step must describe the post-step snapshot');
   for(const s of scenario.steps){
    steps++;assert.ok(s.name&&s.short&&s.detail&&s.explanation&&s.result&&s.packet&&s.input&&s.output,slug+' missing explanation');
    assert.ok(s.diagnostic&&s.flightLabels?.length===Math.max(1,s.route.length-1)*(s.roundTrip?2:1)&&s.flightLabels.every(v=>v.length>0),slug+' missing per-hop messages and diagnostics');

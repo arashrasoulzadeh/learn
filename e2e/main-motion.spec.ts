@@ -42,6 +42,9 @@ test('packet drop differs from a rejected application response and supports redu
  await lab.getByLabel('سناریو').selectOption('loss');
  await lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button').nth(1).click();
  await expect(lab.locator('[data-packet-drop=true]')).toHaveCount(1);
+ const droppedFlight=lab.locator('.flow-diagram [data-flight]').filter({has:page.locator('[data-packet-drop=true]')});
+ await expect(droppedFlight).toHaveCount(1);
+ await expect(droppedFlight.locator('[data-flow-arrow]')).toHaveCount(0);
  await expect(lab.locator('.flight-chip[data-drop=true]')).toHaveCount(1);
  await expect(lab.locator('[data-main-motion=true]')).toHaveAttribute('data-motion-status','complete');
  await page.goto('/learn/concepts/networking/http-status-codes/',{waitUntil:'domcontentloaded'});

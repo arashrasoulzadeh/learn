@@ -318,7 +318,7 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .deep-launch-button>span{font-size:19px;line-height:1}
 .deep-dialog{width:min(1120px,calc(100vw - 28px));max-height:92dvh}
 .deep-inner{padding:18px 22px;display:grid;gap:14px}
-.deep-inner>header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px}
+.deep-inner>header{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-block:8px 10px;background:var(--panel)}
 .deep-player{display:grid;gap:12px;min-width:0}
 .deep-kicker{font-size:11px;color:var(--accent);margin:0;font-weight:600}
 .deep-intro h3{margin:0 0 6px;font-size:21px}.deep-intro p{margin:0;font-size:15px;line-height:1.9}.deep-intro small{display:block;color:var(--muted);font-size:12px;line-height:1.8;margin-top:6px}
