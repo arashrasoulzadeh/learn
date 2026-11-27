@@ -103,7 +103,7 @@ test('level-one picker lists all ten lessons in order and navigates to DNS',asyn
   await page.goto('/learn/',{waitUntil:'domcontentloaded'});
   await page.locator('#lesson-picker summary').click();
   const links=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'}).getByRole('link');
-  await expect(links).toHaveCount(10);
+  await expect(links).toHaveCount(20);
   const slugs=['http-request',...curriculum.map(l=>l.slug)];
   for(let i=0;i<slugs.length;i++)await expect(links.nth(i)).toHaveAttribute('href','/learn/concepts/networking/'+slugs[i]+'/');
   await links.nth(1).click();
@@ -160,7 +160,7 @@ for(const lesson of curriculum){
     await expect(practice.locator('.practice-feedback p').first()).not.toBeEmpty();
     const index=curriculum.findIndex(item=>item.slug===lesson.slug);
     if(index<curriculum.length-1)await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/networking/'+curriculum[index+1].slug+'/');
-    else await expect(practice.locator('.practice-feedback')).toContainText('آخرین درس سطح اول');
+    else await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/software-engineering/process-thread/');
     await lab.getByRole('button',{name:'از ابتدا',exact:true}).click();
     await expect(practice).toHaveCount(0);
   });

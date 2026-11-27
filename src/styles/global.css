@@ -265,3 +265,8 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .request-detail .stage-route,.request-detail .stage-explanation,.request-detail .stage-result,.request-detail .stage-next{margin-top:10px;padding-top:10px}
 @media(min-width:1000px) and (min-height:740px){.request-detail{scroll-behavior:auto}.lesson-goal{padding:8px 11px}.lesson-goal p{font-size:12px;margin:2px 0 0}.request-detail .request-stage{padding:15px}.request-stage h2{font-size:21px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
+
+/* Backend state cards retain the same reading order as level one. */
+.backend-lab .state-value{font-size:12px}
+.backend-lab .request-message pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.backend-lab .protocol-state .state-cell{min-height:56px}

@@ -9,7 +9,7 @@ assert.equal(Object.keys(fieldExercises).length,slugs.length,'Hands-on exercises
 for(let i=0;i<slugs.length;i++){
   const exercise=fieldExercises[slugs[i]];
   assert.ok(exercise?.task&&exercise.observe&&exercise.limit,slugs[i]+' missing real-world observation');
-  assert.equal(exercise.next?.slug,slugs[i+1],slugs[i]+' broken lesson progression');
+  assert.equal(exercise.next?.slug,slugs[i+1]??'process-thread',slugs[i]+' broken lesson progression');
 }
 let scenarios=0,steps=0;
 for(let i=0;i<slugs.length;i++){

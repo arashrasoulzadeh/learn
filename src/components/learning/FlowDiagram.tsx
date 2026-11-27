@@ -9,6 +9,10 @@ function NodeIcon({icon}:{icon:string}){
   if(icon==='router')return <g {...common}><rect x="-15" y="-8" width="30" height="16" rx="4"/><path d="M-9 -8v-6 M9 -8v-6 M-9 0h2 M-3 0h2 M3 0h7"/></g>;
   if(icon==='cache')return <g {...common}><rect x="-13" y="-13" width="26" height="26" rx="4"/><path d="m2 -10-9 12h7l-2 8 9-12H0z"/></g>;
   if(icon==='shield')return <g {...common}><path d="M0 -15 13 -10v10c0 8-7 12-13 16-6-4-13-8-13-16v-10zM-6 0l4 4 8-9"/></g>;
+  if(icon==='cpu')return <g {...common}><rect x="-10" y="-10" width="20" height="20" rx="3"/><rect x="-5" y="-5" width="10" height="10" rx="1"/><path d="M-6 -15v5 M0 -15v5 M6 -15v5 M-6 10v5 M0 10v5 M6 10v5 M-15 -6h5 M-15 0h5 M-15 6h5 M10 -6h5 M10 0h5 M10 6h5"/></g>;
+  if(icon==='queue')return <g {...common}><rect x="-15" y="-11" width="30" height="22" rx="3"/><path d="M-5 -11v22 M5 -11v22 M-12 0h4 M-2 0h4 M8 0h4"/></g>;
+  if(icon==='memory')return <g {...common}><rect x="-15" y="-12" width="30" height="24" rx="3"/><path d="M-15 -4h30 M-15 4h30 M-5 -12v24 M5 -12v24"/></g>;
+  if(icon==='key')return <g {...common}><circle cx="-6" cy="-4" r="7"/><path d="m-1 1 13 13 M7 9l4-4 M10 12l4-4"/></g>;
   if(icon==='app')return <g {...common}><rect x="-14" y="-13" width="28" height="11" rx="2"/><rect x="-14" y="2" width="28" height="11" rx="2"/><path d="M-8 -7 h2 M-8 7 h2 M1 -7 h7 M1 7 h7"/></g>;
   return <g {...common}><ellipse cy="-9" rx="13" ry="5"/><path d="M-13 -9 V9 C-13 16 13 16 13 9 V-9 M-13 0 C-13 7 13 7 13 0"/></g>;
 }
