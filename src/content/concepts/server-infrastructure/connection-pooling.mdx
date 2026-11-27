@@ -1,0 +1,79 @@
+---
+title: "Connection Pooling"
+description: "Follow numbered database connections as requests borrow, return and reuse them, then see why a full pool should apply backpressure."
+category: server-infrastructure
+difficulty: intermediate
+estimatedMinutes: 16
+order: 8
+tags: [connection-pool, database, capacity, backpressure, postgres]
+---
+import { ConnectionPoolingLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+Opening a database connection can involve TCP setup, TLS, authentication and server-side session allocation. Doing that for every HTTP request adds latency and can create a connection storm.
+
+A pool keeps a bounded number of usable connections and lends them to application work.
+
+## Mental model
+
+The lifecycle is explicit:
+
+```text
+borrow → query → return → reuse
+```
+
+A pool of four connections has four slots. When all four are in use, the next request has three honest choices: wait, time out, or fail according to policy. Silently opening unbounded extra sessions defeats the capacity guard.
+
+<Callout title="A pool is also admission control">
+  Reuse improves latency, but the bound is just as important. The pool protects the database from the application's full request concurrency.
+</Callout>
+
+## Interactive lab
+
+Requests A–E share four numbered connections. Watch slot #1 get reused, then watch E wait when every slot is busy.
+
+<ConnectionPoolingLab client:visible />
+
+## Practical example
+
+Suppose PostgreSQL can safely dedicate 200 sessions to an application fleet. If there are 20 App instances and each has a local pool size of 20, the theoretical maximum is 400 connections—already twice the intended budget.
+
+A simple budgeting starting point is:
+
+```text
+per-instance pool budget
+≈ database connection budget / maximum App instance count
+```
+
+Real sizing also accounts for reserved admin connections, other applications, transaction duration, query concurrency and queueing targets.
+
+Connection pools can be in-process or external. Transaction pooling has different session-state semantics from session pooling; do not assume prepared statements, temp tables or session variables behave identically across pooling modes.
+
+## Failure modes and trade-offs
+
+- **Pool too large:** database memory and scheduler overhead grow; the fleet can create a connection storm.
+- **Pool too small:** requests wait even though the database could safely handle more work.
+- **Long transactions:** connections stay checked out and starve other requests.
+- **Leaked checkouts:** a connection never returns to the available set.
+- **No checkout timeout:** requests can wait indefinitely under saturation.
+
+Measure in-use connections, pool wait time, checkout timeout rate and database active sessions.
+
+## Check your understanding
+
+<Quiz client:visible question="A pool has four connections and all four are busy. What should request E do in a bounded design?" options={['Wait or time out according to policy','Always open connection #5','Restart the database','Change the SQL table name']} correct={0} explanation="A bounded pool applies backpressure instead of silently exceeding its connection budget." />
+
+<Quiz client:visible question="Twenty App instances each allow 20 database connections. What is the fleet-level theoretical maximum?" options={['20','40','200','400']} correct={3} explanation="Pool size is local, but database pressure is fleet-wide: 20 × 20 = 400." />
+
+## Takeaway
+
+Connection pooling is not a magical “reuse” box. Track real slots: **borrow → use → return → reuse**. Size the pool from the database's fleet-wide connection budget and make waiting visible.
+
+## References
+
+- [PostgreSQL: Resource Consumption / Connections](https://www.postgresql.org/docs/current/runtime-config-connection.html)
+- [PgBouncer: Features](https://www.pgbouncer.org/features.html)
+- [PgBouncer: Configuration](https://www.pgbouncer.org/config.html)
