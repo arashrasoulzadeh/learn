@@ -247,3 +247,21 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .lesson-glossary dd{margin:5px 0 0;font-size:13px;line-height:1.8;color:var(--muted)}
 .request-detail .request-stage p{font-size:14px;line-height:1.95}
 @media(max-width:600px){.flow-legend{font-size:9.5px;gap:4px 10px}.lesson-goal,.practice-check{padding:12px}}
+
+/* Final readability audit: state is part of the current explanation, not hidden below it. */
+.request-stage>.protocol-state{margin:12px 0 0;padding:10px 11px;background:var(--bg);border-radius:11px;box-shadow:none}
+.request-stage>.protocol-state>header{margin-bottom:7px;line-height:1.55}
+.request-stage>.protocol-state .state-cell{padding:7px;background:var(--panel);gap:4px}
+.request-detail .request-stage>.protocol-state>p{font-size:11.5px;line-height:1.75;margin-top:8px}
+.request-stage>.protocol-state .state-value{font-size:11.5px}
+.state-snapshot{font-size:10px;font-weight:400;color:var(--muted)}
+.flow-legend .legend-error{border-color:var(--danger)}
+.practice-jump,.practice-next{display:inline-flex;font-size:13px;font-weight:600;line-height:1.7;color:var(--accent);padding-block:4px}
+.practice-next{margin-top:5px}
+.practice-check:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.field-exercise pre{font:12px/1.7 ui-monospace,monospace;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.field-exercise strong{color:var(--ink);font-size:13px}
+.field-exercise small{display:block;color:var(--muted);font-size:12px;line-height:1.8}
+.request-detail .stage-route,.request-detail .stage-explanation,.request-detail .stage-result,.request-detail .stage-next{margin-top:10px;padding-top:10px}
+@media(min-width:1000px) and (min-height:740px){.request-detail{scroll-behavior:auto}.lesson-goal{padding:8px 11px}.lesson-goal p{font-size:12px;margin:2px 0 0}.request-detail .request-stage{padding:15px}.request-stage h2{font-size:21px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}

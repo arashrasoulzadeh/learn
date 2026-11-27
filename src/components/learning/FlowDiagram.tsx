@@ -22,9 +22,10 @@ function centerTrack(route:readonly FlowNode[]){return route.map((p,i)=>(i?'L ':
 function laneSegment(a:FlowNode,b:FlowNode,offset=0){
   const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,nx=-uy,ny=ux;
   // Intersect the actual node rectangle (plus a small gap), rather than drawing through its text.
-  const extent=Math.min(Math.abs(ux)>1e-6?63/Math.abs(ux):Infinity,Math.abs(uy)>1e-6?46/Math.abs(uy):Infinity,len*.45);
-  const from={x:a.x+ux*extent+nx*offset,y:a.y+uy*extent+ny*offset};
-  const to={x:b.x-ux*extent+nx*offset,y:b.y-uy*extent+ny*offset};
+  const sx=nx*offset,sy=ny*offset;
+  const exit=(sign:number)=>Math.min(Math.abs(ux)>1e-6?(63-sign*Math.sign(ux)*sx)/Math.abs(ux):Infinity,Math.abs(uy)>1e-6?(46-sign*Math.sign(uy)*sy)/Math.abs(uy):Infinity,len*.45);
+  const from={x:a.x+ux*exit(1)+sx,y:a.y+uy*exit(1)+sy};
+  const to={x:b.x-ux*exit(-1)+sx,y:b.y-uy*exit(-1)+sy};
   return {from,to,angle:Math.atan2(dy,dx)*180/Math.PI,mid:{x:(from.x+to.x)/2,y:(from.y+to.y)/2}};
 }
 function lane(route:readonly FlowNode[],offset:number){return route.slice(1).map((b,i)=>laneSegment(route[i],b,offset));}
@@ -32,7 +33,7 @@ function motionTrack(segments:ReturnType<typeof lane>){
   return segments.map(s=>'M '+point(s.from)+' L '+point(s.to)).join(' ');
 }
 export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,packetLabel,finalRoute}:{route:readonly FlowNode[];playing:boolean;speed:number;accent:string;animationKey:string;returnRoute?:readonly FlowNode[];packetLabel?:string;finalRoute?:readonly FlowNode[]}){
-  if(route.length<2)return null;
+  if(route.length<2)return route.length===1?<g data-local-step="true" transform={'translate('+route[0].x+' '+(route[0].y+54)+')'}><rect x="-37" y="-10" width="74" height="20" rx="6" fill="var(--bg)" stroke={accent}/><text textAnchor="middle" y="4" fill={accent} fontSize="10" direction="rtl">عملیات محلی</text></g>:null;
   const forward=lane(route,returnRoute?.length?6:0);
   const backward=returnRoute?.length?lane(returnRoute,6):[];
   const final=finalRoute?.length?lane(finalRoute,6):[];

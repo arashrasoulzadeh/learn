@@ -18,7 +18,7 @@ function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
 }
 export default function ProtocolState({kind,title,labels,values,context,step,tone}:Props){
   return <section className="protocol-state" data-protocol={kind} aria-label={title} data-tone={tone??'neutral'}>
-    <header><span>{title}</span><span className="state-step">مرحلهٔ {faNumber(step+1)}</span></header>
+    <header><span>{title} <small className="state-snapshot">پس از مرحله</small></span><span className="state-step">مرحلهٔ {faNumber(step+1)}</span></header>
     <div className="state-cells">{labels.map((label,i)=><div className="state-cell" key={label}><span className="state-label">{label}</span><StateValue kind={kind} index={i} value={values[i]??'—'}/></div>)}</div>
     <p>{context}</p>
   </section>;
