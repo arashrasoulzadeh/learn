@@ -2,7 +2,7 @@
 
 - Keep Astro static output compatible with GitHub Pages; no server or database required.
 - Add concepts in src/content/concepts/<category>/<slug>.mdx, category metadata in src/content/categories. Do not hardcode lesson routes or navigation.
-- Default lesson language: English. Keep prose approachable and technical claims accurate. Distinguish protocol guarantees from common implementation choices.
+- Default lesson and interface language: Persian (fa-IR). Use RTL layouts and Persian digits for UI labels. Keep standard protocol messages, identifiers and code in English and explicitly LTR. Keep prose approachable and technical claims accurate. Distinguish protocol guarantees from common implementation choices.
 - Every lesson must contain a motivation, mental model, visual explanation or interactive demo, practical example, pitfalls, knowledge check, takeaway and authoritative references.
 - Use accessible controls, labels, keyboard navigation, reduced-motion support and text alternatives. Keep browser storage optional. Avoid collecting user data.
 - Use local reusable components; keep third-party dependencies minimal. Do not embed unlicensed images or large binaries.

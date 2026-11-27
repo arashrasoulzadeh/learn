@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
 
 const stages = [
-  {name:'Prepare the request',short:'Browser',from:0,to:0,label:'URL → request intent',detail:'The browser parses the URL, chooses a method and checks its cache. This simulation assumes a cache miss and a new connection.'},
-  {name:'Resolve the hostname',short:'DNS',from:0,to:1,label:'DNS lookup → IP address',detail:'A DNS resolver looks up the IP address for the hostname and returns it. The URL path is not part of DNS. Cached answers may avoid a new lookup.'},
-  {name:'Open a TCP connection',short:'TCP',from:0,to:2,label:'SYN → SYN-ACK → ACK',detail:'The client and server perform the three-way handshake to establish a reliable byte stream.'},
-  {name:'Secure the connection',short:'TLS',from:0,to:2,label:'TLS handshake',detail:'The client verifies the server certificate and negotiates encryption keys. HTTPS protects HTTP messages in transit.'},
-  {name:'Send the HTTP request',short:'Request',from:0,to:2,label:'Encrypted HTTP request',detail:'The request contains a method, path, headers and sometimes a body. The edge proxy receives the request.'},
-  {name:'Run application logic',short:'Application',from:2,to:3,label:'Proxy → route → handler',detail:'The proxy forwards the request to the application, which matches a route, checks access, validates input and runs business logic.'},
-  {name:'Access the data',short:'Database',from:3,to:4,label:'Read / write → result',detail:'The application queries a database or cache if needed. Some requests do not need data access.'},
-  {name:'Return the HTTP response',short:'Response',from:3,to:0,label:'Status + headers + body',detail:'The application returns its result through the proxy to the browser. The status code describes the outcome.'},
-  {name:'Update the browser',short:'Render',from:0,to:0,label:'Parse → update UI',detail:'The browser or JavaScript client parses the response, updates the interface and may cache eligible responses.'}
+  {name:'آماده‌سازی درخواست',short:'مرورگر',from:0,to:0,label:'تجزیهٔ آدرس و تعیین نوع درخواست',detail:'مرورگر آدرس را تجزیه می‌کند، متد درخواست را انتخاب می‌کند و حافظهٔ نهان خود را بررسی می‌کند. در این شبیه‌سازی فرض می‌کنیم داده در حافظهٔ نهان نیست و اتصال جدیدی لازم است.'},
+  {name:'یافتن نشانی IP دامنه',short:'DNS',from:0,to:1,label:'یافتن نشانی IP با DNS',detail:'حل‌کنندهٔ DNS نشانی IP نام میزبان را پیدا می‌کند و برمی‌گرداند. مسیر URL بخشی از DNS نیست. اگر پاسخ قبلاً ذخیره شده باشد، ممکن است نیازی به جست‌وجوی مجدد نباشد.'},
+  {name:'برقراری اتصال TCP',short:'TCP',from:0,to:2,label:'SYN → SYN-ACK → ACK',detail:'کلاینت و سرور با دست‌دهی سه‌مرحله‌ای، یک جریان بایت قابل‌اعتماد برقرار می‌کنند.'},
+  {name:'امن‌سازی اتصال',short:'TLS',from:0,to:2,label:'دست‌دهی TLS',detail:'کلاینت گواهی سرور را اعتبارسنجی می‌کند و کلیدهای رمزنگاری را با سرور توافق می‌کند. HTTPS از پیام‌های HTTP هنگام انتقال محافظت می‌کند.'},
+  {name:'ارسال درخواست HTTP',short:'درخواست',from:0,to:2,label:'درخواست رمزنگاری‌شدهٔ HTTP',detail:'درخواست شامل متد، مسیر، سرآیندها و گاهی بدنه است. پراکسی مرزی درخواست را دریافت می‌کند.'},
+  {name:'اجرای منطق برنامه',short:'برنامه',from:2,to:3,label:'پراکسی، مسیریابی و پردازش',detail:'پراکسی درخواست را به برنامه می‌فرستد. برنامه مسیر مناسب را پیدا می‌کند، دسترسی و ورودی را اعتبارسنجی می‌کند و منطق کسب‌وکار را اجرا می‌کند.'},
+  {name:'دسترسی به داده‌ها',short:'پایگاه داده',from:3,to:4,label:'خواندن یا نوشتن داده و دریافت نتیجه',detail:'برنامه در صورت نیاز از پایگاه داده یا حافظهٔ نهان داده می‌گیرد. بعضی درخواست‌ها اصلاً به دسترسی به داده نیاز ندارند.'},
+  {name:'بازگرداندن پاسخ HTTP',short:'پاسخ',from:3,to:0,label:'کد وضعیت، سرآیندها و بدنه',detail:'برنامه نتیجه را از طریق پراکسی به مرورگر برمی‌گرداند. کد وضعیت نشان می‌دهد درخواست چه نتیجه‌ای داشته است.'},
+  {name:'به‌روزرسانی مرورگر',short:'نمایش',from:0,to:0,label:'تجزیهٔ پاسخ و به‌روزرسانی رابط',detail:'مرورگر یا کلاینت جاوااسکریپت پاسخ را تجزیه می‌کند، رابط کاربری را به‌روز می‌کند و در صورت مجاز بودن، پاسخ را در حافظهٔ نهان ذخیره می‌کند.'}
 ];
 const nodes = [
-  {x:90,y:220,label:'Browser',sub:'Client',icon:'browser'},
-  {x:290,y:78,label:'DNS resolver',sub:'Name → IP',icon:'dns'},
-  {x:290,y:220,label:'Edge / proxy',sub:'Connection',icon:'proxy'},
-  {x:495,y:220,label:'Application',sub:'Business logic',icon:'app'},
-  {x:700,y:220,label:'Database',sub:'Storage',icon:'db'}
+  {x:90,y:220,label:'مرورگر',sub:'کلاینت',icon:'browser'},
+  {x:290,y:78,label:'حل‌کنندهٔ DNS',sub:'تبدیل نام به IP',icon:'dns'},
+  {x:290,y:220,label:'پراکسی مرزی',sub:'اتصال',icon:'proxy'},
+  {x:495,y:220,label:'سرور برنامه',sub:'منطق کسب‌وکار',icon:'app'},
+  {x:700,y:220,label:'پایگاه داده',sub:'ذخیره‌سازی',icon:'db'}
 ];
 const scenarios = {
   get:{method:'GET',path:'/api/products/42',status:'200 OK',body:'{"id":42,"name":"Keyboard"}'},
@@ -25,6 +25,7 @@ const scenarios = {
   error:{method:'GET',path:'/api/products/42',status:'500 Internal Server Error',body:'{"error":"Unexpected server error"}'}
 };
 type Scenario = keyof typeof scenarios;
+const faNumber=(n:number)=>new Intl.NumberFormat('fa-IR',{useGrouping:false}).format(n);
 function NodeIcon({icon}:{icon:string}){
   const common={fill:'none',stroke:'currentColor',strokeWidth:1.7,strokeLinecap:'round' as const,strokeLinejoin:'round' as const};
   if(icon==='browser')return <g {...common}><rect x="-15" y="-11" width="30" height="22" rx="3"/><path d="M-15 -4 H15 M-10 -7 h1 M-6 -7 h1 M-2 -7 h1"/></g>;
@@ -49,35 +50,35 @@ export default function RequestLab(){
   const requestBody=s.method==='POST'?'{"name":"Mouse"}':'';
   const request=s.method+' '+s.path+' HTTP/1.1\nHost: shop.example\nAccept: application/json'+(requestBody?'\nContent-Type: application/json\nContent-Length: '+requestBody.length+'\n\n'+requestBody:'\n');
   const response='HTTP/1.1 '+s.status+'\nContent-Type: application/json\nContent-Length: '+s.body.length+'\nCache-Control: no-store\n\n'+s.body;
-  return <section className="request-experience" aria-label="Interactive HTTP request lesson">
+  return <section className="request-experience" aria-label="آموزش تعاملی درخواست HTTP">
     <div className="request-toolbar">
       <div className="lab-controls">
-        <label>Scenario<select value={scenario} onChange={e=>{setScenario(e.target.value as Scenario);jump(0);}}><option value="get">GET · 200 OK</option><option value="post">POST · 201 Created</option><option value="missing">GET · 404 Not Found</option><option value="error">GET · 500 Server Error</option></select></label>
-        <label>Speed<select value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
-        <button className="primary" type="button" onClick={()=>{if(playing)setPlaying(false);else{if(last)setStep(0);setPlaying(true);}}}>{playing?'❚❚ Pause':last?'↻ Replay':'▶ Play'}</button>
-        <button className="secondary" type="button" aria-label="Previous step" onClick={()=>jump(step-1)} disabled={step===0}>←</button>
-        <button className="secondary" type="button" aria-label="Next step" onClick={()=>jump(step+1)} disabled={last}>→</button>
-        <button className="secondary" type="button" onClick={()=>jump(0)}>Reset</button>
+        <label>سناریو<select value={scenario} onChange={e=>{setScenario(e.target.value as Scenario);jump(0);}}><option value="get">دریافت موفق · GET ۲۰۰</option><option value="post">ایجاد موفق · POST ۲۰۱</option><option value="missing">یافت نشد · GET ۴۰۴</option><option value="error">خطای سرور · GET ۵۰۰</option></select></label>
+        <label>سرعت<select value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value={0.5}>۰٫۵ برابر</option><option value={1}>۱ برابر</option><option value={2}>۲ برابر</option></select></label>
+        <button className="primary" type="button" onClick={()=>{if(playing)setPlaying(false);else{if(last)setStep(0);setPlaying(true);}}}>{playing?'❚❚ توقف':last?'↻ پخش مجدد':'▶ پخش'}</button>
+        <button className="secondary" type="button" aria-label="مرحلهٔ قبل" onClick={()=>jump(step-1)} disabled={step===0}>→</button>
+        <button className="secondary" type="button" aria-label="مرحلهٔ بعد" onClick={()=>jump(step+1)} disabled={last}>←</button>
+        <button className="secondary" type="button" onClick={()=>jump(0)}>از ابتدا</button>
       </div>
-      <span className="request-counter">STEP {String(step+1).padStart(2,'0')} / {String(stages.length).padStart(2,'0')}</span>
+      <span className="request-counter">مرحلهٔ {faNumber(step+1)} از {faNumber(stages.length)}</span>
     </div>
     <div className="request-canvas">
-      <svg viewBox="0 0 790 355" role="img" aria-label={stage.name}>
+      <svg viewBox="0 0 790 355" direction="ltr" role="img" aria-label={stage.name}>
         <defs><pattern id="request-grid" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="var(--line)"/></pattern><marker id="request-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto-start-reverse"><path d="M0 0 L6 3 L0 6Z" fill={accent}/></marker></defs>
         <rect width="790" height="355" fill="url(#request-grid)" opacity=".8"/>
         {[[0,1],[0,2],[2,3],[3,4]].map(([a,b])=><line key={a+'-'+b} x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y} stroke="var(--line)" strokeWidth="2" strokeDasharray="5 6"/>)}
         {stage.from!==stage.to&&<g><path d={track} fill="none" stroke={accent} strokeWidth="3" opacity=".8"/>{playing&&<circle className="request-packet-motion" r="6" fill={accent}><animateMotion key={step+'-'+scenario+'-'+speed} dur={(1.8/speed)+'s'} path={track} repeatCount="indefinite"/></circle>}<circle className={playing?'request-packet-static':undefined} cx={(from.x+to.x)/2} cy={(from.y+to.y)/2} r="5" fill={accent}/></g>}
-        {nodes.map((n,i)=>{const active=activeNodes.includes(i);return <g key={n.label} transform={'translate('+n.x+' '+n.y+')'} style={{color:active?accent:'var(--muted)'}}><rect x="-59" y="-42" width="118" height="84" rx="13" fill="var(--bg)" stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -10)"><NodeIcon icon={n.icon}/></g><text y="23" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="12" fontWeight="600">{n.label}</text><text y="62" textAnchor="middle" fill="var(--muted)" fontSize="11">{n.sub}</text></g>})}
+        {nodes.map((n,i)=>{const active=activeNodes.includes(i);return <g key={n.label} transform={'translate('+n.x+' '+n.y+')'} style={{color:active?accent:'var(--muted)'}}><rect x="-59" y="-42" width="118" height="84" rx="13" fill="var(--bg)" stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -10)"><NodeIcon icon={n.icon}/></g><text y="23" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="12" direction="rtl" fontWeight="600">{n.label}</text><text y="62" textAnchor="middle" fill="var(--muted)" fontSize="11" direction="rtl">{n.sub}</text></g>})}
         <rect x="190" y="301" width="410" height="38" rx="9" fill="var(--bg)" stroke="var(--line)"/>
-        <text x="395" y="325" fill={accent} textAnchor="middle" fontSize="14" fontWeight="600">{stage.label}</text>
+        <text x="395" y="325" fill={accent} textAnchor="middle" fontSize="14" direction={step===2?'ltr':'rtl'} fontWeight="600">{stage.label}</text>
       </svg>
     </div>
     <div className="request-detail">
-      <section className="request-stage" aria-live="polite"><span className="lab-label">{stage.short.toUpperCase()}</span><h2>{stage.name}</h2><p>{step===6&&scenario==='error'?'A database operation fails unexpectedly. The application maps the failure to a generic 500 response.':step===8&&scenario==='missing'?'The client receives a valid HTTP response, but the requested product was not found. The interface can display a not-found state.':stage.detail}</p></section>
-      <section className={'request-message'+(step<4?' waiting':'')}><p className="eyebrow">REQUEST</p><pre>{step>=4?request:'Waiting to send…'}</pre></section>
-      <section className={'request-message'+(step<7?' waiting':'')}><p className="eyebrow">RESPONSE</p><pre>{step>=7?response:'Waiting for response…'}</pre></section>
-      <p className="request-note">Illustrative fresh HTTPS connection over TCP (HTTP/1.1). Connections may be reused; HTTP/3 uses QUIC. No real network requests are made.</p>
+      <section className="request-stage" aria-live="polite"><span className="lab-label">{stage.short.toUpperCase()}</span><h2>{stage.name}</h2><p>{step===6&&scenario==='error'?'عملیات پایگاه داده به‌طور غیرمنتظره شکست می‌خورد. برنامه خطا را به پاسخ عمومی ۵۰۰ تبدیل می‌کند.':step===8&&scenario==='missing'?'کلاینت یک پاسخ معتبر HTTP دریافت می‌کند، اما محصول موردنظر پیدا نشده است. رابط کاربری می‌تواند پیام «یافت نشد» را نمایش دهد.':stage.detail}</p></section>
+      <section className={'request-message'+(step<4?' waiting':'')}><p className="eyebrow">درخواست</p><pre dir={step>=4?'ltr':'rtl'}>{step>=4?request:'در انتظار ارسال…'}</pre></section>
+      <section className={'request-message'+(step<7?' waiting':'')}><p className="eyebrow">پاسخ</p><pre dir={step>=7?'ltr':'rtl'}>{step>=7?response:'در انتظار پاسخ…'}</pre></section>
+      <p className="request-note">این شبیه‌سازی یک اتصال جدید HTTPS بر بستر TCP را با HTTP/1.1 نشان می‌دهد. اتصال‌ها می‌توانند دوباره استفاده شوند و HTTP/3 از QUIC استفاده می‌کند. هیچ درخواست واقعی به شبکه ارسال نمی‌شود.</p>
     </div>
-    <nav className="request-timeline" aria-label="Request stages">{stages.map((s,i)=><button type="button" className="request-step" key={s.name} aria-current={step===i?'step':undefined} data-done={i<step} aria-label={s.name} onClick={()=>jump(i)}><span>{String(i+1).padStart(2,'0')}</span><strong>{s.short}</strong></button>)}</nav>
+    <nav className="request-timeline" aria-label="مراحل درخواست">{stages.map((s,i)=><button type="button" className="request-step" key={s.name} aria-current={step===i?'step':undefined} data-done={i<step} aria-label={s.name} onClick={()=>jump(i)}><span>{faNumber(i+1)}</span><strong>{s.short}</strong></button>)}</nav>
   </section>;
 }
