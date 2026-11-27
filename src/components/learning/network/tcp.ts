@@ -50,7 +50,12 @@ const lesson = {
           "input": "SYN seq=100",
           "output": "Server receives SYN",
           "result": "مرحلهٔ اول دست‌دهی.",
-          "explanation": "کلاینت با SYN و seq=100 می‌گوید می‌خواهد اتصال بسازد. هنوز دادهٔ کاربردی ارسال نشده است."
+          "explanation": "کلاینت با SYN و seq=100 می‌گوید می‌خواهد اتصال بسازد. هنوز دادهٔ کاربردی ارسال نشده است.",
+          "state": [
+            "SYN seq=100",
+            "101",
+            "SYN-SENT"
+          ]
         },
         {
           "name": "تأیید و همگام‌سازی",
@@ -65,7 +70,12 @@ const lesson = {
           "input": "SYN, ACK seq=500 ack=101",
           "output": "Client receives SYN-ACK",
           "result": "مرحلهٔ دوم دست‌دهی.",
-          "explanation": "سرور با ack=101 اعلام می‌کند SYN کلاینت را گرفته و با seq=500 شمارهٔ شروع خودش را معرفی می‌کند."
+          "explanation": "سرور با ack=101 اعلام می‌کند SYN کلاینت را گرفته و با seq=500 شمارهٔ شروع خودش را معرفی می‌کند.",
+          "state": [
+            "SYN-ACK seq=500 ack=101",
+            "101",
+            "SYN-ACK received"
+          ]
         },
         {
           "name": "تأیید نهایی",
@@ -80,7 +90,12 @@ const lesson = {
           "input": "ACK seq=101 ack=501",
           "output": "ESTABLISHED",
           "result": "اتصال برقرار شد.",
-          "explanation": "ACK با ack=501 به سرور خبر می‌دهد SYN آن هم دریافت شده؛ حالا دو سمت می‌توانند جریان بایت ردوبدل کنند."
+          "explanation": "ACK با ack=501 به سرور خبر می‌دهد SYN آن هم دریافت شده؛ حالا دو سمت می‌توانند جریان بایت ردوبدل کنند.",
+          "state": [
+            "ACK seq=101 ack=501",
+            "101",
+            "ESTABLISHED"
+          ]
         },
         {
           "name": "ارسال داده",
@@ -95,7 +110,12 @@ const lesson = {
           "input": "seq=101 len=4\nPING",
           "output": "Bytes 101–104 received",
           "result": "داده به گیرنده رسید.",
-          "explanation": "PING چهار بایت است؛ از 101 شروع می‌شود و آخرین بایت شمارهٔ 104 را دارد."
+          "explanation": "PING چهار بایت است؛ از 101 شروع می‌شود و آخرین بایت شمارهٔ 104 را دارد.",
+          "state": [
+            "DATA seq=101 len=4",
+            "105",
+            "Awaiting ACK"
+          ]
         },
         {
           "name": "تأیید دریافت",
@@ -111,7 +131,12 @@ const lesson = {
           "output": "ACK 105",
           "result": "ارسال‌کننده از دریافت چهار بایت آگاه شد.",
           "tone": "success",
-          "explanation": "ACK=105 یعنی سرور تا 104 را به ترتیب دریافت کرده و منتظر 105 است؛ نه اینکه برنامه حتماً PING را پردازش کرده باشد."
+          "explanation": "ACK=105 یعنی سرور تا 104 را به ترتیب دریافت کرده و منتظر 105 است؛ نه اینکه برنامه حتماً PING را پردازش کرده باشد.",
+          "state": [
+            "ACK=105",
+            "105",
+            "4 bytes acknowledged"
+          ]
         }
       ]
     },
@@ -131,7 +156,12 @@ const lesson = {
           "input": "ESTABLISHED\nseq=101",
           "output": "Ready to send",
           "result": "اتصال آماده است.",
-          "explanation": "برای تمرکز بر ارسال مجدد، فرض می‌کنیم دست‌دهی قبلاً انجام شده و شمارهٔ بعدی 101 است."
+          "explanation": "برای تمرکز بر ارسال مجدد، فرض می‌کنیم دست‌دهی قبلاً انجام شده و شمارهٔ بعدی 101 است.",
+          "state": [
+            "ESTABLISHED",
+            "101",
+            "Ready"
+          ]
         },
         {
           "name": "بسته در شبکه گم می‌شود",
@@ -146,7 +176,12 @@ const lesson = {
           "output": "Packet lost",
           "result": "تأیید دریافت نمی‌رسد.",
           "tone": "error",
-          "explanation": "چهار بایت در شبکه گم می‌شود؛ فرستنده ACK مورد انتظار را نمی‌گیرد و نمی‌تواند فرض کند تحویل انجام شده."
+          "explanation": "چهار بایت در شبکه گم می‌شود؛ فرستنده ACK مورد انتظار را نمی‌گیرد و نمی‌تواند فرض کند تحویل انجام شده.",
+          "state": [
+            "DATA seq=101 len=4 · lost",
+            "101",
+            "Awaiting ACK"
+          ]
         },
         {
           "name": "پایان مهلت ارسال مجدد",
@@ -159,7 +194,12 @@ const lesson = {
           "input": "No ACK for seq=101",
           "output": "Retransmission timeout",
           "result": "ارسال مجدد لازم است.",
-          "explanation": "زمان‌سنج RTO منقضی می‌شود. در عمل TCP زمان‌سنج را بر اساس RTT و الگوریتم کنترل ازدحام تنظیم می‌کند."
+          "explanation": "زمان‌سنج RTO منقضی می‌شود. در عمل TCP زمان‌سنج را بر اساس RTT و الگوریتم کنترل ازدحام تنظیم می‌کند.",
+          "state": [
+            "RTO",
+            "101",
+            "Retransmit"
+          ]
         },
         {
           "name": "ارسال دوبارهٔ داده",
@@ -174,7 +214,12 @@ const lesson = {
           "input": "seq=101 len=4 (retry)",
           "output": "Bytes received",
           "result": "گیرنده داده را دریافت کرد.",
-          "explanation": "همان داده با همان seq=101 دوباره ارسال می‌شود. گیرنده با شماره‌ها می‌تواند نسخهٔ تکراری را تشخیص دهد."
+          "explanation": "همان داده با همان seq=101 دوباره ارسال می‌شود. گیرنده با شماره‌ها می‌تواند نسخهٔ تکراری را تشخیص دهد.",
+          "state": [
+            "DATA seq=101 len=4 · retry",
+            "105",
+            "Awaiting ACK"
+          ]
         },
         {
           "name": "تأیید موفق",
@@ -190,7 +235,12 @@ const lesson = {
           "output": "ACK 105 after retry",
           "result": "داده پس از تلاش مجدد تحویل شد.",
           "tone": "success",
-          "explanation": "ACK=105 تأیید می‌کند چهار بایت تحویل لایهٔ TCP شده‌اند. ارسال دوبارهٔ یک بسته به معنای اجرای دوبارهٔ عملیات برنامه نیست."
+          "explanation": "ACK=105 تأیید می‌کند چهار بایت تحویل لایهٔ TCP شده‌اند. ارسال دوبارهٔ یک بسته به معنای اجرای دوبارهٔ عملیات برنامه نیست.",
+          "state": [
+            "ACK=105",
+            "105",
+            "Acknowledged"
+          ]
         }
       ],
       "edgeCase": "گم شدن داده و ارسال مجدد پس از timeout."
@@ -214,7 +264,12 @@ const lesson = {
           "input": "seq=101 len=4",
           "output": "Bytes 101–104 received",
           "result": "گیرنده داده را دارد.",
-          "explanation": "فرستنده هنوز ACK را ندیده، اما گیرنده قبلاً داده را تحویل TCP داده است."
+          "explanation": "فرستنده هنوز ACK را ندیده، اما گیرنده قبلاً داده را تحویل TCP داده است.",
+          "state": [
+            "DATA seq=101 len=4",
+            "105",
+            "Awaiting ACK"
+          ]
         },
         {
           "name": "ACK در مسیر گم می‌شود",
@@ -229,7 +284,12 @@ const lesson = {
           "output": "ACK lost",
           "result": "فرستنده از تحویل خبر ندارد.",
           "explanation": "گم شدن ACK با گم شدن خود داده یکی نیست.",
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "ACK=105 · lost",
+            "105",
+            "No ACK received"
+          ]
         },
         {
           "name": "ارسال دوباره",
@@ -244,7 +304,12 @@ const lesson = {
           "input": "seq=101 len=4 (retry)",
           "output": "Duplicate bytes discarded",
           "result": "گیرنده بایت‌ها را دوباره تحویل برنامه نمی‌دهد.",
-          "explanation": "شمارهٔ توالی مشخص می‌کند این چهار بایت قبلاً دریافت شده‌اند."
+          "explanation": "شمارهٔ توالی مشخص می‌کند این چهار بایت قبلاً دریافت شده‌اند.",
+          "state": [
+            "DATA seq=101 len=4 · retry",
+            "105",
+            "Duplicate discarded"
+          ]
         },
         {
           "name": "تأیید مجدد",
@@ -260,7 +325,12 @@ const lesson = {
           "output": "ACK 105; no duplicate delivery",
           "result": "تحویل تکراری به برنامه رخ نداد.",
           "explanation": "TCP تکرار بایت را مدیریت می‌کند؛ تکرار درخواست HTTP در سطح برنامه موضوع جداگانه‌ای است.",
-          "tone": "success"
+          "tone": "success",
+          "state": [
+            "ACK=105",
+            "105",
+            "Acknowledged"
+          ]
         }
       ]
     }
@@ -286,6 +356,15 @@ const lesson = {
       "label": "RFC 6298 — زمان ارسال مجدد",
       "url": "https://www.rfc-editor.org/rfc/rfc6298.html"
     }
-  ]
+  ],
+  "visual": {
+    "title": "دفتر شمارهٔ توالی و تأیید",
+    "labels": [
+      "پیام روی مسیر",
+      "بایت بعدی مورد انتظار سرور",
+      "وضعیت فرستنده"
+    ],
+    "context": "TCP بایت‌ها را شماره‌گذاری می‌کند تا بداند چه چیزی به مقصد رسیده و چه چیزی باید دوباره فرستاده شود. ACK دریافت لایهٔ انتقال است، نه موفقیت منطق برنامه."
+  }
 } satisfies NetworkLesson;
 export default lesson;

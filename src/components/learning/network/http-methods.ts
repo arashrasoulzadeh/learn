@@ -49,7 +49,12 @@ const lesson = {
           "input": "GET /products/42 HTTP/1.1",
           "output": "Read operation",
           "result": "API درخواست خواندن را دریافت کرد.",
-          "explanation": "کاربر صفحهٔ محصول 42 را باز می‌کند؛ هدف GET دریافت اطلاعات است، نه تغییر قیمت یا ساخت محصول."
+          "explanation": "کاربر صفحهٔ محصول 42 را باز می‌کند؛ هدف GET دریافت اطلاعات است، نه تغییر قیمت یا ساخت محصول.",
+          "state": [
+            "GET",
+            "42 · Keyboard",
+            "Read"
+          ]
         },
         {
           "name": "خواندن رکورد",
@@ -64,7 +69,12 @@ const lesson = {
           "output": "Keyboard",
           "result": "رکورد موجود است.",
           "roundTrip": true,
-          "explanation": "این API فقط نام محصول را از پایگاه داده می‌خواند. استفاده از SELECT یک انتخاب پیاده‌سازی است."
+          "explanation": "این API فقط نام محصول را از پایگاه داده می‌خواند. استفاده از SELECT یک انتخاب پیاده‌سازی است.",
+          "state": [
+            "GET",
+            "42 · Keyboard",
+            "Unchanged"
+          ]
         },
         {
           "name": "بازگشت نمایش منبع",
@@ -79,7 +89,12 @@ const lesson = {
           "output": "{\"id\":42,\"name\":\"Keyboard\"}",
           "result": "خواندن موفق بود.",
           "tone": "success",
-          "explanation": "بدنهٔ JSON به مرورگر برمی‌گردد؛ کلیک مجدد روی نمایش محصول نباید به‌طور معمول محصول تازه‌ای بسازد."
+          "explanation": "بدنهٔ JSON به مرورگر برمی‌گردد؛ کلیک مجدد روی نمایش محصول نباید به‌طور معمول محصول تازه‌ای بسازد.",
+          "state": [
+            "GET",
+            "42 · Keyboard",
+            "200 · representation"
+          ]
         }
       ]
     },
@@ -100,7 +115,12 @@ const lesson = {
           "input": "POST /products\n{\"name\":\"Mouse\"}",
           "output": "Create requested",
           "result": "درخواست ایجاد دریافت شد.",
-          "explanation": "فرم ساخت محصول نام Mouse را می‌فرستد. سرور معنای ایجاد را برای این مسیر تعریف کرده است."
+          "explanation": "فرم ساخت محصول نام Mouse را می‌فرستد. سرور معنای ایجاد را برای این مسیر تعریف کرده است.",
+          "state": [
+            "POST",
+            "42 · Keyboard",
+            "Create"
+          ]
         },
         {
           "name": "ساخت رکورد جدید",
@@ -115,7 +135,12 @@ const lesson = {
           "output": "Created id=43",
           "result": "رکورد جدید ایجاد شد.",
           "roundTrip": true,
-          "explanation": "شناسهٔ 43 تولید می‌شود. اگر کلاینت همان POST را دوباره بفرستد، ممکن است شناسهٔ دیگری ایجاد شود."
+          "explanation": "شناسهٔ 43 تولید می‌شود. اگر کلاینت همان POST را دوباره بفرستد، ممکن است شناسهٔ دیگری ایجاد شود.",
+          "state": [
+            "POST",
+            "42 · Keyboard | 43 · Mouse",
+            "Inserted"
+          ]
         },
         {
           "name": "اعلام ایجاد",
@@ -130,7 +155,12 @@ const lesson = {
           "output": "{\"id\":43,\"name\":\"Mouse\"}",
           "result": "محصول ایجاد شد.",
           "tone": "success",
-          "explanation": "201 و Location آدرس محصول ساخته‌شده را معرفی می‌کنند؛ کلاینت می‌تواند بعداً همان آدرس را بخواند."
+          "explanation": "201 و Location آدرس محصول ساخته‌شده را معرفی می‌کنند؛ کلاینت می‌تواند بعداً همان آدرس را بخواند.",
+          "state": [
+            "POST",
+            "42 · Keyboard | 43 · Mouse",
+            "201 · Location"
+          ]
         }
       ]
     },
@@ -151,7 +181,12 @@ const lesson = {
           "input": "PUT /products/42\n{\"name\":\"Mouse\",\"price\":25}",
           "output": "Replace requested",
           "result": "جایگزینی کامل خواسته شد.",
-          "explanation": "کلاینت نام و قیمت را با هم می‌فرستد تا نمایش کامل محصول 42 جایگزین شود."
+          "explanation": "کلاینت نام و قیمت را با هم می‌فرستد تا نمایش کامل محصول 42 جایگزین شود.",
+          "state": [
+            "PUT",
+            "42 · Keyboard · $50",
+            "Replace"
+          ]
         },
         {
           "name": "جایگزینی رکورد",
@@ -166,7 +201,12 @@ const lesson = {
           "output": "new={name:Mouse,price:25}",
           "result": "وضعیت جدید ذخیره شد.",
           "roundTrip": true,
-          "explanation": "وضعیت نهایی نام Mouse و قیمت 25 است. درخواست یکسانِ بعدی هم همین وضعیت مورد انتظار را ایجاد می‌کند."
+          "explanation": "وضعیت نهایی نام Mouse و قیمت 25 است. درخواست یکسانِ بعدی هم همین وضعیت مورد انتظار را ایجاد می‌کند.",
+          "state": [
+            "PUT",
+            "42 · Mouse · $25",
+            "Full replacement"
+          ]
         },
         {
           "name": "پاسخ موفق",
@@ -181,7 +221,12 @@ const lesson = {
           "output": "204 No Content",
           "result": "جایگزینی انجام شد.",
           "tone": "success",
-          "explanation": "204 یعنی عملیات موفق است ولی پاسخ بدنه ندارد. کلاینت نباید منتظر JSON باشد."
+          "explanation": "204 یعنی عملیات موفق است ولی پاسخ بدنه ندارد. کلاینت نباید منتظر JSON باشد.",
+          "state": [
+            "PUT",
+            "42 · Mouse · $25",
+            "204 · no body"
+          ]
         }
       ]
     },
@@ -202,7 +247,12 @@ const lesson = {
           "input": "PATCH /products/42\nContent-Type: application/merge-patch+json\n{\"price\":25}",
           "output": "Patch requested",
           "result": "فقط تغییر قیمت خواسته شد.",
-          "explanation": "اگر فقط قیمت تغییر کرده، کلاینت می‌تواند سند تغییر جزئی بفرستد؛ نوع محتوا مشخص می‌کند چگونه تفسیر شود."
+          "explanation": "اگر فقط قیمت تغییر کرده، کلاینت می‌تواند سند تغییر جزئی بفرستد؛ نوع محتوا مشخص می‌کند چگونه تفسیر شود.",
+          "state": [
+            "PATCH",
+            "42 · Keyboard · $50",
+            "Change price"
+          ]
         },
         {
           "name": "اعمال تغییر",
@@ -217,7 +267,12 @@ const lesson = {
           "output": "new={name:Keyboard,price:25}",
           "result": "فقط قیمت تغییر کرد.",
           "roundTrip": true,
-          "explanation": "نام Keyboard دست‌نخورده می‌ماند و فقط قیمت 25 می‌شود. بعضی عملیات PATCH مثل افزایش شمارنده ذاتاً idempotent نیستند."
+          "explanation": "نام Keyboard دست‌نخورده می‌ماند و فقط قیمت 25 می‌شود. بعضی عملیات PATCH مثل افزایش شمارنده ذاتاً idempotent نیستند.",
+          "state": [
+            "PATCH",
+            "42 · Keyboard · $25",
+            "Name unchanged"
+          ]
         },
         {
           "name": "بازگشت نتیجه",
@@ -232,7 +287,12 @@ const lesson = {
           "output": "{\"name\":\"Keyboard\",\"price\":25}",
           "result": "تغییر جزئی انجام شد.",
           "tone": "success",
-          "explanation": "پاسخ نمایش تازه را می‌دهد تا رابط کاربری قیمت درست را نشان دهد."
+          "explanation": "پاسخ نمایش تازه را می‌دهد تا رابط کاربری قیمت درست را نشان دهد.",
+          "state": [
+            "PATCH",
+            "42 · Keyboard · $25",
+            "200 · updated"
+          ]
         }
       ]
     },
@@ -253,7 +313,12 @@ const lesson = {
           "input": "DELETE /products/42",
           "output": "Delete requested",
           "result": "حذف منبع خواسته شد.",
-          "explanation": "کاربر حذف محصول 42 را درخواست می‌کند؛ DELETE معنی حذف ارتباط منبع با URI را دارد."
+          "explanation": "کاربر حذف محصول 42 را درخواست می‌کند؛ DELETE معنی حذف ارتباط منبع با URI را دارد.",
+          "state": [
+            "DELETE",
+            "42 · Keyboard",
+            "Remove"
+          ]
         },
         {
           "name": "حذف در API نمونه",
@@ -268,7 +333,12 @@ const lesson = {
           "output": "Resource removed",
           "result": "منبع حذف شد.",
           "roundTrip": true,
-          "explanation": "در این فروشگاه رکورد واقعاً حذف می‌شود. تکرار DELETE منبع را دوباره به وجود نمی‌آورد."
+          "explanation": "در این فروشگاه رکورد واقعاً حذف می‌شود. تکرار DELETE منبع را دوباره به وجود نمی‌آورد.",
+          "state": [
+            "DELETE",
+            "42 · absent",
+            "Removed"
+          ]
         },
         {
           "name": "پاسخ بدون بدنه",
@@ -283,7 +353,12 @@ const lesson = {
           "output": "204 No Content",
           "result": "حذف موفق بود.",
           "tone": "success",
-          "explanation": "204 پاسخ بدون بدنه است. بار دوم ممکن است 404 بگیریم، با وجود اینکه اثر نهایی همان حذف است."
+          "explanation": "204 پاسخ بدون بدنه است. بار دوم ممکن است 404 بگیریم، با وجود اینکه اثر نهایی همان حذف است.",
+          "state": [
+            "DELETE",
+            "42 · absent",
+            "204 · no body"
+          ]
         }
       ]
     },
@@ -305,7 +380,12 @@ const lesson = {
           "input": "POST /products {name:Mouse}",
           "output": "Request received",
           "result": "درخواست ایجاد شروع شد.",
-          "explanation": "کاربر فقط یک بار روی دکمهٔ ایجاد کلیک کرده است."
+          "explanation": "کاربر فقط یک بار روی دکمهٔ ایجاد کلیک کرده است.",
+          "state": [
+            "POST",
+            "No Mouse record yet",
+            "First request"
+          ]
         },
         {
           "name": "ثبت ولی پاسخ گم می‌شود",
@@ -321,7 +401,12 @@ const lesson = {
           "result": "کلاینت نتیجه را نمی‌داند.",
           "explanation": "ناموفق بودن دریافت پاسخ به معنی ناموفق بودن ذخیره نیست.",
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "POST",
+            "43 · Mouse",
+            "Committed; reply lost"
+          ]
         },
         {
           "name": "تلاش مجدد بدون کلید یکتایی",
@@ -335,7 +420,12 @@ const lesson = {
           "input": "POST /products {name:Mouse}",
           "output": "Second create requested",
           "result": "سرور ممکن است دوباره ایجاد کند.",
-          "explanation": "POST ذاتاً idempotent نیست؛ کلید idempotency قراردادی در API می‌تواند کمک کند."
+          "explanation": "POST ذاتاً idempotent نیست؛ کلید idempotency قراردادی در API می‌تواند کمک کند.",
+          "state": [
+            "POST",
+            "43 · Mouse",
+            "Retry"
+          ]
         },
         {
           "name": "ایجاد رکورد دوم",
@@ -351,7 +441,12 @@ const lesson = {
           "result": "دو محصول ناخواسته ساخته شدند.",
           "explanation": "برای جلوگیری از این وضعیت باید سرور کلید یکتایی و نتیجهٔ قبلی را به‌صورت اتمیک مدیریت کند.",
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "POST",
+            "43 · Mouse | 44 · Mouse",
+            "Duplicate creation"
+          ]
         }
       ]
     }
@@ -381,6 +476,15 @@ const lesson = {
       "label": "RFC 7396 — JSON Merge Patch",
       "url": "https://www.rfc-editor.org/rfc/rfc7396.html"
     }
-  ]
+  ],
+  "visual": {
+    "title": "وضعیت منبع قبل و بعد از عملیات",
+    "labels": [
+      "متد",
+      "منبع در پایگاه داده",
+      "اثر مورد انتظار"
+    ],
+    "context": "مثال فروشگاه را دنبال کنید: تفاوت GET، POST، PUT، PATCH و DELETE در معنای درخواست است. تغییر دیتابیس صرفاً پیاده‌سازی این API نمونه است."
+  }
 } satisfies NetworkLesson;
 export default lesson;

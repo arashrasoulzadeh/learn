@@ -17,16 +17,16 @@ const lesson = {
     },
     {
       "label": "ریشه",
-      "sub": "Root DNS",
+      "sub": "Root",
       "icon": "dns"
     },
     {
       "label": "پسوند",
-      "sub": "TLD DNS",
+      "sub": "TLD",
       "icon": "dns"
     },
     {
-      "label": "سرور معتبر",
+      "label": "مرجع دامنه",
       "sub": "Authoritative",
       "icon": "app"
     }
@@ -67,7 +67,12 @@ const lesson = {
           "input": "QNAME=www.shop.example\nQTYPE=A",
           "output": "Cache MISS",
           "result": "حل‌کننده پاسخ ذخیره‌شده ندارد.",
-          "explanation": "مثل وقتی آدرس یک فروشگاه را از دفتر راهنما می‌خواهیم، مرورگر ابتدا نام www.shop.example را می‌دهد، نه /products/42. حل‌کننده در کش چیزی ندارد."
+          "explanation": "مثل وقتی آدرس یک فروشگاه را از دفتر راهنما می‌خواهیم، مرورگر ابتدا نام www.shop.example را می‌دهد، نه /products/42. حل‌کننده در کش چیزی ندارد.",
+          "state": [
+            "www.shop.example",
+            "MISS",
+            "—"
+          ]
         },
         {
           "name": "پرسش از ریشه",
@@ -82,7 +87,12 @@ const lesson = {
           "output": "Referral: .example",
           "result": "سرور پسوند پیدا می‌شود.",
           "roundTrip": true,
-          "explanation": "ریشه در نقش راهنما می‌گوید برای پسوند example باید سراغ کدام مرجع برویم؛ خود IP فروشگاه هنوز معلوم نیست."
+          "explanation": "ریشه در نقش راهنما می‌گوید برای پسوند example باید سراغ کدام مرجع برویم؛ خود IP فروشگاه هنوز معلوم نیست.",
+          "state": [
+            "www.shop.example",
+            "MISS",
+            "Referral: .example"
+          ]
         },
         {
           "name": "پرسش از سرور پسوند",
@@ -97,7 +107,12 @@ const lesson = {
           "output": "NS ns.shop.example",
           "result": "سرور معتبر شناخته شد.",
           "roundTrip": true,
-          "explanation": "سرور پسوند نام مسئول shop.example را معرفی می‌کند. حل‌کننده اکنون می‌داند از کجا پاسخ دقیق بگیرد."
+          "explanation": "سرور پسوند نام مسئول shop.example را معرفی می‌کند. حل‌کننده اکنون می‌داند از کجا پاسخ دقیق بگیرد.",
+          "state": [
+            "www.shop.example",
+            "MISS",
+            "NS ns.shop.example"
+          ]
         },
         {
           "name": "دریافت رکورد معتبر",
@@ -112,7 +127,12 @@ const lesson = {
           "output": "A 192.0.2.10\nTTL 300",
           "result": "نشانی IP دریافت شد.",
           "roundTrip": true,
-          "explanation": "رکورد A برابر 192.0.2.10 است. TTL=300 اجازه می‌دهد این نتیجه تا ۳۰۰ ثانیه کش شود."
+          "explanation": "رکورد A برابر 192.0.2.10 است. TTL=300 اجازه می‌دهد این نتیجه تا ۳۰۰ ثانیه کش شود.",
+          "state": [
+            "www.shop.example",
+            "A · TTL=300",
+            "192.0.2.10"
+          ]
         },
         {
           "name": "بازگشت IP به مرورگر",
@@ -127,7 +147,12 @@ const lesson = {
           "output": "192.0.2.10",
           "result": "مرورگر می‌تواند اتصال را شروع کند.",
           "tone": "success",
-          "explanation": "پاسخ به همان مرورگری می‌رسد که سؤال را پرسیده بود. حالا مرورگر IP مقصد را دارد و می‌تواند TCP را آغاز کند."
+          "explanation": "پاسخ به همان مرورگری می‌رسد که سؤال را پرسیده بود. حالا مرورگر IP مقصد را دارد و می‌تواند TCP را آغاز کند.",
+          "state": [
+            "www.shop.example",
+            "A · TTL=300",
+            "192.0.2.10"
+          ]
         }
       ]
     },
@@ -148,7 +173,12 @@ const lesson = {
           "input": "QNAME=www.shop.example",
           "output": "Cache HIT",
           "result": "رکورد در کش موجود است.",
-          "explanation": "این بار سؤال همان سؤال قبلی است. حل‌کننده به‌جای رفتن سراغ چند سرور، رکورد موجود را پیدا می‌کند."
+          "explanation": "این بار سؤال همان سؤال قبلی است. حل‌کننده به‌جای رفتن سراغ چند سرور، رکورد موجود را پیدا می‌کند.",
+          "state": [
+            "www.shop.example",
+            "HIT",
+            "192.0.2.10"
+          ]
         },
         {
           "name": "بررسی TTL",
@@ -161,7 +191,12 @@ const lesson = {
           "input": "TTL remaining: 180",
           "output": "Valid cached answer",
           "result": "نیازی به پرسش از ریشه نیست.",
-          "explanation": "۱۸۰ ثانیه از اعتبار کش باقی مانده؛ بنابراین پاسخ قدیمی هنوز معتبر است. اگر TTL صفر شود باید دوباره حل نام کنیم."
+          "explanation": "۱۸۰ ثانیه از اعتبار کش باقی مانده؛ بنابراین پاسخ قدیمی هنوز معتبر است. اگر TTL صفر شود باید دوباره حل نام کنیم.",
+          "state": [
+            "www.shop.example",
+            "TTL=180",
+            "192.0.2.10"
+          ]
         },
         {
           "name": "پاسخ مستقیم",
@@ -176,7 +211,12 @@ const lesson = {
           "output": "192.0.2.10",
           "result": "حل نام با رفت‌وبرگشت کمتر تمام شد.",
           "tone": "success",
-          "explanation": "این پاسخ همان IP را دارد، اما فقط یک رفت‌وبرگشت میان کلاینت و حل‌کننده لازم بوده است."
+          "explanation": "این پاسخ همان IP را دارد، اما فقط یک رفت‌وبرگشت میان کلاینت و حل‌کننده لازم بوده است.",
+          "state": [
+            "www.shop.example",
+            "HIT · TTL=180",
+            "192.0.2.10"
+          ]
         }
       ],
       "edgeCase": "رکورد معتبر در کش؛ مسیر کوتاه‌تر."
@@ -198,7 +238,12 @@ const lesson = {
           "input": "QNAME=missing.shop.example",
           "output": "Cache MISS",
           "result": "حل‌کننده باید از مرجع بپرسد.",
-          "explanation": "اگر کاربر نام اشتباهی وارد کند، حل‌کننده هنوز باید از مرجع معتبر دربارهٔ همان نام بپرسد."
+          "explanation": "اگر کاربر نام اشتباهی وارد کند، حل‌کننده هنوز باید از مرجع معتبر دربارهٔ همان نام بپرسد.",
+          "state": [
+            "missing.shop.example",
+            "MISS",
+            "—"
+          ]
         },
         {
           "name": "پاسخ منفی سرور معتبر",
@@ -214,7 +259,12 @@ const lesson = {
           "result": "نام موجود نیست.",
           "roundTrip": true,
           "tone": "error",
-          "explanation": "NXDOMAIN یعنی خود نام وجود ندارد؛ با NOERROR همراه پاسخ خالی (رکورد نوع A موجود نیست) فرق دارد."
+          "explanation": "NXDOMAIN یعنی خود نام وجود ندارد؛ با NOERROR همراه پاسخ خالی (رکورد نوع A موجود نیست) فرق دارد.",
+          "state": [
+            "missing.shop.example",
+            "Negative answer",
+            "NXDOMAIN"
+          ]
         },
         {
           "name": "اعلام خطا",
@@ -229,7 +279,12 @@ const lesson = {
           "output": "NXDOMAIN",
           "result": "مرورگر IP دریافت نکرد.",
           "tone": "error",
-          "explanation": "بدون IP مقصد، مرحلهٔ اتصال HTTP شروع نمی‌شود. برنامه باید خطای حل نام را نمایش دهد."
+          "explanation": "بدون IP مقصد، مرحلهٔ اتصال HTTP شروع نمی‌شود. برنامه باید خطای حل نام را نمایش دهد.",
+          "state": [
+            "missing.shop.example",
+            "Negative cache",
+            "NXDOMAIN"
+          ]
         }
       ],
       "edgeCase": "نام ناموجود و پاسخ منفی NXDOMAIN."
@@ -252,7 +307,12 @@ const lesson = {
           "input": "A 192.0.2.10\nTTL=0",
           "output": "Cache expired",
           "result": "باید رکورد تازه دریافت شود.",
-          "explanation": "اگر آدرس فروشگاه عوض شود، نباید کش منقضی‌شده را به‌عنوان پاسخ معتبر استفاده کرد."
+          "explanation": "اگر آدرس فروشگاه عوض شود، نباید کش منقضی‌شده را به‌عنوان پاسخ معتبر استفاده کرد.",
+          "state": [
+            "www.shop.example",
+            "TTL=0 · stale",
+            "192.0.2.10 (old)"
+          ]
         },
         {
           "name": "پرسش دوباره از مرجع",
@@ -267,7 +327,12 @@ const lesson = {
           "output": "A 192.0.2.11 TTL=300",
           "result": "IP جدید پیدا شد.",
           "explanation": "مرجع معتبر اکنون .11 را برمی‌گرداند؛ نیازی نیست حتماً از ریشه شروع کنیم.",
-          "roundTrip": true
+          "roundTrip": true,
+          "state": [
+            "www.shop.example",
+            "TTL=300 · refreshed",
+            "192.0.2.11"
+          ]
         },
         {
           "name": "تحویل نشانی تازه",
@@ -282,7 +347,12 @@ const lesson = {
           "output": "192.0.2.11",
           "result": "کش با پاسخ جدید به‌روز شد.",
           "explanation": "اتصال تازه باید به IP جدید برود؛ اتصال قبلی لزوماً خودکار جابه‌جا نمی‌شود.",
-          "tone": "success"
+          "tone": "success",
+          "state": [
+            "www.shop.example",
+            "HIT",
+            "192.0.2.11"
+          ]
         }
       ]
     }
@@ -312,6 +382,15 @@ const lesson = {
       "label": "RFC 2308 — کش پاسخ منفی",
       "url": "https://www.rfc-editor.org/rfc/rfc2308.html"
     }
-  ]
+  ],
+  "visual": {
+    "title": "جدول حل نام و حافظهٔ نهان",
+    "labels": [
+      "نام مورد پرسش",
+      "وضعیت کش",
+      "پاسخ شناخته‌شده"
+    ],
+    "context": "هر بار که یک دامنه را باز می‌کنید، حل‌کننده به‌دنبال رکورد معتبر می‌گردد؛ کش فقط تعداد پرسش‌ها را کم می‌کند."
+  }
 } satisfies NetworkLesson;
 export default lesson;

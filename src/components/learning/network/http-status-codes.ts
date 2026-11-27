@@ -49,7 +49,12 @@ const lesson = {
           "input": "POST /upload HTTP/1.1\nExpect: 100-continue",
           "output": "Headers received",
           "result": "سرور می‌تواند پذیرش اولیه را اعلام کند.",
-          "explanation": "برای یک فایل بزرگ، کلاینت اول سرآیندها را می‌فرستد تا در صورت رد شدن درخواست، حجم زیادی بی‌جهت ارسال نکند."
+          "explanation": "برای یک فایل بزرگ، کلاینت اول سرآیندها را می‌فرستد تا در صورت رد شدن درخواست، حجم زیادی بی‌جهت ارسال نکند.",
+          "state": [
+            "—",
+            "Pending",
+            "Wait for 100"
+          ]
         },
         {
           "name": "پاسخ اطلاعاتی",
@@ -63,7 +68,12 @@ const lesson = {
           "input": "HTTP/1.1 100 Continue",
           "output": "Send request body",
           "result": "کلاینت هنوز منتظر پاسخ نهایی است.",
-          "explanation": "100 یعنی فعلاً می‌توان بدنه را فرستاد؛ هنوز نتیجهٔ نهایی آپلود مشخص نیست."
+          "explanation": "100 یعنی فعلاً می‌توان بدنه را فرستاد؛ هنوز نتیجهٔ نهایی آپلود مشخص نیست.",
+          "state": [
+            "100 Continue",
+            "1xx · informational",
+            "Send body"
+          ]
         },
         {
           "name": "ارسال بدنه و پاسخ نهایی",
@@ -79,7 +89,12 @@ const lesson = {
           "result": "پاسخ نهایی از پاسخ اطلاعاتی جداست.",
           "roundTrip": true,
           "tone": "success",
-          "explanation": "پس از ارسال بدنه و پردازش، 200 نتیجهٔ نهایی است. این دو پاسخ معنای متفاوتی دارند."
+          "explanation": "پس از ارسال بدنه و پردازش، 200 نتیجهٔ نهایی است. این دو پاسخ معنای متفاوتی دارند.",
+          "state": [
+            "200 OK",
+            "2xx · final",
+            "Finish upload"
+          ]
         }
       ],
       "edgeCase": "پاسخ میانی 100 پیش از پاسخ نهایی."
@@ -101,7 +116,12 @@ const lesson = {
           "input": "GET /products/42",
           "output": "Request accepted",
           "result": "درخواست به سرور رسید.",
-          "explanation": "درخواست خواندن محصول 42 نمونه‌ای از عملیات عادی است."
+          "explanation": "درخواست خواندن محصول 42 نمونه‌ای از عملیات عادی است.",
+          "state": [
+            "—",
+            "Pending",
+            "Wait"
+          ]
         },
         {
           "name": "پردازش موفق",
@@ -116,7 +136,12 @@ const lesson = {
           "output": "Product found",
           "result": "منبع موجود است.",
           "roundTrip": true,
-          "explanation": "سرور داخلی رکورد محصول را پیدا می‌کند؛ حالا سرور وب می‌تواند پاسخ مناسب بسازد."
+          "explanation": "سرور داخلی رکورد محصول را پیدا می‌کند؛ حالا سرور وب می‌تواند پاسخ مناسب بسازد.",
+          "state": [
+            "—",
+            "Processing",
+            "Wait"
+          ]
         },
         {
           "name": "پاسخ ۲۰۰",
@@ -131,7 +156,12 @@ const lesson = {
           "output": "200 OK",
           "result": "درخواست موفق است.",
           "tone": "success",
-          "explanation": "200 یعنی عملیات طبق معنای GET موفق بوده است؛ محتوا می‌تواند JSON محصول باشد."
+          "explanation": "200 یعنی عملیات طبق معنای GET موفق بوده است؛ محتوا می‌تواند JSON محصول باشد.",
+          "state": [
+            "200 OK",
+            "2xx · success",
+            "Render"
+          ]
         }
       ]
     },
@@ -152,7 +182,12 @@ const lesson = {
           "input": "GET /old",
           "output": "Old resource URL",
           "result": "سرور آدرس جدید را می‌شناسد.",
-          "explanation": "فرض کنید مسیر /old بعد از تغییر سایت دیگر آدرس اصلی نباشد."
+          "explanation": "فرض کنید مسیر /old بعد از تغییر سایت دیگر آدرس اصلی نباشد.",
+          "state": [
+            "—",
+            "Pending",
+            "Wait"
+          ]
         },
         {
           "name": "بازگشت Location",
@@ -166,7 +201,12 @@ const lesson = {
           "input": "HTTP/1.1 301 Moved Permanently\nLocation: /new",
           "output": "Redirect to /new",
           "result": "این پاسخ مسیر جدید را معرفی می‌کند.",
-          "explanation": "سرور با Location: /new نشانی جدید را معرفی می‌کند. 301 یعنی انتقال دائمی."
+          "explanation": "سرور با Location: /new نشانی جدید را معرفی می‌کند. 301 یعنی انتقال دائمی.",
+          "state": [
+            "301",
+            "3xx · redirect",
+            "GET /new"
+          ]
         },
         {
           "name": "دنبال کردن تغییر مسیر",
@@ -182,7 +222,12 @@ const lesson = {
           "result": "درخواست دوم به مقصد جدید رسید.",
           "roundTrip": true,
           "tone": "success",
-          "explanation": "مرورگر درخواست تازه‌ای به /new می‌فرستد؛ 200 حاصل درخواست دوم است، نه تغییر وضعیت پاسخ 301."
+          "explanation": "مرورگر درخواست تازه‌ای به /new می‌فرستد؛ 200 حاصل درخواست دوم است، نه تغییر وضعیت پاسخ 301.",
+          "state": [
+            "200 OK",
+            "2xx · success",
+            "Render new URL"
+          ]
         }
       ],
       "edgeCase": "دریافت 301 و ایجاد درخواست تازه."
@@ -204,7 +249,12 @@ const lesson = {
           "input": "GET /products/999",
           "output": "Request received",
           "result": "درخواست از نظر قالب معتبر است.",
-          "explanation": "URL محصول 999 قالب درستی دارد اما چنین محصولی در فروشگاه وجود ندارد."
+          "explanation": "URL محصول 999 قالب درستی دارد اما چنین محصولی در فروشگاه وجود ندارد.",
+          "state": [
+            "—",
+            "Pending",
+            "Wait"
+          ]
         },
         {
           "name": "بررسی وجود منبع",
@@ -219,7 +269,12 @@ const lesson = {
           "output": "No matching resource",
           "result": "منبع پیدا نشد.",
           "roundTrip": true,
-          "explanation": "جست‌وجو در سرویس داخلی نتیجه ندارد. این با قطع شبکه یا خرابی سرور فرق می‌کند."
+          "explanation": "جست‌وجو در سرویس داخلی نتیجه ندارد. این با قطع شبکه یا خرابی سرور فرق می‌کند.",
+          "state": [
+            "—",
+            "Resource absent",
+            "Wait"
+          ]
         },
         {
           "name": "پاسخ خطای درخواست",
@@ -234,7 +289,12 @@ const lesson = {
           "output": "404 Not Found",
           "result": "کلاینت باید وضعیت را مدیریت کند.",
           "tone": "error",
-          "explanation": "404 یک پاسخ واقعی HTTP است؛ رابط کاربری می‌تواند پیام «محصول پیدا نشد» بدهد."
+          "explanation": "404 یک پاسخ واقعی HTTP است؛ رابط کاربری می‌تواند پیام «محصول پیدا نشد» بدهد.",
+          "state": [
+            "404",
+            "4xx · client error",
+            "Show not found"
+          ]
         }
       ],
       "edgeCase": "منبع ناموجود."
@@ -256,7 +316,12 @@ const lesson = {
           "input": "GET /products/42",
           "output": "Request accepted",
           "result": "درخواست به سرور رسید.",
-          "explanation": "درخواست محصول 42 معتبر است؛ خطا هنوز معلوم نیست."
+          "explanation": "درخواست محصول 42 معتبر است؛ خطا هنوز معلوم نیست.",
+          "state": [
+            "—",
+            "Pending",
+            "Wait"
+          ]
         },
         {
           "name": "خرابی پیش‌بینی‌نشده",
@@ -272,7 +337,12 @@ const lesson = {
           "result": "سرور نتوانست عملیات را انجام دهد.",
           "roundTrip": true,
           "tone": "error",
-          "explanation": "مثلاً پایگاه داده هنگام خواندن رکورد exception می‌دهد. کلاینت علت داخلی را نباید مستقیماً دریافت کند."
+          "explanation": "مثلاً پایگاه داده هنگام خواندن رکورد exception می‌دهد. کلاینت علت داخلی را نباید مستقیماً دریافت کند.",
+          "state": [
+            "—",
+            "Backend exception",
+            "Wait"
+          ]
         },
         {
           "name": "پاسخ خطای سرور",
@@ -287,7 +357,12 @@ const lesson = {
           "output": "500 Internal Server Error",
           "result": "درخواست ناموفق است.",
           "tone": "error",
-          "explanation": "500 خطای داخلی نامنتظره را نشان می‌دهد؛ جزئیات فنی در لاگ سرور ثبت می‌شوند، نه پاسخ عمومی."
+          "explanation": "500 خطای داخلی نامنتظره را نشان می‌دهد؛ جزئیات فنی در لاگ سرور ثبت می‌شوند، نه پاسخ عمومی.",
+          "state": [
+            "500",
+            "5xx · server error",
+            "Show error"
+          ]
         }
       ],
       "edgeCase": "خرابی داخلی هنگام پردازش."
@@ -310,7 +385,12 @@ const lesson = {
           "input": "GET /products",
           "output": "Rate limit reached",
           "result": "سهمیهٔ درخواست تمام شده.",
-          "explanation": "سرور ممکن است به ازای کاربر یا کلید API محدودیت تعیین کند."
+          "explanation": "سرور ممکن است به ازای کاربر یا کلید API محدودیت تعیین کند.",
+          "state": [
+            "—",
+            "Rate limit reached",
+            "Wait"
+          ]
         },
         {
           "name": "پاسخ محدودیت",
@@ -325,7 +405,12 @@ const lesson = {
           "output": "Retry after 30 seconds",
           "result": "درخواست موقتاً رد شده.",
           "explanation": "کلاینت نباید حلقهٔ retry سریع بسازد؛ باید زمان انتظار را رعایت کند.",
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "429",
+            "4xx · rate limit",
+            "Wait 30 s"
+          ]
         },
         {
           "name": "انتظار و تلاش بعدی",
@@ -341,7 +426,12 @@ const lesson = {
           "result": "تلاش مجدد با فاصله موفق شد.",
           "explanation": "Retry-After راهنماست؛ موفقیت بعدی تضمین‌شده نیست.",
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "state": [
+            "200 OK",
+            "2xx · success",
+            "Resume"
+          ]
         }
       ]
     }
@@ -367,6 +457,15 @@ const lesson = {
       "label": "IANA — فهرست کدهای HTTP",
       "url": "https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml"
     }
-  ]
+  ],
+  "visual": {
+    "title": "پاسخ HTTP و تصمیم کلاینت",
+    "labels": [
+      "کد دریافتی",
+      "خانوادهٔ پاسخ",
+      "اقدام کلاینت"
+    ],
+    "context": "کد وضعیت با متن پاسخ و سرآیندها به کلاینت می‌گوید چه تصمیمی بگیرد: ادامهٔ ارسال، نمایش، دنبال کردن مسیر یا مدیریت خطا."
+  }
 } satisfies NetworkLesson;
 export default lesson;

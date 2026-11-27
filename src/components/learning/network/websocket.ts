@@ -16,7 +16,7 @@ const lesson = {
       "icon": "router"
     },
     {
-      "label": "سرور WebSocket",
+      "label": "سرور چت",
       "sub": "Chat service",
       "icon": "app"
     }
@@ -50,7 +50,12 @@ const lesson = {
           "input": "GET /socket HTTP/1.1\nHost: chat.example\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Version: 13\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==",
           "output": "Upgrade requested",
           "result": "درخواست دست‌دهی ارسال شد.",
-          "explanation": "برنامهٔ چت با GET و Upgrade می‌خواهد ارتباط HTTP/1.1 را به WebSocket تبدیل کند؛ کلید نمونهٔ استاندارد در سرآیند است."
+          "explanation": "برنامهٔ چت با GET و Upgrade می‌خواهد ارتباط HTTP/1.1 را به WebSocket تبدیل کند؛ کلید نمونهٔ استاندارد در سرآیند است.",
+          "state": [
+            "CONNECTING",
+            "Upgrade",
+            "HTTP handshake"
+          ]
         },
         {
           "name": "پذیرش سرور",
@@ -65,7 +70,12 @@ const lesson = {
           "input": "HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=",
           "output": "WebSocket OPEN",
           "result": "اتصال به پروتکل WebSocket ارتقا یافت.",
-          "explanation": "101 و Sec-WebSocket-Accept دست‌دهی را تکمیل می‌کنند. دیگر برای هر پیام چت GET جداگانه نداریم."
+          "explanation": "101 و Sec-WebSocket-Accept دست‌دهی را تکمیل می‌کنند. دیگر برای هر پیام چت GET جداگانه نداریم.",
+          "state": [
+            "OPEN",
+            "101",
+            "Upgrade accepted"
+          ]
         },
         {
           "name": "پیام کلاینت",
@@ -80,7 +90,12 @@ const lesson = {
           "input": "FIN=1 opcode=0x1 MASK=1\n{\"text\":\"Hello\"}",
           "output": "Message received",
           "result": "سرور پیام را دریافت کرد.",
-          "explanation": "مرورگر فریم Hello را روی اتصال باز می‌فرستد. mask بودن فریم کلاینت جای TLS را نمی‌گیرد."
+          "explanation": "مرورگر فریم Hello را روی اتصال باز می‌فرستد. mask بودن فریم کلاینت جای TLS را نمی‌گیرد.",
+          "state": [
+            "OPEN",
+            "Hello",
+            "Client → server"
+          ]
         },
         {
           "name": "پیام مستقل سرور",
@@ -95,7 +110,12 @@ const lesson = {
           "input": "FIN=1 opcode=0x1 MASK=0\n{\"text\":\"Welcome\"}",
           "output": "Server push received",
           "result": "مرورگر پیام مستقل را دریافت کرد.",
-          "explanation": "سرور Welcome را روی همان اتصال می‌فرستد، حتی اگر کلاینت درخواست تازه‌ای نداده باشد."
+          "explanation": "سرور Welcome را روی همان اتصال می‌فرستد، حتی اگر کلاینت درخواست تازه‌ای نداده باشد.",
+          "state": [
+            "OPEN",
+            "Welcome",
+            "Server → client"
+          ]
         },
         {
           "name": "بستن ارتباط",
@@ -112,7 +132,12 @@ const lesson = {
           "result": "ارتباط عادی بسته شد.",
           "roundTrip": true,
           "tone": "success",
-          "explanation": "فریم Close با کد 1000 پایان عادی را اعلام می‌کند. طرف دیگر نیز پاسخ Close می‌دهد."
+          "explanation": "فریم Close با کد 1000 پایان عادی را اعلام می‌کند. طرف دیگر نیز پاسخ Close می‌دهد.",
+          "state": [
+            "CLOSED",
+            "1000",
+            "Close handshake"
+          ]
         }
       ]
     },
@@ -132,7 +157,12 @@ const lesson = {
           "input": "readyState=OPEN",
           "output": "Connected",
           "result": "ارتباط آمادهٔ تبادل پیام است.",
-          "explanation": "برنامهٔ چت پیش‌تر اتصال باز دارد و پیام‌ها ردوبدل می‌شوند."
+          "explanation": "برنامهٔ چت پیش‌تر اتصال باز دارد و پیام‌ها ردوبدل می‌شوند.",
+          "state": [
+            "OPEN",
+            "—",
+            "Ready"
+          ]
         },
         {
           "name": "قطع ناگهانی شبکه",
@@ -147,7 +177,12 @@ const lesson = {
           "output": "Abnormal closure (1006 locally)",
           "result": "اتصال از دست رفت.",
           "tone": "error",
-          "explanation": "در قطع ناگهانی شبکه فریم Close ممکن است اصلاً نرسد. 1006 وضعیت محلی است و روی سیم ارسال نمی‌شود."
+          "explanation": "در قطع ناگهانی شبکه فریم Close ممکن است اصلاً نرسد. 1006 وضعیت محلی است و روی سیم ارسال نمی‌شود.",
+          "state": [
+            "CLOSED",
+            "1006 (local)",
+            "Transport lost"
+          ]
         },
         {
           "name": "تلاش مجدد با فاصله",
@@ -163,7 +198,12 @@ const lesson = {
           "output": "101 Switching Protocols",
           "result": "اتصال جدید برقرار شد.",
           "roundTrip": true,
-          "explanation": "برنامه با فاصلهٔ زمانی افزایشی اتصال تازه می‌سازد تا هنگام خرابی سرور فشار بیهوده وارد نکند."
+          "explanation": "برنامه با فاصلهٔ زمانی افزایشی اتصال تازه می‌سازد تا هنگام خرابی سرور فشار بیهوده وارد نکند.",
+          "state": [
+            "OPEN",
+            "101",
+            "New handshake"
+          ]
         },
         {
           "name": "همگام‌سازی پیام‌ها",
@@ -180,7 +220,12 @@ const lesson = {
           "result": "بازیابی پیام با منطق برنامه انجام شد.",
           "roundTrip": true,
           "tone": "success",
-          "explanation": "با آخرین شناسهٔ پیام 42، برنامه پیام‌های بعدی را بازیابی می‌کند؛ این قابلیت را خود WebSocket تضمین نمی‌کند."
+          "explanation": "با آخرین شناسهٔ پیام 42، برنامه پیام‌های بعدی را بازیابی می‌کند؛ این قابلیت را خود WebSocket تضمین نمی‌کند.",
+          "state": [
+            "OPEN",
+            "lastSeenId=42",
+            "App sync"
+          ]
         }
       ],
       "edgeCase": "قطع ناگهانی و بازیابی ارتباط با منطق برنامه."
@@ -203,7 +248,12 @@ const lesson = {
           "input": "Upgrade: websocket\nOrigin: https://untrusted.example",
           "output": "Origin check",
           "result": "سرور سیاست دسترسی را بررسی می‌کند.",
-          "explanation": "سرور Origin را بررسی می‌کند تا اتصال از صفحهٔ نامجاز را رد کند."
+          "explanation": "سرور Origin را بررسی می‌کند تا اتصال از صفحهٔ نامجاز را رد کند.",
+          "state": [
+            "CONNECTING",
+            "Upgrade",
+            "Origin check"
+          ]
         },
         {
           "name": "رد درخواست",
@@ -219,7 +269,12 @@ const lesson = {
           "output": "WebSocket not established",
           "result": "ارتقا انجام نشد.",
           "tone": "error",
-          "explanation": "403 پاسخ HTTP است؛ چون 101 دریافت نشده، هیچ اتصال WebSocket باز نشده است."
+          "explanation": "403 پاسخ HTTP است؛ چون 101 دریافت نشده، هیچ اتصال WebSocket باز نشده است.",
+          "state": [
+            "CLOSED",
+            "403",
+            "No upgrade"
+          ]
         }
       ],
       "edgeCase": "درخواست ارتقا با 403 رد می‌شود."
@@ -243,7 +298,12 @@ const lesson = {
           "input": "opcode=0x9",
           "output": "Pong expected",
           "result": "سرور منتظر پاسخ است.",
-          "explanation": "فریم Ping/Pong استاندارد است؛ API مرورگر معمولاً فریم کنترل را خودش مدیریت می‌کند."
+          "explanation": "فریم Ping/Pong استاندارد است؛ API مرورگر معمولاً فریم کنترل را خودش مدیریت می‌کند.",
+          "state": [
+            "OPEN",
+            "Ping",
+            "Await Pong"
+          ]
         },
         {
           "name": "پاسخ نمی‌رسد",
@@ -258,7 +318,12 @@ const lesson = {
           "output": "Heartbeat timeout",
           "result": "ارتباط سالم فرض نمی‌شود.",
           "explanation": "حتی اگر سوکت ظاهراً باز باشد، timeout heartbeat می‌تواند مشکل را آشکار کند.",
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "Unresponsive",
+            "No Pong",
+            "Timeout"
+          ]
         },
         {
           "name": "اتصال تازه",
@@ -275,7 +340,12 @@ const lesson = {
           "result": "ارتباط تازه باز شد.",
           "explanation": "در صورت نیاز پیام‌های از دست‌رفته با شناسه و ذخیرهٔ کاربردی بازیابی می‌شوند.",
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "state": [
+            "OPEN",
+            "101",
+            "Reconnect"
+          ]
         }
       ]
     }
@@ -305,6 +375,15 @@ const lesson = {
       "label": "OWASP — امنیت WebSocket",
       "url": "https://cheatsheetseries.owasp.org/cheatsheets/WebSocket_Security_Cheat_Sheet.html"
     }
-  ]
+  ],
+  "visual": {
+    "title": "حالت اتصال و پیام‌های رفت‌وبرگشت",
+    "labels": [
+      "وضعیت سوکت",
+      "آخرین پیام",
+      "نوع تبادل"
+    ],
+    "context": "در یک چت زنده، بعد از دست‌دهی، سرور و مرورگر مستقل پیام می‌فرستند. قطع شبکه و اتصال مجدد نیاز به منطق برنامه دارند."
+  }
 } satisfies NetworkLesson;
 export default lesson;

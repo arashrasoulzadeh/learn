@@ -50,7 +50,12 @@ const lesson = {
           "input": "ClientHello\nsupported_versions=TLS 1.3\nkey_share=client_ephemeral",
           "output": "ClientHello received",
           "result": "مذاکرهٔ TLS آغاز شد.",
-          "explanation": "کلاینت نسخه‌ها و سهم کلید موقتی را معرفی می‌کند. این مرحله هنوز حاوی درخواست GET نیست."
+          "explanation": "کلاینت نسخه‌ها و سهم کلید موقتی را معرفی می‌کند. این مرحله هنوز حاوی درخواست GET نیست.",
+          "state": [
+            "ClientHello",
+            "Not checked",
+            "Not sent"
+          ]
         },
         {
           "name": "پاسخ سرور و توافق کلید",
@@ -65,7 +70,12 @@ const lesson = {
           "input": "ServerHello\nkey_share=server_ephemeral",
           "output": "Handshake keys derived",
           "result": "کلیدهای دست‌دهی محاسبه شدند.",
-          "explanation": "هر طرف با سهم کلید خودش و سهم طرف مقابل کلید دست‌دهی را می‌سازد؛ کلید خصوصی در شبکه فرستاده نمی‌شود."
+          "explanation": "هر طرف با سهم کلید خودش و سهم طرف مقابل کلید دست‌دهی را می‌سازد؛ کلید خصوصی در شبکه فرستاده نمی‌شود.",
+          "state": [
+            "Handshake keys",
+            "Not checked",
+            "Not sent"
+          ]
         },
         {
           "name": "اعتبارسنجی هویت سرور",
@@ -80,7 +90,12 @@ const lesson = {
           "input": "Certificate: shop.example\nCertificateVerify\nFinished",
           "output": "Certificate verified",
           "result": "هویت سرور معتبر است.",
-          "explanation": "مرورگر بررسی می‌کند گواهی برای shop.example صادر شده، معتبر است و سرور مالک کلید مربوط است."
+          "explanation": "مرورگر بررسی می‌کند گواهی برای shop.example صادر شده، معتبر است و سرور مالک کلید مربوط است.",
+          "state": [
+            "Certificate + Finished",
+            "Verified",
+            "Not sent"
+          ]
         },
         {
           "name": "تأیید دست‌دهی",
@@ -95,7 +110,12 @@ const lesson = {
           "input": "Client Finished",
           "output": "TLS established",
           "result": "کانال امن آماده است.",
-          "explanation": "Finished صحت پیام‌های دست‌دهی را تأیید می‌کند. اکنون ترافیک کاربردی می‌تواند با کلیدهای مشتق‌شده محافظت شود."
+          "explanation": "Finished صحت پیام‌های دست‌دهی را تأیید می‌کند. اکنون ترافیک کاربردی می‌تواند با کلیدهای مشتق‌شده محافظت شود.",
+          "state": [
+            "Client Finished",
+            "Verified",
+            "Keys ready"
+          ]
         },
         {
           "name": "ارسال HTTP رمزنگاری‌شده",
@@ -111,7 +131,12 @@ const lesson = {
           "output": "TLS application_data: ciphertext",
           "result": "HTTP داخل TLS منتقل می‌شود.",
           "tone": "success",
-          "explanation": "ناظر شبکه ممکن است IP و اندازهٔ بسته را ببیند، اما متن GET داخل TLS در این نمونه قابل خواندن نیست."
+          "explanation": "ناظر شبکه ممکن است IP و اندازهٔ بسته را ببیند، اما متن GET داخل TLS در این نمونه قابل خواندن نیست.",
+          "state": [
+            "Application data",
+            "Verified",
+            "Encrypted HTTP"
+          ]
         }
       ]
     },
@@ -133,7 +158,12 @@ const lesson = {
           "input": "ClientHello",
           "output": "Server receives hello",
           "result": "درخواست اتصال ارسال شد.",
-          "explanation": "مرورگر قصد اتصال به shop.example را دارد، پس همین نام باید در اعتبارسنجی بررسی شود."
+          "explanation": "مرورگر قصد اتصال به shop.example را دارد، پس همین نام باید در اعتبارسنجی بررسی شود.",
+          "state": [
+            "ClientHello",
+            "Not checked",
+            "Not sent"
+          ]
         },
         {
           "name": "دریافت گواهی سرور",
@@ -149,7 +179,12 @@ const lesson = {
           "output": "Hostname mismatch",
           "result": "هویت مقصد تأیید نشد.",
           "tone": "error",
-          "explanation": "گواهی other.example برای مقصد مورد نظر معتبر نیست. حتی اگر رمزنگاری ممکن باشد، هویت مقصد قابل اعتماد نیست."
+          "explanation": "گواهی other.example برای مقصد مورد نظر معتبر نیست. حتی اگر رمزنگاری ممکن باشد، هویت مقصد قابل اعتماد نیست.",
+          "state": [
+            "Certificate check",
+            "Wrong hostname",
+            "Blocked"
+          ]
         },
         {
           "name": "متوقف کردن اتصال",
@@ -165,7 +200,12 @@ const lesson = {
           "output": "HTTPS request blocked",
           "result": "اتصال امن برقرار نشد.",
           "tone": "error",
-          "explanation": "مرورگر قبل از ارسال GET دست‌دهی را متوقف می‌کند؛ کاربر نباید هشدار اعتبار گواهی را بی‌دلیل نادیده بگیرد."
+          "explanation": "مرورگر قبل از ارسال GET دست‌دهی را متوقف می‌کند؛ کاربر نباید هشدار اعتبار گواهی را بی‌دلیل نادیده بگیرد.",
+          "state": [
+            "TLS alert",
+            "Rejected",
+            "No HTTP"
+          ]
         }
       ],
       "edgeCase": "گواهی برای نام دامنهٔ دیگری صادر شده است."
@@ -189,7 +229,12 @@ const lesson = {
           "input": "ClientHello",
           "output": "Handshake started",
           "result": "مرورگر منتظر گواهی است.",
-          "explanation": "نام درست دامنه فقط یکی از شرط‌های اعتبارسنجی است."
+          "explanation": "نام درست دامنه فقط یکی از شرط‌های اعتبارسنجی است.",
+          "state": [
+            "ClientHello",
+            "Not checked",
+            "Not sent"
+          ]
         },
         {
           "name": "اعتبار زمانی نامعتبر",
@@ -205,7 +250,12 @@ const lesson = {
           "output": "Certificate expired",
           "result": "اعتبار گواهی رد شد.",
           "explanation": "مرورگر باید بازهٔ زمانی اعتبار را هم بررسی کند.",
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "Certificate check",
+            "Expired",
+            "Blocked"
+          ]
         },
         {
           "name": "توقف پیش از HTTP",
@@ -221,7 +271,12 @@ const lesson = {
           "output": "HTTPS request blocked",
           "result": "کانال امن آماده نشد.",
           "explanation": "راه درست برای مدیر سرور تمدید گواهی است، نه غیرفعال کردن اعتبارسنجی.",
-          "tone": "error"
+          "tone": "error",
+          "state": [
+            "TLS alert",
+            "Rejected",
+            "No HTTP"
+          ]
         }
       ]
     }
@@ -251,6 +306,15 @@ const lesson = {
       "label": "RFC 9525 — هویت سرویس TLS",
       "url": "https://www.rfc-editor.org/rfc/rfc9525.html"
     }
-  ]
+  ],
+  "visual": {
+    "title": "وضعیت هویت و کانال رمزنگاری",
+    "labels": [
+      "مرحلهٔ TLS",
+      "اعتبار گواهی",
+      "دادهٔ کاربردی"
+    ],
+    "context": "قفل HTTPS زمانی معنا دارد که علاوه بر رمزنگاری، هویت سرور نیز معتبر باشد. دست‌دهی را از ارسال درخواست HTTP جدا ببینید."
+  }
 } satisfies NetworkLesson;
 export default lesson;
