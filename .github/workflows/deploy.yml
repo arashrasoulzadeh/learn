@@ -1,7 +1,7 @@
 name: Build and deploy Learn
 on:
   push:
-    branches: [main]
+    branches: [main, 'verify/**']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
           path: test-results
           if-no-files-found: ignore
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
           path: dist
   deploy:

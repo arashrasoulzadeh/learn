@@ -13,7 +13,8 @@ export default defineConfig({
     ...devices['Desktop Chrome']
   },
   webServer:{
-    command:'npm run dev -- --host 127.0.0.1',
+    // Exercise the exact static output that will be deployed, without the Astro dev toolbar.
+    command:'npm run preview -- --host 127.0.0.1 --port 4321',
     url:'http://127.0.0.1:4321/learn/',
     reuseExistingServer:false,
     timeout:120_000
