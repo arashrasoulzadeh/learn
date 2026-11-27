@@ -160,3 +160,30 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 
 .network-lab{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0}
 @media(min-width:1000px) and (min-height:740px){.network-lab{height:100%}}
+
+/* Shared teaching dialogs and expanded step narration. */
+.lab-dialog-wrap{display:inline-flex;min-width:0}
+.lab-dialog-trigger{white-space:nowrap}
+.lab-dialog{padding:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);width:min(580px,calc(100vw - 28px));max-height:85dvh;overflow:auto;box-shadow:0 20px 70px #0009;text-align:start}
+.lab-dialog::backdrop{background:#070c16b8;backdrop-filter:blur(3px)}
+.lab-dialog-inner{padding:20px;display:grid;gap:12px}
+.lab-dialog-inner>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.lab-dialog h2{font-size:20px;line-height:1.6;margin:0}
+.lab-dialog header button{font-size:22px;min-width:40px;padding:4px 10px}
+.edge-options{display:grid;gap:10px}
+.edge-options>p{color:var(--muted);font-size:14px;line-height:1.8;margin:0}
+.edge-option{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-align:start;font:inherit}
+.edge-option strong{font-size:14px}.edge-option span{font-size:12px;color:var(--muted);line-height:1.8}
+.edge-option:hover,.edge-option[aria-pressed=true]{border-color:var(--accent);background:var(--panel2)}
+.stage-route,.stage-explanation,.stage-result,.stage-next{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.stage-route>span,.stage-next>span{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
+.stage-route>div{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.stage-actor{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--accent)}
+.stage-actor b{font-weight:500;background:var(--bg);border:1px solid var(--line);padding:3px 7px;border-radius:6px;color:var(--ink)}
+.stage-arrow{color:var(--accent)}
+.request-stage .stage-explanation h3,.request-stage .stage-result h3{font-size:13px;color:var(--accent);margin:0 0 5px}
+.request-stage .stage-explanation p,.request-stage .stage-result p{font-size:14px;line-height:1.9}
+.stage-next strong{font-size:13px;font-weight:600;color:var(--ink)}
+.request-experience{grid-template-columns:minmax(0,1.45fr) minmax(330px,1fr)}
+@media(max-width:999px){.request-experience{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.lab-dialog-inner{padding:14px}.lab-dialog h2{font-size:17px}.lab-playback-buttons{gap:6px}}
