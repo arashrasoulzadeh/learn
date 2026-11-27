@@ -18,8 +18,9 @@ const lessonUrl=(slug:string)=>'/learn/concepts/server-infrastructure/'+slug+'/'
 test.describe('Server & Infrastructure product audit',()=>{
  test('all ten lessons are discoverable from the catalog',async({page})=>{
   await page.goto('/learn/catalog/');
-  await expect(page.getByRole('heading',{name:/Server & Infrastructure/}).first()).toBeVisible();
-  for(const [,title] of lessons)await expect(page.getByRole('link',{name:new RegExp(title)}).first()).toBeVisible();
+  const category=page.locator('#server-infrastructure');
+  await expect(category.getByRole('heading',{name:/سرور و زیرساخت/})).toBeVisible();
+  for(const [slug] of lessons)await expect(category.locator('a[href="'+lessonUrl(slug)+'"]')).toBeVisible();
  });
 
  test('every Server lesson renders and every teaching step is usable',async({page})=>{
