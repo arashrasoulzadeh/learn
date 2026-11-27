@@ -68,6 +68,7 @@ function MotionPlayer({plan,speed,accent,onPhase}:{plan:Flight[];speed:number;ac
    const i=Math.min(plan.length-1,Math.floor(elapsed/per)),p=(elapsed-i*per)/per,s=plan[i];
    if(i!==last){last=i;onPhase(i);el.setAttribute('data-flight-index',String(i));msg.textContent=s.kind==='local'?'':s.label;packet.style.color=s.kind==='return'?'var(--blue)':accent;}
    const travel=Math.max(0,Math.min(1,(p-.08)/.76));
+   msg.setAttribute('opacity',travel>.18&&travel<.82?'1':'0');
    const x=s.from.x+(s.to.x-s.from.x)*travel,y=s.from.y+(s.to.y-s.from.y)*travel;
    const opacity=Math.min(1,p/.08,(1-p)/.16);
    el.setAttribute('opacity',String(Math.max(0,opacity)));
@@ -90,7 +91,7 @@ function FlowPacket({route,plan,active,accent}:{route:readonly FlowNode[];plan:F
   <path data-flow-path d={centerTrack(route)} fill="none" stroke="none"/>
   {plan.map((s,i)=>{const color=s.kind==='return'?'var(--blue)':accent,highlight=active===i;
    const vertical=Math.abs(s.from.y-s.to.y)>Math.abs(s.from.x-s.to.x);
-   const cx=s.mid.x+(vertical?(s.mid.x>180?-16:16):0),cy=s.mid.y-(vertical?0:(s.kind==='return'?-14:s.kind==='final'?14:17));
+   const cx=s.mid.x+(vertical?(s.kind==='return'?19:s.kind==='final'?36:-19):0),cy=s.mid.y-(vertical?0:(s.kind==='return'?-14:s.kind==='final'?14:17));
    return <g key={i} data-lane={s.kind} data-flight={i} data-current-flight={highlight}>
     <path d={'M '+point(s.from)+' L '+point(s.to)} stroke={color} strokeWidth={highlight?13:7} opacity={highlight?".22":".09"} fill="none" strokeLinecap="round"/>
     <path data-visible-flow d={'M '+point(s.from)+' L '+point(s.to)} fill="none" stroke={color} strokeWidth={highlight?3.5:2.5} strokeLinecap="round" strokeDasharray={s.kind==='return'?'5 3':s.kind==='final'?'2 3':undefined}/>
@@ -102,7 +103,7 @@ function FlowPacket({route,plan,active,accent}:{route:readonly FlowNode[];plan:F
  </g>;
 }
 type FlowDiagramProps={nodes:readonly FlowNode[];edges:readonly FlowEdge[];activeNodes:readonly number[];route:readonly FlowNode[];playing:boolean;speed:number;accent?:string;animationKey:string;label:string;caption:string;captionDirection?:'rtl'|'ltr';returnRoute?:readonly FlowNode[];packetLabel?:string;compactLayout?:{width:number;height:number;positions:readonly {x:number;y:number}[]};finalRoute?:readonly FlowNode[];preview?:boolean;motionVersion?:number;onReplay?:()=>void;flightLabels?:readonly string[];drop?:boolean};
-function FlowScene({nodes,edges,activeNodes,route,playing,speed,accent='var(--accent)',label,caption,captionDirection='rtl',returnRoute,packetLabel='Action',finalRoute,preview,onReplay,flightLabels,drop=false,width,height,compact}:FlowDiagramProps&{width:number;height:number;compact:boolean}){
+function FlowScene({nodes,edges,activeNodes,route,playing,speed,accent='var(--accent)',label,caption,returnRoute,packetLabel='Action',finalRoute,preview,onReplay,motionVersion,flightLabels,drop=false,width,height,compact}:FlowDiagramProps&{width:number;height:number;compact:boolean}){
  const gridId=useId(),[phase,setPhase]=useState(-1);
  const plan=flightPlan(route,returnRoute,finalRoute,packetLabel,flightLabels,drop);
  const moving=playing||preview;
@@ -111,7 +112,7 @@ function FlowScene({nodes,edges,activeNodes,route,playing,speed,accent='var(--ac
  const bottom=compact?height:Math.max(...nodes.map(n=>n.y))+72;
  return <>
   <div className="flight-sequence" aria-label="ترتیب پیام‌های این مرحله">
-   <div className="flight-sequence-head"><span>{plan.length===1&&plan[0].kind==='local'?'عملیات در همان جزء':'ترتیب ارسال و دریافت'} <b>{active>=0&&active<plan.length?String(active+1)+' / '+plan.length:active===plan.length?'✓':''}</b></span>{onReplay&&<button type="button" className="flight-replay" onClick={onReplay}>بازپخش همین مرحله</button>}</div>
+   <div className="flight-sequence-head"><span>{plan.length===1&&plan[0].kind==='local'?'عملیات در همان جزء':'ترتیب ارسال و دریافت'} <b>{active>=0&&active<plan.length?String(active+1)+' / '+plan.length:active===plan.length?'✓':''}</b></span>{onReplay&&<button type="button" className="flight-replay" onClick={()=>{setPhase(-1);onReplay();}}>بازپخش همین مرحله</button>}</div>
    <div className="flight-steps">{plan.map((s,i)=><div className="flight-chip" key={i} data-kind={s.kind} data-active={active===i} data-past={active>i} data-drop={!!s.drop} title={s.source===s.target?s.source:s.source+' → '+s.target}><small>{i+1}</small><bdi dir="ltr">{s.label}</bdi>{s.drop&&<span aria-label="بسته حذف می‌شود">×</span>}</div>)}</div>
   </div>
   <svg className="flow-diagram" data-layout={compact?'compact':'wide'} viewBox={'0 '+top+' '+width+' '+(bottom-top)} direction="ltr" role="img" aria-label={label+'؛ '+caption}>
@@ -121,13 +122,13 @@ function FlowScene({nodes,edges,activeNodes,route,playing,speed,accent='var(--ac
    {edges.map(([a,b])=>{const s=laneSegment(nodes[a],nodes[b]);return <line key={a+'-'+b} x1={s.from.x} y1={s.from.y} x2={s.to.x} y2={s.to.y} stroke="var(--line)" strokeWidth="2" strokeDasharray="5 6"/>;})}
    <FlowPacket route={route} plan={plan} active={active} accent={accent}/>
    {nodes.map((node,i)=><DiagramNode key={i} node={node} active={activeNodes.includes(i)} accent={accent}/>)}
-   {moving&&<MotionPlayer plan={plan} speed={speed} accent={accent} onPhase={setPhase}/>}
-   <text x={width/2} y={bottom-5} fill="var(--muted)" textAnchor="middle" fontSize="10" direction={captionDirection}>مدل آموزشی · مقیاس زمانی واقعی نیست</text>
+   {moving&&<MotionPlayer key={motionVersion??0} plan={plan} speed={speed} accent={accent} onPhase={setPhase}/>}
+   <text x={width/2} y={bottom-5} fill="var(--muted)" textAnchor="middle" fontSize="10" direction="rtl">مدل آموزشی · مقیاس زمانی واقعی نیست</text>
   </svg>
  </>;
 }
 export function FlowDiagram(props:FlowDiagramProps){
- const {nodes,route,returnRoute,finalRoute,compactLayout,animationKey,motionVersion}=props;
+ const {nodes,route,returnRoute,finalRoute,compactLayout,animationKey}=props;
  const [compact,setCompact]=useState(false);
  useEffect(()=>{
   const media=window.matchMedia('(max-width: 600px)');
@@ -138,5 +139,5 @@ export function FlowDiagram(props:FlowDiagramProps){
  const layout=compact?compactLayout:undefined;
  const displayNodes=layout?nodes.map((node,i)=>({...node,...layout.positions[i]})):nodes;
  const remap=(path:readonly FlowNode[])=>path.map(node=>displayNodes[nodes.indexOf(node)]??node);
- return <FlowScene key={animationKey+'-'+(layout?'compact':'wide')+'-'+(motionVersion??0)} {...props} nodes={displayNodes} route={remap(route)} returnRoute={returnRoute?remap(returnRoute):undefined} finalRoute={finalRoute?remap(finalRoute):undefined} width={layout?.width??790} height={layout?.height??355} compact={!!layout}/>;
+ return <FlowScene key={animationKey+'-'+(layout?'compact':'wide')} {...props} nodes={displayNodes} route={remap(route)} returnRoute={returnRoute?remap(returnRoute):undefined} finalRoute={finalRoute?remap(finalRoute):undefined} width={layout?.width??790} height={layout?.height??355} compact={!!layout}/>;
 }

@@ -30,9 +30,10 @@ for(let i=0;i<slugs.length;i++){
   assert.ok(l.scenarios.length>=3&&l.scenarios.some(s=>s.edgeCase),slug+' needs selectable edge cases');
   assert.equal(new Set(l.scenarios.map(s=>s.id)).size,l.scenarios.length);
   for(const s of l.scenarios){
-    scenarios++;assert.ok(s.label&&s.example&&s.steps.length>=2);
+    scenarios++;assert.ok(s.label&&s.example&&s.prediction&&s.steps.length>=2);
     for(const st of s.steps){
       steps++;assert.ok(st.name&&st.short&&st.detail&&st.result&&st.input&&st.output&&st.packet&&st.explanation,slug+' missing teaching data');
+      assert.ok(st.diagnostic&&st.flightLabels?.length===Math.max(1,st.route.length-1)*(st.roundTrip?2:1)&&st.flightLabels.every(v=>v.length>0),slug+' missing per-hop messages and diagnostics');
       assert.ok(Array.isArray(st.state)&&st.state.length===l.visual.labels.length&&st.state.every(value=>typeof value==='string'&&value.length>0),slug+' missing concrete protocol state');
       assert.ok(st.route.length>0&&st.route.every(n=>Number.isInteger(n)&&n>=0&&n<l.actors.length),slug+' invalid node');
       for(let j=1;j<st.route.length;j++){

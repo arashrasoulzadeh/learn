@@ -28,6 +28,7 @@ for(let i=0;i<slugs.length;i++){
   assert.ok(edges.every(([a,b])=>Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b>=0&&a<actors.length&&b<actors.length));
   for(const s of scenario.steps){
    steps++;assert.ok(s.name&&s.short&&s.detail&&s.explanation&&s.result&&s.packet&&s.input&&s.output,slug+' missing explanation');
+   assert.ok(s.diagnostic&&s.flightLabels?.length===Math.max(1,s.route.length-1)*(s.roundTrip?2:1)&&s.flightLabels.every(v=>v.length>0),slug+' missing per-hop messages and diagnostics');
    assert.ok(s.state.length===3&&s.state.every(v=>typeof v==='string'&&v.length));
    assert.ok(s.route.length&&s.route.every(n=>Number.isInteger(n)&&n>=0&&n<actors.length));
    for(let j=1;j<s.route.length;j++){const a=s.route[j-1],b=s.route[j];assert.ok(edges.some(([x,y])=>x===a&&y===b||x===b&&y===a),slug+' disconnected route');}

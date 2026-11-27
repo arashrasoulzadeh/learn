@@ -119,8 +119,10 @@ test('HTTP lesson exposes live address, stage result and status without breaking
   await steps.nth(1).click();
   await expect(lab.locator('.protocol-exchange')).toContainText('نشانی سرور پیدا شده است.');
   await lab.getByRole('button',{name:'پخش',exact:true}).click();
-  await expect(lab.locator('animateMotion')).toHaveAttribute('repeatCount','1');
-  await expect(lab.locator('animateMotion')).toHaveAttribute('calcMode','paced');
+  await expect(lab.locator('[data-main-motion=true]')).toHaveAttribute('data-flight-count','2');
+  await expect(lab.locator('.flight-chip')).toHaveCount(2);
+  await expect(lab.locator('.flight-chip').first()).toContainText('A?');
+  await expect(lab.locator('.flight-chip').last()).toContainText('A 192.0.2.10');
   await expect(lab.locator('[data-lane=forward]')).toHaveCount(1);
   await expect(lab.locator('[data-lane=return]')).toHaveCount(1);
   expect(await lab.locator('[data-lane=forward] [data-visible-flow]').getAttribute('d')).not.toBe(await lab.locator('[data-lane=return] [data-visible-flow]').getAttribute('d'));
@@ -228,7 +230,7 @@ test('HTTP applied practice distinguishes a server response from network failure
   const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
   await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
   await expect(lab.locator('.lesson-goal p')).not.toBeEmpty();
-  await expect(lab.locator('.request-stage > .protocol-state')).toBeVisible();
+  await expect(lab.locator('.request-canvas > .protocol-state')).toBeVisible();
   await lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button').last().click();
   await lab.getByRole('link',{name:/حل تمرین کاربردی/}).click();
   const practice=lab.locator('.practice-check');

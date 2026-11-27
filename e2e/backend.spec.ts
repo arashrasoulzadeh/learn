@@ -293,6 +293,12 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
     await expect(state.locator('.state-cell')).toHaveCount(3);
     await expect(state.locator('.state-step')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR'));
     await expect(lab.locator('.stage-explanation p')).not.toBeEmpty();
+        await expect(lab.locator('.stage-diagnostic p')).not.toBeEmpty();
+        await expect(lab.locator('.flight-steps .flight-chip').first()).not.toBeEmpty();
+        const hopCount=await lab.locator('.flow-diagram [data-flight]').count();
+        await expect(lab.locator('.flight-chip')).toHaveCount(hopCount);
+        await expect(lab.locator('.request-canvas > .protocol-state')).toBeVisible();
+        await expect(lab.locator('.backend-prediction p')).not.toBeEmpty();
     await expect(lab.locator('.stage-route')).toBeVisible();
     for(const cell of await state.locator('.state-value').all())await expect(cell).not.toBeEmpty();
     await expect(lab.locator('.request-message pre').first()).not.toBeEmpty();

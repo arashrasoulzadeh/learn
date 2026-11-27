@@ -25,9 +25,9 @@ for(const lesson of curriculum){
     await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
     const diagram=lab.locator('.flow-diagram');
     await expect(diagram).toHaveAttribute('data-layout','wide');
-    const stateCard=lab.locator('.request-stage > .protocol-state');
+    const stateCard=lab.locator('.request-canvas > .protocol-state');
     await expect(stateCard).toBeVisible();
-    expect(await stateCard.evaluate(el=>{const box=el.getBoundingClientRect();const panel=el.closest('.request-detail')!.getBoundingClientRect();return box.top>=panel.top-1&&box.bottom<=panel.bottom+1;})).toBe(true);
+    expect(await stateCard.evaluate(el=>{const box=el.getBoundingClientRect();const panel=el.closest('.request-canvas')!.getBoundingClientRect();return box.top>=panel.top-1&&box.bottom<=panel.bottom+1;})).toBe(true);
     const controls=lab.getByLabel('سناریو');
     await expect(controls.locator('option')).toHaveCount(lesson.cases.length);
     const steps=lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button');
@@ -41,6 +41,12 @@ for(const lesson of curriculum){
         await expect(lab.locator('.request-counter')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR')+' از '+count.toLocaleString('fa-IR'));
         await expect(lab.locator('.request-stage h2')).not.toBeEmpty();
         await expect(lab.locator('.stage-explanation p')).not.toBeEmpty();
+        await expect(lab.locator('.stage-diagnostic p')).not.toBeEmpty();
+        await expect(lab.locator('.flight-steps .flight-chip').first()).not.toBeEmpty();
+        const hopCount=await lab.locator('.flow-diagram [data-flight]').count();
+        await expect(lab.locator('.flight-chip')).toHaveCount(hopCount);
+        await expect(lab.locator('.request-canvas > .protocol-state')).toBeVisible();
+        await expect(lab.locator('.backend-prediction p')).not.toBeEmpty();
         const state=lab.locator('.protocol-state[data-protocol="'+lesson.slug+'"]');
         await expect(state.locator('.state-cell')).toHaveCount(3);
         await expect(state.locator('.state-step')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR'));
@@ -177,7 +183,7 @@ test('a manually selected last TCP stage can play, stop, and replay from the beg
   await steps.last().click();
   await lab.getByRole('button',{name:'پخش',exact:true}).click();
   await expect(steps.last()).toHaveAttribute('aria-current','step');
-  await expect(lab.locator('animateMotion')).toHaveAttribute('repeatCount','1');
+  await expect(lab.locator('[data-main-motion=true]')).toHaveAttribute('data-flight-count','2');
   await lab.getByRole('button',{name:'توقف',exact:true}).click();
   await expect(steps.last()).toHaveAttribute('aria-current','step');
   await lab.getByRole('button',{name:'پخش',exact:true}).click();

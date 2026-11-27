@@ -33,3 +33,6 @@ Data lessons 21–30 use `data-basics` under databases. Reuse shared BackendLab,
 
 ## Advanced engineering labs
 Every curated lesson (levels one–three) must expose its distinct advanced trace. Include at least two comparable policies or conditions, concrete initial state, chronological events with valid lanes and state patches, final tradeoffs, code or wire examples, diagnostics and official references. Model time explicitly as illustrative; do not claim the traces execute the real protocol or database. Keep state differences observable and compare outputs only after a trace ends. Run check:deep and per-lesson Playwright tests before main.
+
+## Primary lesson playback and evidence
+Each curated stage must have a concrete developer diagnostic and a label for every animated flight, including distinct return messages. Model packet drops explicitly; do not treat an HTTP rejection as a lost packet. Keep the final state snapshot (with before/after differences) inside the canvas, and put the actual input/output beside the mechanism explanation. Manual selection and replay animate only the selected stage; autoplay progresses the scenario. Local steps pulse the affected component. Respect reduced motion, preserve RTL message order and inspect real screenshots before declaring visual review complete.
