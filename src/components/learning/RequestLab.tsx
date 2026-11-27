@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import DeepLab from './deep/DeepLab';
 import {usePlayback,LabSelect,LabToolbar,LabTimeline,LabStage,LabMessage,LabNote,LabScreen} from './LabUI';
 import {FlowDiagram,type FlowEdge} from './FlowDiagram';
 import {RequestOverview,ProtocolExchange} from './RequestDetails';
@@ -22,7 +23,7 @@ const stages = [
   {name:'اجرای منطق برنامه',short:'برنامه',from:2,to:3,label:'پراکسی، مسیریابی و پردازش',detail:'پراکسی درخواست را به برنامه می‌فرستد. برنامه مسیر مناسب را پیدا می‌کند، دسترسی و ورودی را اعتبارسنجی می‌کند و منطق کسب‌وکار را اجرا می‌کند.'},
   {name:'دسترسی به داده‌ها',short:'پایگاه داده',from:3,to:4,label:'خواندن یا نوشتن داده و دریافت نتیجه',detail:'برنامه در صورت نیاز از پایگاه داده یا حافظهٔ نهان داده می‌گیرد. بعضی درخواست‌ها اصلاً به دسترسی به داده نیاز ندارند.'},
   {name:'بازگرداندن پاسخ HTTP',short:'پاسخ',from:3,to:0,label:'کد وضعیت، سرآیندها و بدنه',detail:'برنامه نتیجه را از طریق پراکسی به مرورگر برمی‌گرداند. کد وضعیت نشان می‌دهد درخواست چه نتیجه‌ای داشته است.'},
-  {name:'به‌روزرسانی مرورگر',short:'نمایش',from:0,to:0,label:'تجزیهٔ پاسخ و به‌روزرسانی رابط',detail:'مرورگر یا کلاینت جاوااسکریپت پاسخ را تجزیه می‌کند، رابط کاربری را به‌روز می‌کند و در صورت مجاز بودن، پاسخ را در حافظهٔ نهان ذخیره می‌کند.'}
+  {name:'به‌روزرسانی مرورگر',short:'نمایش',from:0,to:0,label:'تجزیهٔ پاسخ و به‌روزرسانی رابط',detail:'مرورگر یا کلاینت جاوااسکریپت پاسخ را تجزیه می‌کند، رابط کاربری را به‌روز می‌کند و طبق قواعد cache رفتار می‌کند؛ در نمونهٔ no-store پاسخ نباید در cache ذخیره شود.'}
 ];
 const nodes = [
   {x:700,y:220,label:'مرورگر',sub:'کلاینت',icon:'browser'},
@@ -89,7 +90,7 @@ export default function RequestLab(){
   const connectionState=step===0?'URL parsed':step===1?'DNS resolved':step===2?'TCP established':'HTTPS ready';
   const requestState=step<4?'Not sent':step===4?'At edge proxy':step===5?'At application':step===6?'Database operation':'Completed';
   return <LabScreen label="آموزش تعاملی درخواست HTTP" stepKey={scenario+'-'+step}
-    overview={<RequestOverview method={s.method} path={s.path} status={responseVisible?s.status:undefined} outcome={outcome}/>}
+    overview={<><RequestOverview method={s.method} path={s.path} status={responseVisible?s.status:undefined} outcome={outcome}/><DeepLab slug="http-request" onOpen={pause}/></>}
     graphFooter={<ProtocolExchange phase={stageNotes[step].phase} result={result} example={example}/>}
     
     toolbar={<LabToolbar playback={playback} count={stages.length} actions={<><LearningExtras pitfall="وجود یک پاسخ HTTP به معنای موفقیت عملیات نیست؛ پاسخ ۴۰۴ یا ۵۰۰ نیز یک پاسخ معتبر HTTP است. اتصال TCP ممکن است برای درخواست‌های بعدی دوباره استفاده شود." takeaway="DNS نشانی را پیدا می‌کند، TCP و TLS ارتباط را آماده می‌کنند و HTTP معنای درخواست و پاسخ را تعیین می‌کند." quiz={{question:'کدام مرحله نشانی IP نام دامنه را پیدا می‌کند؟',options:['TLS','DNS','HTTP'],correct:1,explanation:'DNS نام میزبان را به رکوردهایی مانند IP نگاشت می‌کند.'}} terms={teaching.terms} fieldExercise={fieldExercises['http-request']} references={[{label:'RFC 9110 — HTTP semantics',url:'https://www.rfc-editor.org/rfc/rfc9110.html'},{label:'RFC 9112 — HTTP/1.1',url:'https://www.rfc-editor.org/rfc/rfc9112.html'}]} onOpen={pause}/><EdgeCases current={scenario} onSelect={selectScenario} onOpen={pause} cases={[{id:'missing',label:'محصول ناموجود · ۴۰۴',explanation:'سرور سالم است اما محصول مورد نظر وجود ندارد.'},{id:'error',label:'خطای داخلی · ۵۰۰',explanation:'عملیات داده با خطای غیرمنتظره شکست می‌خورد.'},{id:'conflict',label:'تداخل داده · ۴۰۹',explanation:'درخواست ایجاد معتبر است اما نام محصول از قبل وجود دارد.'}]}/></>}><LabSelect label="سناریو" value={scenario} options={scenarioOptions} onChange={selectScenario}/></LabToolbar>}

@@ -40,7 +40,7 @@ export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,
   if(route.length<2)return route.length===1?<g data-local-step="true" transform={'translate('+route[0].x+' '+(route[0].y+54)+')'}><rect x="-37" y="-10" width="74" height="20" rx="6" fill="var(--bg)" stroke={accent}/><text textAnchor="middle" y="4" fill={accent} fontSize="10" direction="rtl">عملیات محلی</text></g>:null;
   const forward=lane(route,returnRoute?.length?6:0);
   const backward=returnRoute?.length?lane(returnRoute,6):[];
-  const final=finalRoute?.length?lane(finalRoute,6):[];
+  const final=finalRoute?.length?lane(finalRoute,-15):[];
   const segments=[...forward,...backward,...final];
   const track=motionTrack(segments);
   const duration=(final.length?5.4:backward.length?4.8:3.2)/speed;
@@ -48,12 +48,12 @@ export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,
   const labelX=first.mid.x+(vertical?(first.mid.x>180?-39:39):0),labelY=first.mid.y-(vertical?0:24);
   return <g>
     <path data-flow-path d={centerTrack(route)} fill="none" stroke="none"/>
-    {[...forward.map(s=>({s,color:accent,kind:'forward'})),...backward.map(s=>({s,color:'var(--blue)',kind:'return'}))].map(({s,color,kind},i)=><g key={i} data-lane={kind}>
+    {[...forward.map(s=>({s,color:accent,kind:'forward'})),...backward.map(s=>({s,color:'var(--blue)',kind:'return'})),...final.map(s=>({s,color:accent,kind:'final'}))].map(({s,color,kind},i)=><g key={i} data-lane={kind}>
       <path d={'M '+point(s.from)+' L '+point(s.to)} stroke={color} strokeWidth="8" opacity=".10" fill="none" strokeLinecap="round"/>
-      <path data-visible-flow d={'M '+point(s.from)+' L '+point(s.to)} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeDasharray={kind==='return'?'5 3':undefined}/>
+      <path data-visible-flow d={'M '+point(s.from)+' L '+point(s.to)} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeDasharray={kind==='return'?'5 3':kind==='final'?'2 3':undefined}/>
       <path data-flow-arrow={kind} d="M -8 -4.5 L 0 0 L -8 4.5" transform={'translate('+point(s.to)+') rotate('+s.angle+')'} fill="none" stroke={color} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
     </g>)}
-    {playing&&<g className="request-packet-motion" key={animationKey+'-'+track}><circle r="10" fill={accent} opacity=".22"/><circle r="5" fill={accent} stroke="var(--bg)" strokeWidth="1.5"/><animateMotion dur={duration+'s'} path={track} calcMode="paced" repeatCount="1" fill="freeze"/></g>}
+    {playing&&<g className="request-packet-motion" key={animationKey+'-'+track}><circle r="10" fill={accent} opacity=".22"/><rect x="-7" y="-4.5" width="14" height="9" rx="2.5" fill={accent} stroke="var(--bg)" strokeWidth="1.5"/><path d="M-5 -2 L0 1 L5 -2" stroke="var(--bg)" fill="none" strokeWidth="1.2"/><animateMotion dur={duration+'s'} path={track} calcMode="paced" repeatCount="1" fill="freeze"/></g>}
     {packetLabel&&<g transform={'translate('+labelX+' '+labelY+')'}><rect x="-30" y="-10" width="60" height="20" rx="6" fill="var(--bg)" stroke={accent} strokeOpacity=".6"/><text y="4" textAnchor="middle" fill={accent} fontSize="11" fontWeight="700" direction="ltr">{packetLabel}</text></g>}
   </g>;
 }

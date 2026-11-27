@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import DeepLab from '../deep/DeepLab';
 import {usePlayback,LabSelect,LabToolbar,LabTimeline,LabStage,LabMessage,LabNote,LabScreen} from '../LabUI';
 import {FlowDiagram,type FlowNode} from '../FlowDiagram';
 import {ProtocolExchange} from '../RequestDetails';
@@ -26,7 +27,7 @@ export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
   return <div className="network-lab" data-lesson={lesson.slug}>
     <LabScreen label={lesson.title+' — آموزش تعاملی'}
       toolbar={<LabToolbar playback={playback} count={scenario.steps.length} actions={<><LearningExtras pitfall={lesson.pitfall} takeaway={lesson.takeaway} quiz={lesson.quiz} references={lesson.references} terms={lesson.teaching.terms} fieldExercise={fieldExercises[lesson.slug]} onOpen={pause}/><EdgeCases cases={lesson.scenarios.filter(s=>s.edgeCase).map(s=>({id:s.id,label:s.label,explanation:s.edgeCase!}))} current={scenario.id} onSelect={selectScenario} onOpen={pause}/></>}><LabSelect label="سناریو" value={scenario.id} options={lesson.scenarios.map(s=>({value:s.id,label:s.label}))} onChange={selectScenario}/></LabToolbar>}
-      overview={<div className="network-overview"><strong>{scenario.label}</strong><code dir="ltr">{scenario.example}</code></div>}
+      overview={<><div className="network-overview"><strong>{scenario.label}</strong><code dir="ltr">{scenario.example}</code></div><DeepLab slug={lesson.slug} onOpen={pause}/></>}
       graph={<FlowDiagram nodes={nodes} edges={lesson.edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={scenario.id+'-'+step+'-'+speed} label={stage.name} caption={stage.name} returnRoute={stage.roundTrip?[...route].reverse():undefined} packetLabel={stage.packet} compactLayout={compactLayout}/>}
       graphFooter={<ProtocolExchange phase={stage.short} result={stage.result} example={stage.packet||scenario.example}/>}
       stepKey={scenario.id+'-'+step}
