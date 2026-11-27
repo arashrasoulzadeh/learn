@@ -26,6 +26,7 @@ jobs:
       - run: npm run check:data
       - run: npm run check:data-exercises
       - run: npm run check:deep
+      - run: npm run check:advanced
       - run: npm run check
       - run: npm run build
       - run: npx playwright install --with-deps chromium

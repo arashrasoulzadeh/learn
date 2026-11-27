@@ -364,7 +364,7 @@ test('curriculum lists three ordered levels and reaches process and thread from 
  await expect(page).toHaveURL(/\/software-engineering\/process-thread\/$/);
  await page.locator('#lesson-picker summary').click();
  const nav=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
- await expect(nav.getByRole('link')).toHaveCount(30);
+ await expect(nav.getByRole('link')).toHaveCount(50);
  for(let i=0;i<lessons.length;i++)await expect(nav.getByRole('link').nth(i+10)).toHaveAttribute('href','/learn/concepts/software-engineering/'+lessons[i][0]+'/');
  await expect(nav.getByRole('link').nth(10)).toHaveAttribute('aria-current','page');
  await nav.getByRole('link').nth(19).click();

@@ -109,7 +109,7 @@ test('level-one picker lists all ten lessons in order and navigates to DNS',asyn
   await page.goto('/learn/',{waitUntil:'domcontentloaded'});
   await page.locator('#lesson-picker summary').click();
   const links=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'}).getByRole('link');
-  await expect(links).toHaveCount(30);
+  await expect(links).toHaveCount(50);
   const slugs=['http-request',...curriculum.map(l=>l.slug)];
   for(let i=0;i<slugs.length;i++)await expect(links.nth(i)).toHaveAttribute('href','/learn/concepts/networking/'+slugs[i]+'/');
   await links.nth(1).click();

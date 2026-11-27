@@ -7,7 +7,9 @@ for(const name of files){
  const mod=await import('../'+root+name+'.ts');lessons.push(...mod[name]);
 }
 const slugs=['http-request','dns','ip-port','tcp','udp','tls-https','http-methods','http-status-codes','cookies-sessions','websocket','process-thread','stack-heap','async-await','event-loop','api-routing','middleware','rest-api','authentication','authorization','jwt','sql-nosql','database-index','b-tree','transactions-acid','database-locking','connection-pooling','caching','cache-invalidation','replication','sharding'];
-assert.deepEqual(lessons.map(l=>l.slug),slugs);
+const advanced=["solid","singleton","factory","strategy","observer","dependency-injection","repository-pattern","clean-architecture","monolith-microservices","event-driven-architecture","reverse-proxy","load-balancing","scaling","cdn","message-queue","rate-limiting","circuit-breaker","distributed-lock","cap-theorem","raft"];
+for(const slug of advanced)lessons.push((await import('../src/components/learning/advanced/'+slug+'.ts')).deep);
+assert.deepEqual(lessons.map(l=>l.slug),[...slugs,...advanced]);
 let events=0,cases=0;
 for(const l of lessons){
  const fields=Object.keys(l.fields);

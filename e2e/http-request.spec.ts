@@ -51,7 +51,7 @@ test('RTL diagram and shared header controls work on desktop and phone',async({p
   expect((await picker.boundingBox())!.x).toBeLessThan((await title.boundingBox())!.x);
   await picker.click();
   const menu=header.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
-  await expect(menu.getByRole('link')).toHaveCount(30);
+  await expect(menu.getByRole('link')).toHaveCount(50);
   const httpLink=menu.getByRole('link',{name:/چرخهٔ یک درخواست HTTP/});
   await expect(httpLink).toHaveAttribute('href','/learn/concepts/networking/http-request/');
   await about.click();

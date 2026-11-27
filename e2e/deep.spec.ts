@@ -233,6 +233,27 @@ const fixtures=[
     "1",
     "4"
   ]
+,
+["design-patterns","solid","core","2","0"],
+["design-patterns","singleton","created","2","1"],
+["design-patterns","factory","clients","2","0"],
+["design-patterns","strategy","total","1100","2400"],
+["design-patterns","observer","delivered","0","1"],
+["architecture","dependency-injection","created","1","2"],
+["architecture","repository-pattern","total","120","150"],
+["architecture","clean-architecture","passed","0","2"],
+["architecture","monolith-microservices","action","Rolled back","Compensated"],
+["architecture","event-driven-architecture","count","3","2"],
+["system-design","reverse-proxy","orders","2","1"],
+["system-design","load-balancing","max","6","4"],
+["system-design","scaling","time","20","14"],
+["system-design","cdn","wrong","2","0"],
+["system-design","message-queue","queued","16","0"],
+["system-design","rate-limiting","allowed","6","3"],
+["system-design","circuit-breaker","elapsed","500","203"],
+["system-design","distributed-lock","value","v1","v2"],
+["system-design","cap-theorem","stale","0","2"],
+["system-design","raft","commit","11","10"]
 ] as const;
 for(const [category,slug,key,first,second] of fixtures){
  test(slug+' — engineering trace choices, every event, state transitions and comparison',async({page})=>{

@@ -14,12 +14,13 @@
     "new:concept": "node scripts/new-concept.mjs",
     "check:server": "node scripts/check-server-lessons.mjs",
     "test:e2e": "playwright test",
-    "verify": "npm run check:server && npm run check:network && npm run check:backend && npm run check:data && npm run check:data-exercises && npm run check:deep && npm run check && npm run build && npm run test:e2e",
+    "verify": "npm run check:server && npm run check:network && npm run check:backend && npm run check:data && npm run check:data-exercises && npm run check:deep && npm run check:advanced && npm run check && npm run build && npm run test:e2e",
     "check:network": "node --experimental-strip-types scripts/check-network-lessons.mjs",
     "check:backend": "node --experimental-strip-types scripts/check-backend-lessons.mjs",
     "check:data": "node --experimental-strip-types scripts/check-data-lessons.mjs",
     "check:data-exercises": "python3 scripts/check-data-exercises.py",
-    "check:deep": "node --experimental-strip-types scripts/check-deep-lessons.mjs"
+    "check:deep": "node --experimental-strip-types scripts/check-deep-lessons.mjs",
+    "check:advanced": "node --experimental-strip-types scripts/check-advanced-lessons.mjs"
   },
   "dependencies": {
     "astro": "^5.16.16",
