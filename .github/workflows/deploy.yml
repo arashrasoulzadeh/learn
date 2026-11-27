@@ -14,6 +14,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 18
+    outputs:
+      pages_artifact: ${{ steps.artifact_name.outputs.name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,12 +36,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: server-visual-audit
+          name: server-visual-audit-${{ github.run_attempt }}
           path: test-results
           if-no-files-found: ignore
+      - name: Choose unique Pages artifact name
+        id: artifact_name
+        run: echo "name=github-pages-${{ github.run_attempt }}" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
+          name: ${{ steps.artifact_name.outputs.name }}
           path: dist
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -55,3 +61,5 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/deploy-pages@v4
         id: deployment
+        with:
+          artifact_name: ${{ needs.build.outputs.pages_artifact }}
