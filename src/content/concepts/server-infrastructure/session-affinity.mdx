@@ -1,0 +1,86 @@
+---
+title: "Session Affinity"
+description: "Trace an affinity cookie to local session state, observe load skew and instance failure, then move session state outside the process."
+category: server-infrastructure
+difficulty: intermediate
+estimatedMinutes: 16
+order: 10
+tags: [session-affinity, sticky-session, cookies, state, load-balancing]
+---
+import { SessionAffinityLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+User A has a shopping cart stored only in App 1 memory. A load balancer can keep sending that user back to App 1, but that does not make the cart durable.
+
+Affinity solves a **routing locality** problem. It can also create a new coupling between one user and one process.
+
+## Mental model
+
+First request:
+
+```http
+GET /cart
+Cookie: (none)
+```
+
+The balancer chooses App 1 and can return:
+
+```http
+Set-Cookie: route=app1
+```
+
+Next request:
+
+```http
+GET /cart
+Cookie: route=app1
+```
+
+The load balancer selects App 1 again, where local session A contains `cart=3`.
+
+<Callout title="A routing cookie is not durable storage">
+  If App 1 disappears, the cookie can still exist while the process-local session is gone. Affinity preserves locality only while the target remains usable.
+</Callout>
+
+## Interactive lab
+
+Watch the cookie, the per-instance load, the failure and the final move to shared session state.
+
+<SessionAffinityLab client:visible />
+
+## Practical example
+
+Kubernetes Services can use `sessionAffinity: ClientIP`, which is based on client IP rather than a cookie. Reverse proxies and application gateways can implement other affinity mechanisms. The exact key matters because NAT, proxies and mobile networks can change apparent client identity.
+
+Affinity can hide load skew. App 1 might reach 90% utilization while App 2 sits at 30%. A fleet average of 60% looks fine even though one target is close to saturation.
+
+Moving session state to a shared store is one way to decouple routing from one process. Another is to design the application to keep user state in durable backend systems and make App instances stateless. Both choices have their own latency and availability trade-offs.
+
+## Failure modes and trade-offs
+
+- **Hot target:** sticky users accumulate unevenly.
+- **Target failure:** the affinity key still names a dead or draining target.
+- **Process-local session loss:** state disappears with the instance.
+- **Rebalancing is harder:** removing a target disrupts pinned users.
+- **Shared session store becomes a dependency:** durability improves but a new network/storage path exists.
+
+Measure per-instance load, affinity hit rate, session recovery failures and distribution skew.
+
+## Check your understanding
+
+<Quiz client:visible question="User A still has cookie route=app1, but App 1 failed. What does the cookie guarantee?" options={['Only the previous routing preference, not the survival of local session state','That cart data is durable','That App 2 already has the session','That the failed process will restart instantly']} correct={0} explanation="Affinity information and session durability are separate concerns." />
+
+<Quiz client:visible question="Why can affinity make a fleet average misleading?" options={['Sticky users can create per-instance load skew','Cookies always increase CPU by 100%','Affinity disables metrics','All users become one request']} correct={0} explanation="One instance can be hot while another is underused, even when the overall average looks healthy." />
+
+## Takeaway
+
+Session affinity says **“prefer the same target”**, not **“this state is safe.”** Treat routing locality, load distribution and session durability as separate design decisions.
+
+## References
+
+- [Kubernetes: Service session affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity)
+- [RFC 6265: HTTP State Management Mechanism](https://www.rfc-editor.org/rfc/rfc6265)
+- [MDN: Using HTTP cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies)
