@@ -52,11 +52,11 @@ test('RTL diagram and shared header controls work on desktop and phone',async({p
   await expect(menu.getByRole('link')).toHaveAttribute('href','/learn/concepts/networking/http-request/');
   await about.click();
   await expect(menu).not.toBeVisible();
-  await expect(header.getByText('توسعه‌دهنده: آرش',{exact:true})).toBeVisible();
-  await expect(header.getByText('تقدیم به دوست عزیزم سمیه',{exact:true})).toBeVisible();
+  await expect(header.getByText('توسعه‌دهنده: آرش رسول زاده',{exact:true})).toBeVisible();
+  await expect(header.getByText('تقدیم به دوست عزیزم سمیه ابراهیم زاده',{exact:true})).toBeVisible();
   await expect(header.getByRole('link',{name:/گیت‌هاب/})).toHaveAttribute('href','https://github.com/arashrasoulzadeh/learn');
   await page.keyboard.press('Escape');
-  await expect(header.getByText('تقدیم به دوست عزیزم سمیه',{exact:true})).not.toBeVisible();
+  await expect(header.getByText('تقدیم به دوست عزیزم سمیه ابراهیم زاده',{exact:true})).not.toBeVisible();
   const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
   await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
   const graph=lab.locator('svg');
