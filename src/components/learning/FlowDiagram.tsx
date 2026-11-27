@@ -86,7 +86,7 @@ function MotionPlayer({plan,speed,accent,onPhase}:{plan:Flight[];speed:number;ac
 }
 function FlowPacket({route,plan,active,accent}:{route:readonly FlowNode[];plan:Flight[];active:number;accent:string}){
  const local=plan.length===1&&plan[0].kind==='local';
- if(local){const s=plan[0];return <g data-local-step="true" data-flight="0" transform={'translate('+s.from.x+' '+(s.from.y+54)+')'}><rect x="-46" y="-10" width="92" height="20" rx="6" fill="var(--bg)" stroke={accent}/><text textAnchor="middle" y="4" fill={accent} fontSize="10" direction="rtl">{s.drop?'حذف محلی بسته':'عملیات محلی'}</text></g>;}
+ if(local){const s=plan[0];return <g data-local-step="true" data-packet-drop={s.drop?'true':undefined} data-flight="0" transform={'translate('+s.from.x+' '+(s.from.y+54)+')'}><rect x="-46" y="-10" width="92" height="20" rx="6" fill="var(--bg)" stroke={accent}/><text textAnchor="middle" y="4" fill={accent} fontSize="10" direction="rtl">{s.drop?'حذف محلی بسته':'عملیات محلی'}</text></g>;}
  return <g>
   <path data-flow-path d={centerTrack(route)} fill="none" stroke="none"/>
   {plan.map((s,i)=>{const color=s.kind==='return'?'var(--blue)':accent,highlight=active===i;

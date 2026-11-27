@@ -135,14 +135,14 @@ const lesson = {
           "short": "بازگشت",
           "detail": "پس از پایان query و پاک‌سازی وضعیت لازم، مالک C1 آن را به pool برمی‌گرداند. این release عمل driver/pool است و از سمت DB به‌صورت پیام مستقلی ارسال نمی‌شود.",
           "route": [
-            2,
+            0,
             1
           ],
           "packet": "RELEASE",
           "input": "release C1",
           "output": "C1 available for next request",
           "result": "اتصال برای درخواست بعدی آماده است.",
-          "explanation": "release معمولاً socket را نمی‌بندد؛ اتصال خراب باید کنار گذاشته شود.",
+          "explanation": "اتصال پس از پایان query و پاک‌سازی transaction state توسط مالک lease به pool برمی‌گردد؛ release معمولاً socket را نمی‌بندد. اتصال خراب باید کنار گذاشته شود.",
           "state": [
             "R1 done",
             "FREE C1 | FREE C2",
@@ -150,7 +150,7 @@ const lesson = {
           ],
           "tone": "success",
           "flightLabels": [
-            "query done / release"
+            "release C1"
           ],
           "diagnostic": "اتصال آزاد در pool باز می‌ماند؛ rollback/reset وضعیت شکست‌خورده پیش از reuse لازم است."
         }

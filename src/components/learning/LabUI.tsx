@@ -52,10 +52,11 @@ export function LabStage({name,label,children,explanation,route,next,result,visu
   return <section className="request-stage" aria-live="polite">
     <span className="lab-label">{label}</span><h2>{name}</h2><p>{children}</p>{visual}
     {explanation&&<div className="stage-explanation"><h3>مکانیزم و دلیل این رفتار</h3><p>{explanation}</p></div>}
+    {diagnostic&&<div className="stage-diagnostic"><h3>از دید برنامه‌نویس</h3><p>{diagnostic}</p></div>}
     {evidence&&<div className="stage-evidence">{evidence}</div>}
     {result&&<div className="stage-result"><h3>نتیجهٔ قابل بررسی</h3><p>{result}</p></div>}
     {route&&route.length>0&&<div className="stage-route"><span>{route.length===1?'محل عملیات':'ترتیب عبور از اجزا'}</span><div>{route.map((actor,i)=><span className="stage-actor" key={i}>{i>0&&<span className="stage-arrow" aria-hidden="true">←</span>}<b>{actor}</b></span>)}</div></div>}
-    {diagnostic&&<div className="stage-diagnostic"><h3>از دید برنامه‌نویس</h3><p>{diagnostic}</p></div>}
+
     {context&&<details className="stage-model"><summary>فرض‌ها و محدودهٔ این مدل</summary><p>{context}</p></details>}
     <div className="stage-next"><span>{next?'مرحلهٔ بعد':'پایان این سناریو'}</span>{next?<strong>{next}</strong>:<a className="practice-jump" href="#applied-practice" onClick={event=>{const target=document.getElementById('applied-practice');if(target){event.preventDefault();target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}}}>حل تمرین کاربردی ←</a>}</div>
   </section>;

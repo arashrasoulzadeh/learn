@@ -22,6 +22,9 @@ test('Persian HTTP lesson opens directly and all stages and scenarios work',asyn
     await expect(steps.nth(i)).toHaveAttribute('aria-current','step');
     await expect(lab.locator('.request-counter')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR')+' از ۹');
     await expect(lab.locator('.request-stage h2')).not.toBeEmpty();
+    await expect(lab.locator('.stage-diagnostic p')).not.toBeEmpty();
+    await expect(lab.locator('.stage-evidence .request-message pre').first()).not.toBeEmpty();
+    await expect(lab.locator('.flight-chip').first()).not.toBeEmpty();
   }
   for(const [scenario,method,status] of [['post','POST','201 Created'],['missing','GET','404 Not Found'],['error','GET','500 Internal Server Error'],['conflict','POST','409 Conflict'],['get','GET','200 OK']]){
     await lab.getByLabel('سناریو').selectOption(scenario);
@@ -216,6 +219,9 @@ test('HTTP tailored state follows connection and response lifecycle',async({page
   const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
   await steps.nth(2).click();
   await expect(state).toContainText('TCP established');
+  await expect(lab.locator('.stage-evidence .request-message pre').first()).toContainText('SYN,ACK seq=500 ack=101');
+  await steps.nth(3).click();
+  await expect(lab.locator('.stage-evidence .request-message pre').first()).toContainText('CertificateVerify, Finished');
   await steps.nth(4).click();
   await expect(state).toContainText('At edge proxy');
   await steps.nth(7).click();
