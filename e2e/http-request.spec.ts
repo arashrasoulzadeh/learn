@@ -74,3 +74,33 @@ test('RTL diagram and shared header controls work on desktop and phone',async({p
   await menu.getByRole('link').click();
   await expect(page).toHaveURL(/\/concepts\/networking\/http-request\/$/);
 });
+
+
+test('polished learning layout keeps visual order RTL and controls accessible',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(lab).toBeVisible();
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  const graph=lab.locator('.request-canvas'),detail=lab.locator('.request-detail');
+  await expect(graph.locator('svg')).toBeVisible();
+  expect((await graph.boundingBox())!.x).toBeGreaterThan((await detail.boundingBox())!.x);
+  const timeline=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
+  expect((await timeline.first().boundingBox())!.x).toBeGreaterThan((await timeline.last().boundingBox())!.x);
+  await lab.getByRole('button',{name:'مرحلهٔ بعد'}).click();
+  await expect(timeline.nth(1)).toHaveAttribute('aria-current','step');
+  await lab.getByRole('button',{name:'مرحلهٔ قبل'}).click();
+  await expect(timeline.first()).toHaveAttribute('aria-current','step');
+  await timeline.nth(4).click();
+  await expect(lab.locator('.request-message pre').first()).toHaveAttribute('dir','ltr');
+  expect(await lab.locator('.request-progress span').evaluate(el=>parseFloat((el as HTMLElement).style.width))).toBeCloseTo(5/9*100);
+  await page.screenshot({path:'test-results/http-desktop.png',animations:'disabled'});
+  await page.setViewportSize({width:390,height:844});
+  await expect(graph).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
+  expect((await timeline.first().boundingBox())!.x).toBeGreaterThan((await timeline.nth(2).boundingBox())!.x);
+  await lab.getByRole('button',{name:'مرحلهٔ بعد'}).click();
+  await expect(timeline.nth(5)).toHaveAttribute('aria-current','step');
+  await page.screenshot({path:'test-results/http-mobile.png',animations:'disabled',fullPage:true});
+});

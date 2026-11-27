@@ -11,13 +11,13 @@ function NodeIcon({icon}:{icon:string}){
 }
 
 export function DiagramNode({node,active,accent,children}:{node:FlowNode;active:boolean;accent:string;children?:ReactNode}){
-  return <g data-node={node.icon} transform={'translate('+node.x+' '+node.y+')'} style={{color:active?accent:'var(--muted)'}}><rect x="-59" y="-42" width="118" height="84" rx="13" fill="var(--bg)" stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -10)">{children??<NodeIcon icon={node.icon}/>}</g><text y="23" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="12" direction="rtl" fontWeight="600">{node.label}</text><text y="62" textAnchor="middle" fill="var(--muted)" fontSize="11" direction="rtl">{node.sub}</text></g>;
+  return <g data-node={node.icon} transform={'translate('+node.x+' '+node.y+')'} style={{color:active?accent:'var(--muted)'}}><rect x="-59" y="-42" width="118" height="84" rx="15" fill={active?'var(--panel2)':'var(--bg)'} stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -12)">{children??<NodeIcon icon={node.icon}/>}</g><text y="23" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="14" direction="rtl" fontWeight="600">{node.label}</text><text y="62" textAnchor="middle" fill="var(--muted)" fontSize="12" direction="rtl">{node.sub}</text></g>;
 }
 export function FlowPacket({route,playing,speed,accent,animationKey}:{route:readonly FlowNode[];playing:boolean;speed:number;accent:string;animationKey:string}){
   if(route.length<2)return null;
   const track=route.map((node,i)=>(i?'L ':'M ')+node.x+' '+node.y).join(' ');
   return <g><path data-flow-path d={track} fill="none" stroke={accent} strokeWidth="3" opacity=".8"/>
-    {playing&&<circle className="request-packet-motion" r="6" fill={accent}><animateMotion key={animationKey} dur={(1.8/speed)+'s'} path={track} repeatCount="indefinite"/></circle>}
+    {playing&&<circle className="request-packet-motion" r="6" fill={accent} stroke="var(--bg)" strokeWidth="1.5"><animateMotion key={animationKey} dur={(1.8/speed)+'s'} path={track} repeatCount="indefinite"/></circle>}
     {route.slice(1).map((to,i)=>{const from=route[i];const x=(from.x+to.x)/2,y=(from.y+to.y)/2,angle=Math.atan2(to.y-from.y,to.x-from.x)*180/Math.PI;return <path key={i} data-flow-arrow d="M -6 -5 L 6 0 L -6 5 Z" transform={'translate('+x+' '+y+') rotate('+angle+')'} fill={accent} className={playing?'request-packet-static':undefined}/>;})}
   </g>;
 }
@@ -25,11 +25,11 @@ export function FlowDiagram({nodes,edges,activeNodes,route,playing,speed,accent=
   const gridId=useId();
   return <svg viewBox="0 0 790 355" direction="ltr" role="img" aria-label={label}>
     <defs><pattern id={gridId} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="var(--line)"/></pattern></defs>
-    <rect width="790" height="355" fill={'url(#'+gridId+')'} opacity=".8"/>
+    <rect width="790" height="355" fill={'url(#'+gridId+')'} opacity=".5"/>
     {edges.map(([a,b])=><line key={a+'-'+b} x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y} stroke="var(--line)" strokeWidth="2" strokeDasharray="5 6"/>)}
     <FlowPacket route={route} playing={playing} speed={speed} accent={accent} animationKey={animationKey}/>
     {nodes.map((node,i)=><DiagramNode key={i} node={node} active={activeNodes.includes(i)} accent={accent}/>)}
     <rect x="190" y="301" width="410" height="38" rx="9" fill="var(--bg)" stroke="var(--line)"/>
-    <text x="395" y="325" fill={accent} textAnchor="middle" fontSize="14" direction={captionDirection} fontWeight="600">{caption}</text>
+    <text x="395" y="325" fill={accent} textAnchor="middle" fontSize="16" direction={captionDirection} fontWeight="600">{caption}</text>
   </svg>;
 }

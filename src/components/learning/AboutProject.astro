@@ -1,16 +1,19 @@
 ---
 import Popover from './Popover.astro';
 ---
-<Popover label="درباره پروژه" id="about-project">
+<Popover label="درباره پروژه" id="about-project"><svg slot="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01" stroke-linecap="round"/></svg>
   <section class="about-project" aria-label="درباره پروژه">
-    <strong>لرن</strong>
+    <strong class="about-brand">لرن</strong>
     <p>توسعه‌دهنده: آرش رسول زاده</p>
     <a href="https://github.com/arashrasoulzadeh/learn" target="_blank" rel="noopener noreferrer">مشاهده پروژه در گیت‌هاب ↗</a>
     <p class="dedication">تقدیم به دوست عزیزم سمیه ابراهیم زاده</p>
   </section>
 </Popover>
 <style>
-  .about-project{display:grid;gap:10px;font-size:14px}
+  .about-project{display:grid;gap:12px;font-size:14px;line-height:1.9;padding:5px}
+  .about-brand{font-size:23px;font-weight:700;color:var(--ink)}
   p{margin:0}
-  .dedication{border-top:1px solid var(--line);padding-top:12px;color:var(--accent)}
+  a{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-decoration:none}
+  a:hover{border-color:var(--accent)}
+  .dedication{border-top:1px solid var(--line);padding-top:12px;color:var(--accent);font-weight:500}
 </style>

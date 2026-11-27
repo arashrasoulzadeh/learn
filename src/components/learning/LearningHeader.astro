@@ -4,12 +4,14 @@ import AboutProject from './AboutProject.astro';
 const {title,currentId}=Astro.props as {title:string;currentId:string};
 ---
 <header class="learning-title">
-  <h1>{title}</h1>
+  <div class="learning-heading"><span class="learning-brand" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M12 3 21 8 12 13 3 8 12 3ZM3 12l9 5 9-5M3 16l9 5 9-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h1>{title}</h1></div>
   <div class="learning-actions"><LessonPicker currentId={currentId}/><AboutProject/></div>
 </header>
 <style>
-  .learning-title{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+  .learning-title{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding-block-end:12px;border-bottom:1px solid var(--line);position:relative;z-index:20}
+  .learning-heading{display:flex;align-items:center;gap:11px;min-width:0}
+  .learning-brand{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:12px;background:#79e3c117;border:1px solid #79e3c13b;color:var(--accent)}
   h1{min-width:0}
-  .learning-actions{display:flex;gap:8px;flex:none;position:relative;margin-inline-start:auto}
-  @media(max-width:600px){.learning-title{flex-wrap:wrap}.learning-actions{max-width:100%;justify-content:flex-end}}
+  .learning-actions{display:flex;gap:8px;flex:none;position:relative;margin-inline-start:auto;direction:rtl}
+  @media(max-width:600px){.learning-title{flex-wrap:wrap;padding-block-end:10px}.learning-heading{gap:8px}.learning-brand{width:34px;height:34px;border-radius:9px}.learning-actions{max-width:100%;justify-content:flex-end}}
 </style>
