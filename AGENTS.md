@@ -19,3 +19,5 @@ Use LearningHeader, LessonPicker, AboutProject and Popover for lesson chrome. Us
 The `web-basics` learningPath in content metadata supplies the ordered level-one picker. New protocol labs use NetworkLab plus per-lesson typed scenario data; each scenario has concrete packets, direction, result, and a distinct outcome. Include a concept-specific knowledge check, pitfalls, references, desktop/mobile browser tests, and verify all scenarios. Keep the existing HTTP lab as the reference implementation.
 
 Run `npm run check:network` to audit the ten level-one lessons and ensure valid scenario routes, examples and quiz data. The production browser suite must exercise every scenario and every step of all ten lessons.
+
+For each level-one lab, keep notes, references and knowledge checks in the shared toolbar dialog, not the detail column. Include selectable edge cases with full alternative stages, practical explanations for every step, a readable actor route, and separate directional lanes for request/return. Use a single paced motion per step, with static arrows for reduced motion. Verify the dialogs, every scenario, and geometry in Playwright.

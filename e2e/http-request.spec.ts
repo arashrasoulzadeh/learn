@@ -23,7 +23,7 @@ test('Persian HTTP lesson opens directly and all stages and scenarios work',asyn
     await expect(lab.locator('.request-counter')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR')+' از ۹');
     await expect(lab.locator('.request-stage h2')).not.toBeEmpty();
   }
-  for(const [scenario,method,status] of [['post','POST','201 Created'],['missing','GET','404 Not Found'],['error','GET','500 Internal Server Error'],['get','GET','200 OK']]){
+  for(const [scenario,method,status] of [['post','POST','201 Created'],['missing','GET','404 Not Found'],['error','GET','500 Internal Server Error'],['conflict','POST','409 Conflict'],['get','GET','200 OK']]){
     await lab.getByLabel('سناریو').selectOption(scenario);
     await expect(steps.first()).toHaveAttribute('aria-current','step');
     await steps.nth(7).click();
@@ -119,7 +119,11 @@ test('HTTP lesson exposes live address, stage result and status without breaking
   await steps.nth(1).click();
   await expect(lab.locator('.protocol-exchange')).toContainText('نشانی سرور پیدا شده است.');
   await lab.getByRole('button',{name:'پخش',exact:true}).click();
-  await expect(lab.locator('animateMotion')).toHaveAttribute('path','M 700 220 L 500 78 L 700 220');
+  await expect(lab.locator('animateMotion')).toHaveAttribute('repeatCount','1');
+  await expect(lab.locator('animateMotion')).toHaveAttribute('calcMode','paced');
+  await expect(lab.locator('[data-lane=forward]')).toHaveCount(1);
+  await expect(lab.locator('[data-lane=return]')).toHaveCount(1);
+  expect(await lab.locator('[data-lane=forward] [data-visible-flow]').getAttribute('d')).not.toBe(await lab.locator('[data-lane=return] [data-visible-flow]').getAttribute('d'));
   await lab.getByRole('button',{name:'توقف',exact:true}).click();
   await lab.getByLabel('سناریو').selectOption('missing');
   await expect(overview.locator('code')).toHaveText('https://shop.example/api/products/999');
@@ -165,9 +169,36 @@ test('HTTP lesson knowledge check and references',async({page})=>{
   await page.goto('/learn/',{waitUntil:'domcontentloaded'});
   const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
   await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  await expect(lab.locator('.request-detail .network-extra')).toHaveCount(0);
+  await lab.getByRole('button',{name:'نکته‌ها و منابع',exact:true}).click();
+  await expect(lab.getByRole('dialog',{name:'مرور و تکمیل یادگیری'})).toBeVisible();
   await lab.locator('.network-extra summary').filter({hasText:'سنجش یادگیری'}).click();
   await lab.locator('.quiz-option').nth(1).click();
   await expect(lab.getByRole('status')).toContainText('درست است');
   await lab.locator('.network-extra summary').filter({hasText:'منابع بیشتر'}).click();
   await expect(lab.locator('.network-extra a')).toHaveCount(2);
+});
+
+
+test('HTTP edge case menu selects conflict and shows a concrete explanation',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  await lab.getByRole('button',{name:'حالت‌های خاص',exact:true}).click();
+  const dialog=lab.getByRole('dialog',{name:/حالت‌های خاص و خطاها/});
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button',{name:/تداخل داده/}).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(lab.getByLabel('سناریو')).toHaveValue('conflict');
+  const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
+  await steps.nth(6).click();
+  await expect(lab.locator('.stage-explanation')).toContainText('یکتایی');
+  await steps.nth(7).click();
+  await expect(lab.locator('.request-message pre').last()).toContainText('409 Conflict');
+  await expect(lab.locator('[data-lane=forward] [data-flow-arrow]')).toHaveCount(2);
+  await expect(lab.locator('[data-lane=forward] [data-visible-flow]').first()).not.toHaveAttribute('d','M 295 220 L 500 220');
+  await lab.getByRole('button',{name:'نکته‌ها و منابع',exact:true}).click();
+  await page.keyboard.press('Escape');
+  await expect(lab.getByRole('dialog')).not.toBeVisible();
 });

@@ -18,12 +18,12 @@ for(let i=0;i<slugs.length;i++){
   assert.ok(l.actors.length>=2&&l.actors.length<=5);
   assert.ok(l.references.length>=2&&l.references.every(r=>r.url.startsWith('https://')));
   assert.ok(l.quiz.options.length>=3&&l.quiz.correct>=0&&l.quiz.correct<l.quiz.options.length&&l.quiz.explanation);
-  assert.ok(l.scenarios.length>=2);
+  assert.ok(l.scenarios.length>=3&&l.scenarios.some(s=>s.edgeCase),slug+' needs selectable edge cases');
   assert.equal(new Set(l.scenarios.map(s=>s.id)).size,l.scenarios.length);
   for(const s of l.scenarios){
     scenarios++;assert.ok(s.label&&s.example&&s.steps.length>=2);
     for(const st of s.steps){
-      steps++;assert.ok(st.name&&st.short&&st.detail&&st.result&&st.input&&st.output&&st.packet,slug+' missing teaching data');
+      steps++;assert.ok(st.name&&st.short&&st.detail&&st.result&&st.input&&st.output&&st.packet&&st.explanation,slug+' missing teaching data');
       assert.ok(st.route.length>0&&st.route.every(n=>Number.isInteger(n)&&n>=0&&n<l.actors.length),slug+' invalid node');
       for(let j=1;j<st.route.length;j++){
         const a=st.route[j-1],b=st.route[j];

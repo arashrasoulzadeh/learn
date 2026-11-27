@@ -1,15 +1,15 @@
 import {test,expect} from '@playwright/test';
 
 const curriculum=[
-  {slug:'dns',cases:[['cold',5,'192.0.2.10'],['warm',3,'192.0.2.10'],['missing',3,'NXDOMAIN']],correct:1},
-  {slug:'ip-port',cases:[['https',4,'LISTEN :443'],['closed',3,'Connection refused']],correct:1},
-  {slug:'tcp',cases:[['normal',5,'ACK 105'],['loss',5,'ACK 105 after retry']],correct:1},
-  {slug:'udp',cases:[['normal',4,'Received: 1, 2, 3'],['loss',4,'No UDP retransmission'],['reorder',3,'Received: 2, 1']],correct:2},
-  {slug:'tls-https',cases:[['valid',5,'TLS application_data: ciphertext'],['invalid',3,'HTTPS request blocked']],correct:1},
-  {slug:'http-methods',cases:[['get',3,'Keyboard'],['post',3,'Mouse'],['put',3,'204 No Content'],['patch',3,'25'],['delete',3,'204 No Content']],correct:1},
-  {slug:'http-status-codes',cases:[['continue',3,'200 OK'],['ok',3,'200 OK'],['redirect',3,'200 OK after redirect'],['missing',3,'404 Not Found'],['server-error',3,'500 Internal Server Error']],correct:0},
-  {slug:'cookies-sessions',cases:[['login',5,'200 OK · user=42'],['expired',3,'401 Unauthorized'],['logout',3,'Session revoked; cookie cleared']],correct:1},
-  {slug:'websocket',cases:[['chat',5,'CLOSED 1000'],['disconnect',4,'Resynced from id=43'],['rejected',2,'WebSocket not established']],correct:1}
+  {slug:'dns',cases:[['cold',5,'192.0.2.10'],['warm',3,'192.0.2.10'],['missing',3,'NXDOMAIN'],['expired',3,'192.0.2.11']],correct:1},
+  {slug:'ip-port',cases:[['https',4,'LISTEN :443'],['closed',3,'Connection refused'],['filtered',3,'Connection timeout']],correct:1},
+  {slug:'tcp',cases:[['normal',5,'ACK 105'],['loss',5,'ACK 105 after retry'],['duplicate',4,'ACK 105; no duplicate delivery']],correct:1},
+  {slug:'udp',cases:[['normal',4,'Received: 1, 2, 3'],['loss',4,'No UDP retransmission'],['reorder',3,'Received: 2, 1'],['duplicate',3,'Duplicate ignored by app']],correct:2},
+  {slug:'tls-https',cases:[['valid',5,'TLS application_data: ciphertext'],['invalid',3,'HTTPS request blocked'],['expired',3,'HTTPS request blocked']],correct:1},
+  {slug:'http-methods',cases:[['get',3,'Keyboard'],['post',3,'Mouse'],['put',3,'204 No Content'],['patch',3,'25'],['delete',3,'204 No Content'],['retry-post',4,'Created id=44; duplicate product']],correct:1},
+  {slug:'http-status-codes',cases:[['continue',3,'200 OK'],['ok',3,'200 OK'],['redirect',3,'200 OK after redirect'],['missing',3,'404 Not Found'],['server-error',3,'500 Internal Server Error'],['limited',3,'200 OK after wait']],correct:0},
+  {slug:'cookies-sessions',cases:[['login',5,'200 OK · user=42'],['expired',3,'401 Unauthorized'],['logout',3,'Session revoked; cookie cleared'],['stolen-revoked',3,'401 Unauthorized']],correct:1},
+  {slug:'websocket',cases:[['chat',5,'CLOSED 1000'],['disconnect',4,'Resynced from id=43'],['rejected',2,'WebSocket not established'],['heartbeat',3,'101 Switching Protocols']],correct:1}
 ] as const;
 
 for(const lesson of curriculum){
@@ -36,11 +36,27 @@ for(const lesson of curriculum){
         await expect(steps.nth(i)).toHaveAttribute('aria-current','step');
         await expect(lab.locator('.request-counter')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR')+' از '+count.toLocaleString('fa-IR'));
         await expect(lab.locator('.request-stage h2')).not.toBeEmpty();
+        await expect(lab.locator('.stage-explanation p')).not.toBeEmpty();
+        await expect(lab.locator('.stage-route')).toBeVisible();
+        const lines=diagram.locator('[data-visible-flow]');
+        for(const line of await lines.all()){
+          const d=await line.getAttribute('d');
+          expect(d).toMatch(/^M -?\d+(\.\d+)? -?\d+(\.\d+)? L -?\d+(\.\d+)? -?\d+(\.\d+)?$/);
+        }
         await expect(lab.locator('.request-message pre').first()).not.toBeEmpty();
         await expect(lab.locator('.request-message pre').last()).toHaveAttribute('dir','ltr');
       }
       await expect(lab.locator('.request-message pre').last()).toContainText(expected);
     }
+    await lab.getByRole('button',{name:'حالت‌های خاص',exact:true}).click();
+    const edgeDialog=lab.getByRole('dialog',{name:/حالت‌های خاص و خطاها/});
+    await expect(edgeDialog).toBeVisible();
+    const optionsEdge=edgeDialog.locator('.edge-option');
+    expect(await optionsEdge.count()).toBeGreaterThan(0);
+    await optionsEdge.last().click();
+    await expect(edgeDialog).not.toBeVisible();
+    await expect(controls).toHaveValue(lesson.cases[lesson.cases.length-1][0]);
+    await expect(steps.first()).toHaveAttribute('aria-current','step');
     await page.screenshot({path:'test-results/networking/'+lesson.slug+'-desktop.png',animations:'disabled'});
     await page.setViewportSize({width:390,height:844});
     await expect(diagram).toHaveAttribute('data-layout','compact');
@@ -50,6 +66,9 @@ for(const lesson of curriculum){
     await expect(steps.first()).toHaveAttribute('aria-current','step');
     await lab.getByRole('button',{name:'مرحلهٔ بعد'}).click();
     await expect(steps.nth(1)).toHaveAttribute('aria-current','step');
+    await expect(lab.locator('.request-detail .network-extra')).toHaveCount(0);
+    await lab.getByRole('button',{name:'نکته‌ها و منابع',exact:true}).click();
+    await expect(lab.getByRole('dialog',{name:'مرور و تکمیل یادگیری'})).toBeVisible();
     await lab.locator('.network-extra summary').filter({hasText:'سنجش یادگیری'}).click();
     const options=lab.locator('.quiz-option');
     await expect(options).toHaveCount(3);
@@ -59,6 +78,8 @@ for(const lesson of curriculum){
     await expect(lab.getByRole('status')).toContainText('درست است');
     await lab.locator('.network-extra summary').filter({hasText:'منابع بیشتر'}).click();
     expect(await lab.locator('.network-extra a').count()).toBeGreaterThanOrEqual(2);
+    await lab.getByRole('button',{name:'بستن پنجره'}).click();
+    await expect(lab.getByRole('dialog',{name:'مرور و تکمیل یادگیری'})).not.toBeVisible();
     await page.screenshot({path:'test-results/networking/'+lesson.slug+'-mobile.png',animations:'disabled',fullPage:true});
     expect(errors).toEqual([]);
   });
