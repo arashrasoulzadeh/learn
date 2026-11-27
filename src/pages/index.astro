@@ -1,26 +1,8 @@
 ---
-import Base from '../layouts/Base.astro';
-import LessonCard from '../components/LessonCard.astro';
-import { catalog, url, lessonUrl } from '../lib/content';
-const {categories, concepts} = await catalog();
-const first=concepts[0];
+import LessonScreen from '../layouts/LessonScreen.astro';
+import { catalog } from '../lib/content';
+const { concepts } = await catalog();
+const lesson = concepts.find(c=>c.id==='networking/http-request') ?? concepts[0];
+if (!lesson) throw new Error('Publish at least one lesson.');
 ---
-<Base>
-  <section class="hero">
-    <div><p class="eyebrow"><span class="live-dot"></span> OPEN SOURCE LEARNING LAB</p>
-      <h1>Engineering.<br/><em>See how it works.</em></h1>
-      <p class="lede">Understand the invisible systems behind software. Explore animated diagrams, interactive experiments and practical explanations — one concept at a time.</p>
-      <div class="actions">{first && <a class="primary" href={lessonUrl(first.id)}>Start learning <span>→</span></a>}<a class="secondary" href={url('catalog/')}>Explore concepts</a></div>
-    </div>
-    <div class="hero-art" aria-label="Illustration of a browser sending a request to a server and database">
-      <div class="art-top"><span>● ● ●</span><span>NETWORK / 001</span></div>
-      <div class="art-flow"><div class="art-node">▣<small>CLIENT</small></div><div class="art-wire"><i></i></div><div class="art-node active">⬡<small>SERVER</small></div><div class="art-wire"><i></i></div><div class="art-node">▤<small>DATA</small></div></div>
-      <div class="art-code"><span class="muted">01</span> GET /api/products<br/><span class="muted">02</span> <span class="good">200 OK</span><br/><span class="muted">03</span> <span class="muted">response received</span></div>
-      <div class="art-foot"><span>CONNECTION ESTABLISHED</span><span>↔ HTTP</span></div>
-    </div>
-  </section>
-  <section class="section"><div class="section-heading"><div><p class="eyebrow">01 / THE LIBRARY</p><h2>Explore by topic</h2></div><a href={url('catalog/')}>All concepts →</a></div>
-    <div class="category-grid">{categories.map(c=>{const count=concepts.filter(x=>x.data.category.id===c.id).length;return <a class="category-card" href={url('catalog/#'+c.id)}><span class="category-icon">{c.data.icon}</span><h3>{c.data.title}</h3><p>{c.data.description}</p><small>{count ? count+' lesson'+(count===1?'':'s') : 'Coming soon'}</small></a>})}</div>
-  </section>
-  <section class="section"><div class="section-heading"><div><p class="eyebrow">02 / START HERE</p><h2>Published lessons</h2></div></div><div class="lesson-grid">{concepts.map(lesson=><LessonCard lesson={lesson}/>)}</div></section>
-</Base>
+<LessonScreen lesson={lesson} isHome={true} />

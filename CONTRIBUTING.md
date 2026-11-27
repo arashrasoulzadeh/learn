@@ -17,3 +17,6 @@ Use Callout, Quiz and VideoPlayer from src/components/learning. Add new simulati
 ## Validation
 
 Run npm install, npm run check and npm run build. Preview under /learn/. Check keyboard navigation, small screens, light and dark themes, reduced motion and error scenarios. Publish through a pull request after the initial bootstrap.
+
+## Presentation
+The learning screen is immersive and uses all available viewport space. Keep the published MDX focused on the educational experience itself; extended source notes may live under docs/lessons. The root route starts with networking/http-request, while every lesson retains its own stable URL.

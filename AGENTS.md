@@ -8,3 +8,6 @@
 - Use local reusable components; keep third-party dependencies minimal. Do not embed unlicensed images or large binaries.
 - Run npm run check and npm run build before submission. Never claim a deployment succeeded without verification. Use base-aware URLs from src/lib/content.ts.
 - Keep existing lesson IDs stable. Draft lessons do not appear in navigation.
+
+## Immersive presentation
+The homepage opens the first HTTP lesson directly. All published lessons use LessonScreen, a full-width learning-only layout without site navigation or marketing. Put the explanation inside the interactive experience; keep extended author notes under docs/lessons. The existing catalog and search are optional standalone routes, not part of the learning screen.
