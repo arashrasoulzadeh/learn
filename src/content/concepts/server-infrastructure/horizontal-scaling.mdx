@@ -1,0 +1,88 @@
+---
+title: "Horizontal Scaling"
+description: "Calculate App-tier capacity as instances are added, then watch the bottleneck move to a shared database."
+category: server-infrastructure
+difficulty: intermediate
+estimatedMinutes: 15
+order: 4
+tags: [scaling, capacity, load-balancing, database, bottleneck]
+---
+import { HorizontalScalingLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+“Add more servers” is too vague to be useful. We need numbers.
+
+This lesson uses a fixed workload of **12 requests/s**. Each App instance can serve **4 requests/s**. The shared database can sustain **10 queries/s** in the teaching model.
+
+## Mental model
+
+Horizontal scaling changes the number of replaceable workers:
+
+```text
+App capacity = instance count × capacity per instance
+```
+
+So:
+
+```text
+1 App → 4 req/s
+2 Apps → 8 req/s
+3 Apps → 12 req/s
+```
+
+But end-to-end capacity is constrained by the slowest required stage. Three Apps do not make a 10 q/s database become a 12 q/s database.
+
+<Callout title="Re-measure after every scale event">
+  A successful scale-out can move the bottleneck. Lower App CPU does not prove that user throughput improved.
+</Callout>
+
+## Interactive lab
+
+The workload does not change. Only the number of App instances and the observed bottleneck change.
+
+<HorizontalScalingLab client:visible />
+
+## Practical example
+
+If a deployment has three stateless replicas behind a load balancer, each request can usually go to any healthy replica. That makes replicas replaceable and scale-out straightforward.
+
+The important design question is what remains shared:
+
+- one relational database,
+- one queue partition,
+- one lock service,
+- one external API quota,
+- one network egress limit.
+
+Suppose each request requires exactly one database query. The App tier can accept 12/s after adding App 3, but the database can complete only 10 q/s. The bottleneck moved; the system did not become infinitely scalable.
+
+In Kubernetes, increasing Deployment replicas changes desired replica count. It does not automatically scale every dependency.
+
+## Failure modes and trade-offs
+
+- **State is local to an instance.** Requests cannot freely move between replicas.
+- **Startup is slow.** New instances arrive after the traffic spike.
+- **A downstream bottleneck dominates.** App replicas multiply pressure on a shared database.
+- **Coordination cost grows.** More workers may increase lock contention or cache invalidation work.
+- **Uneven routing creates hotspots.** Total capacity exists but is poorly used.
+
+Measure accepted throughput, queue depth, per-instance utilization and dependency saturation together.
+
+## Check your understanding
+
+<Quiz client:visible question="Traffic is 12 req/s and each App can serve 4 req/s. How many Apps are required for 12 req/s of App-tier capacity?" options={['1','2','3','12']} correct={2} explanation="Three instances × 4 req/s = 12 req/s of App-tier capacity." />
+
+<Quiz client:visible question="Three Apps provide 12 req/s but the required database handles 10 q/s. What is the end-to-end bottleneck?" options={['The database','The third App','The load-balancer name','The browser cache']} correct={0} explanation="A required downstream stage with lower sustained capacity limits the whole path." />
+
+## Takeaway
+
+Horizontal scaling adds **parallel workers in one tier**. Calculate what capacity you added, verify traffic reaches it, then measure the entire path again. The next bottleneck is part of the result.
+
+## References
+
+- [Kubernetes: Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+- [Kubernetes: Horizontal Pod Autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
+- [Google SRE Book: Handling Overload](https://sre.google/sre-book/handling-overload/)
