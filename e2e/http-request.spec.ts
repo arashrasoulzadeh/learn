@@ -12,7 +12,7 @@ test('Persian HTTP lesson opens directly and all stages and scenarios work',asyn
   await expect(page.getByRole('heading',{level:1,name:'چرخهٔ یک درخواست HTTP'})).toBeVisible();
   const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
   await expect(lab).toBeVisible();
-  await expect(lab.locator('svg')).toBeVisible();
+  await expect(lab.locator('.request-canvas svg')).toBeVisible();
   const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
   await expect(steps).toHaveCount(9);
   // Astro removes ssr once the React island has hydrated.
@@ -59,7 +59,7 @@ test('RTL diagram and shared header controls work on desktop and phone',async({p
   await expect(header.getByText('تقدیم به دوست عزیزم سمیه ابراهیم زاده',{exact:true})).not.toBeVisible();
   const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
   await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
-  const graph=lab.locator('svg');
+  const graph=lab.locator('.request-canvas svg');
   await expect(graph.locator('[data-node=browser]')).toHaveAttribute('transform','translate(700 220)');
   await expect(graph.locator('[data-node=db]')).toHaveAttribute('transform','translate(90 220)');
   const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
