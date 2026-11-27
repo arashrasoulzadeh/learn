@@ -1,0 +1,78 @@
+---
+title: "Health Checks"
+description: "Separate liveness from readiness with real /live and /ready responses, a failed database dependency and a changing routing set."
+category: server-infrastructure
+difficulty: intermediate
+estimatedMinutes: 15
+order: 6
+tags: [health-check, readiness, liveness, kubernetes, routing]
+---
+import { HealthChecksLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+An application process can be running while being unable to serve a correct user request.
+
+If App 2 needs a critical database and that database is unavailable, restarting the App process may not help. What matters for traffic is whether the instance is **ready** to serve.
+
+## Mental model
+
+Use different questions for different probes:
+
+```text
+/live  → Is this process alive enough to keep running?
+/ready → Should new user traffic be routed here right now?
+```
+
+A possible state after a database failure is:
+
+```http
+GET /live  → 200 OK
+GET /ready → 503 Service Unavailable
+```
+
+<Callout title="Probe semantics matter more than endpoint names">
+  Liveness and readiness are roles. The exact endpoint names and implementation are choices. Design the check around the action the platform will take when it fails.
+</Callout>
+
+## Interactive lab
+
+App 2 stays alive while its Critical DB fails. Watch the probe results and the load balancer's ready set separately.
+
+<HealthChecksLab client:visible />
+
+## Practical example
+
+A readiness handler can test whether the process has initialized and whether dependencies required for its primary request path are usable.
+
+Be careful with deep dependency checks. If every App instance probes the same database aggressively, the health mechanism itself can add load. If a non-critical analytics dependency fails, making the entire service unready might reduce availability unnecessarily.
+
+Kubernetes uses readiness probes to decide whether a Pod should receive Service traffic. Liveness probes are used for container restart decisions. Startup probes can protect slow-starting workloads from premature liveness failures.
+
+## Failure modes and trade-offs
+
+- **Shallow probe:** always returns 200 even when the instance cannot serve.
+- **Overly deep probe:** one optional dependency removes every instance.
+- **Flapping:** thresholds are too sensitive to brief latency spikes.
+- **Probe storm:** many instances run expensive checks too frequently.
+- **Liveness depends on the same failing external system:** restarts amplify an external outage.
+
+Monitor ready target count, probe failure reasons, routing-set churn and user-visible error rate.
+
+## Check your understanding
+
+<Quiz client:visible question="App 2 is running, but its critical database is unavailable. Which result can be correct?" options={['/live 200 and /ready 503','/live 503 and /ready 200 is always required','Both must always be identical','Readiness is unrelated to routing']} correct={0} explanation="The process can be alive while unable to serve the request path that depends on the database." />
+
+<Quiz client:visible question="What should happen after readiness fails consistently?" options={['Remove the target from normal traffic routing','Immediately delete the database','Increase the HTTP method count','Change every client URL']} correct={0} explanation="Readiness is commonly used as a traffic-admission signal." />
+
+## Takeaway
+
+Health is not one boolean. Define the question, the probe and the action together. **Liveness protects process recovery; readiness protects user traffic.**
+
+## References
+
+- [Kubernetes: Configure Liveness, Readiness and Startup Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
+- [Kubernetes: Pod Lifecycle](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/)
+- [Google SRE Workbook: Monitoring](https://sre.google/workbook/monitoring/)
