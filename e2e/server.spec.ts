@@ -31,6 +31,7 @@ test.describe('Server & Infrastructure product audit',()=>{
    await expect(page.getByRole('heading',{level:1,name:title})).toBeVisible();
    const lab=page.locator('.server-lab');
    await expect(lab).toBeVisible();
+   await lab.scrollIntoViewIfNeeded();
    await expect(lab).toHaveAttribute('data-hydrated','true');
    await expect(lab.locator('svg.server-lab-graph')).toBeVisible();
    const steps=lab.locator('.step-button');
@@ -67,6 +68,8 @@ test.describe('Server & Infrastructure product audit',()=>{
    await page.goto(lessonUrl(slug));
    const lab=page.locator('.server-lab');
    await expect(lab).toBeVisible();
+   await lab.scrollIntoViewIfNeeded();
+   await expect(lab).toHaveAttribute('data-hydrated','true');
    await lab.screenshot({path:'test-results/server-visual/'+slug+'.png',animations:'disabled'});
   }
  });
