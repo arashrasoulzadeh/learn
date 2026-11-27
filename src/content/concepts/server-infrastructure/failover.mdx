@@ -1,0 +1,82 @@
+---
+title: "Failover"
+description: "Execute a safe database failover as a sequence: detect, fence the old writer, verify freshness, promote, move the endpoint and retry."
+category: server-infrastructure
+difficulty: advanced
+estimatedMinutes: 18
+order: 9
+tags: [failover, database, fencing, high-availability, replication]
+---
+import { FailoverLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+A Primary stops responding. “Make the Replica Primary” is not enough.
+
+If the old Primary can still write after a new node is promoted, the system can have two writers. If the Replica is behind, promotion can expose a worse recovery point.
+
+## Mental model
+
+Treat failover as an ordered safety protocol:
+
+```text
+detect
+  ↓
+fence old writer
+  ↓
+verify candidate freshness
+  ↓
+promote
+  ↓
+move stable endpoint
+  ↓
+retry
+```
+
+The lesson uses one concrete replication position: both nodes are at **LSN 120** before failure.
+
+<Callout title="Fence before promote">
+  Failure detection tells you that the old writer is not responding from one observer's perspective. Fencing is what prevents that writer from later returning and accepting conflicting writes.
+</Callout>
+
+## Interactive lab
+
+Follow one INSERT through `db.internal`. The endpoint remains stable while the writable database node changes.
+
+<FailoverLab client:visible />
+
+## Practical example
+
+Fencing can be implemented in many ways: power control, storage lease, consensus membership, cloud API isolation, or a strongly controlled lock/epoch mechanism. The exact mechanism depends on the system.
+
+Freshness also needs an explicit rule. In PostgreSQL, WAL positions and replication state can help determine how far a standby has replayed. A production failover system needs a policy for acceptable data-loss risk, not merely “Replica process is running.”
+
+Stable endpoints matter because application clients should not need a deploy just because the database role moved.
+
+## Failure modes and trade-offs
+
+- **Promote before fencing:** possible split-brain.
+- **False failure detection:** unnecessary role change.
+- **Stale candidate:** unacceptable RPO or missing committed data.
+- **Endpoint convergence is slow:** clients keep dialing the old location.
+- **Retry is unsafe:** ambiguous writes can be duplicated if the operation is not designed for retries.
+
+Record the detection time, fencing result, replication position, promotion time and endpoint switch in the incident timeline.
+
+## Check your understanding
+
+<Quiz client:visible question="Why is fencing required before promoting a new writable Primary?" options={['To prevent the old writer from accepting conflicting writes','To increase CSS performance','To add more HTTP headers','To make the Replica physically larger']} correct={0} explanation="Failover safety requires preventing two nodes from acting as writable Primary at the same time." />
+
+<Quiz client:visible question="What does matching LSN 120 on the candidate provide in this lesson?" options={['Evidence that it has reached the modeled committed position','Proof that all future writes are safe','A DNS hostname','A CPU benchmark']} correct={0} explanation="Replication position is evidence about candidate freshness. Real failover policy decides what evidence is sufficient." />
+
+## Takeaway
+
+Failover is a **sequence**, not a color change in a diagram. Detect → fence → verify freshness → promote → reroute → retry. Safety depends on the order.
+
+## References
+
+- [PostgreSQL: Failover](https://www.postgresql.org/docs/current/warm-standby-failover.html)
+- [PostgreSQL: Write-Ahead Logging](https://www.postgresql.org/docs/current/wal-intro.html)
+- [Google SRE Book: Managing Critical State](https://sre.google/sre-book/managing-critical-state/)
