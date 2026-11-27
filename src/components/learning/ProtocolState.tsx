@@ -6,6 +6,8 @@ function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   if(kind==='process-thread'&&index===1){
     const valueMatch=value.match(/counter=(\d+)/);
     items=<span className="backend-counter"><b>{valueMatch?.[1]??value}</b>{value.includes(';')&&<small>{value.split(';')[1].trim()}</small>}</span>;
+  }else if(kind==='jwt'&&index===0&&value==='header | payload | signature'){
+    items=<span className="jwt-parts">{['header','payload','signature'].map((part,i)=><span key={part} data-part={i}>{part}</span>)}</span>;
   }else if(kind==='stack-heap'&&index===0){
     items=<span className="backend-stack">{value.split(' | ').reverse().map((frame,i)=><span key={i} data-top={i===0}>{frame}{i===0&&<small> TOP</small>}</span>)}</span>;
   }else if(kind==='event-loop'&&index===0&&/^[A-D]( [A-D])*$/.test(value)){

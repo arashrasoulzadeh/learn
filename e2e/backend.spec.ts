@@ -17,6 +17,11 @@ const lessons=[
         "mutex",
         4,
         "counter=2"
+      ],
+      [
+        "isolation",
+        3,
+        "B receives 1; B.counter=1"
       ]
     ],
     0,
@@ -42,6 +47,11 @@ const lessons=[
         "retained",
         3,
         "object eligible for GC"
+      ],
+      [
+        "recursion",
+        3,
+        "RangeError (runtime dependent)"
       ]
     ],
     1,
@@ -274,6 +284,7 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
   for(const [id,count,output] of scenarios){
    await select.selectOption(id);
    await expect(steps).toHaveCount(count);
+   await expect(lab.locator('.backend-prediction p')).not.toBeEmpty();
    await expect(steps.first()).toHaveAttribute('aria-current','step');
    for(let i=0;i<count;i++){
     await steps.nth(i).click();
@@ -302,6 +313,7 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
   await edgeDialog.locator('.edge-option').last().click();
   await expect(edgeDialog).not.toBeVisible();
   await expect(steps.first()).toHaveAttribute('aria-current','step');
+  await expect(lab.locator('.backend-prediction')).toBeVisible();
   await page.screenshot({path:'test-results/backend/'+slug+'-desktop.png',animations:'disabled'});
   await page.setViewportSize({width:390,height:844});
   await expect(graph).toHaveAttribute('data-layout','compact');
@@ -351,4 +363,33 @@ test('curriculum lists two ordered levels and reaches process and thread from We
  await expect(nav.getByRole('link').nth(10)).toHaveAttribute('aria-current','page');
  await nav.getByRole('link').last().click();
  await expect(page).toHaveURL(/\/software-engineering\/jwt\/$/);
+});
+
+
+test('process isolation has its own topology and counters independent of threads',async({page})=>{
+ await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+ await page.goto('/learn/concepts/software-engineering/process-thread/',{waitUntil:'domcontentloaded'});
+ const lab=page.locator('[data-lesson="process-thread"]');
+ await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+ await lab.getByLabel('سناریو').selectOption('isolation');
+ const graph=lab.locator('.flow-diagram'),state=lab.locator('.protocol-state');
+ const steps=lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button');
+ await expect(graph).toContainText('فرایند A');
+ await expect(graph).toContainText('فرایند B');
+ await steps.nth(1).click();
+ await expect(state).toContainText('A.counter=1');
+ await expect(state).toContainText('B.counter=0');
+ await steps.nth(2).click();
+ await expect(state).toContainText('B.counter=1');
+ await expect(graph.locator('[data-visible-flow]')).toHaveCount(2);
+ await lab.getByLabel('سناریو').selectOption('race');
+ await expect(graph).toContainText('حافظهٔ فرایند');
+});
+test('JWT exposes illustrative JWS structure before any trust decision',async({page})=>{
+ await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+ await page.goto('/learn/concepts/software-engineering/jwt/',{waitUntil:'domcontentloaded'});
+ const lab=page.locator('[data-lesson="jwt"]');
+ await expect(lab.locator('.jwt-parts>span')).toHaveCount(3);
+ await expect(lab.locator('.request-message pre').first()).toContainText('not a real signature');
+ await expect(lab.locator('.protocol-state')).toContainText('Unchecked');
 });

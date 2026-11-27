@@ -288,3 +288,12 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .backend-resource{display:grid;gap:3px}.backend-resource>span{border-bottom:1px solid var(--line);padding-bottom:3px}
 .backend-lab[data-model=memory] .state-cells,.backend-lab[data-model=queue] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
 .backend-lab[data-model=memory] .state-cell:first-child,.backend-lab[data-model=queue] .state-cell:first-child{grid-column:1/-1}
+
+/* Prediction before observation; keep the prompt short so the graph remains readable. */
+.backend-prediction{padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--bg);flex:none}
+.backend-prediction>span{display:block;color:var(--accent);font-size:11px;font-weight:600;margin-bottom:3px}
+.backend-prediction>p{margin:0;color:var(--ink);font-size:13px;line-height:1.75}
+.jwt-parts{display:flex;flex-wrap:wrap;gap:4px}
+.jwt-parts>span{border:1px solid var(--line);border-radius:5px;padding:3px 5px}
+.jwt-parts>span[data-part="0"]{color:var(--blue)}.jwt-parts>span[data-part="1"]{color:var(--accent)}.jwt-parts>span[data-part="2"]{color:var(--muted)}
+@media(max-width:600px){.backend-prediction{padding:8px 10px}.backend-prediction>p{font-size:12px}}

@@ -22,12 +22,15 @@ for(let i=0;i<slugs.length;i++){
  assert.ok(l.scenarios.length>=3&&l.scenarios.some(s=>s.edgeCase));
  assert.equal(new Set(l.scenarios.map(s=>s.id)).size,l.scenarios.length);
  for(const scenario of l.scenarios){
-  scenarios++;assert.ok(scenario.label&&scenario.example&&scenario.steps.length>=2);
+  scenarios++;assert.ok(scenario.label&&scenario.example&&scenario.prediction&&scenario.steps.length>=2);
+  const actors=scenario.actors??l.actors,edges=scenario.edges??l.edges;
+  assert.ok(actors.length>=2&&actors.length<=5);
+  assert.ok(edges.every(([a,b])=>Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b>=0&&a<actors.length&&b<actors.length));
   for(const s of scenario.steps){
    steps++;assert.ok(s.name&&s.short&&s.detail&&s.explanation&&s.result&&s.packet&&s.input&&s.output,slug+' missing explanation');
    assert.ok(s.state.length===3&&s.state.every(v=>typeof v==='string'&&v.length));
-   assert.ok(s.route.length&&s.route.every(n=>Number.isInteger(n)&&n>=0&&n<l.actors.length));
-   for(let j=1;j<s.route.length;j++){const a=s.route[j-1],b=s.route[j];assert.ok(l.edges.some(([x,y])=>x===a&&y===b||x===b&&y===a),slug+' disconnected route');}
+   assert.ok(s.route.length&&s.route.every(n=>Number.isInteger(n)&&n>=0&&n<actors.length));
+   for(let j=1;j<s.route.length;j++){const a=s.route[j-1],b=s.route[j];assert.ok(edges.some(([x,y])=>x===a&&y===b||x===b&&y===a),slug+' disconnected route');}
   }
  }
 }

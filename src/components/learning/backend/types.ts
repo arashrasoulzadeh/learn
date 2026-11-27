@@ -1,3 +1,4 @@
-import type {NetworkLesson} from '../network/types';
+import type {NetworkLesson,Scenario,Actor} from '../network/types';
 import type {FieldExercise} from '../network/fieldExercises';
-export type BackendLesson=NetworkLesson&{field:FieldExercise;model:'execution'|'memory'|'queue'|'pipeline'|'resource'|'identity';};
+export type BackendScenario=Scenario&{prediction:string;actors?:Actor[];edges?:[number,number][];};
+export type BackendLesson=Omit<NetworkLesson,'scenarios'>&{scenarios:BackendScenario[];field:FieldExercise;model:'execution'|'memory'|'queue'|'pipeline'|'resource'|'identity';};
