@@ -28,7 +28,7 @@ jobs:
         if: always()
         with:
           name: server-visual-audit
-          path: test-results/server-visual
+          path: test-results
           if-no-files-found: ignore
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

@@ -3,7 +3,10 @@ import {test,expect} from '@playwright/test';
 test('Persian HTTP lesson opens directly and all stages and scenarios work',async({page})=>{
   const errors:string[]=[];
   page.on('pageerror',error=>errors.push(error.message));
-  await page.goto('/learn/');
+  page.setDefaultTimeout(10_000);
+  // Functional tests must not wait on external web fonts or other third-party requests.
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/',{waitUntil:'domcontentloaded',timeout:20_000});
   await expect(page.locator('html')).toHaveAttribute('lang','fa');
   await expect(page.locator('html')).toHaveAttribute('dir','rtl');
   await expect(page.getByRole('heading',{level:1,name:'چرخهٔ یک درخواست HTTP'})).toBeVisible();
@@ -20,7 +23,7 @@ test('Persian HTTP lesson opens directly and all stages and scenarios work',asyn
     await expect(lab.locator('.request-counter')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR')+' از ۹');
     await expect(lab.locator('.request-stage h2')).not.toBeEmpty();
   }
-  for(const [scenario,method,status] of [['get','GET','200 OK'],['post','POST','201 Created'],['missing','GET','404 Not Found'],['error','GET','500 Internal Server Error']]){
+  for(const [scenario,method,status] of [['post','POST','201 Created'],['missing','GET','404 Not Found'],['error','GET','500 Internal Server Error'],['get','GET','200 OK']]){
     await lab.getByLabel('سناریو').selectOption(scenario);
     await expect(steps.first()).toHaveAttribute('aria-current','step');
     await steps.nth(7).click();
