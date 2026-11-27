@@ -1,0 +1,93 @@
+---
+title: "Load Balancing"
+description: "Separate routing policy from physical capacity, compare common strategies, and see when adding a server changes the result."
+category: server-infrastructure
+difficulty: intermediate
+estimatedMinutes: 16
+order: 1
+tags: [load-balancing, routing, capacity, availability, reverse-proxy]
+---
+import { LoadBalancingLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+A service receives **10 requests per second**. Two healthy application servers can each process **4 requests per second**. A load balancer can choose where each request goes, but it cannot turn 8 requests/s of physical capacity into 10.
+
+That distinction sounds obvious, yet it is easy to lose when diagrams mix routing strategy and scaling. Weighted Round Robin, Least Connections and IP Hash change **selection behavior**. Adding or removing healthy capacity changes how much work the fleet can actually complete.
+
+By the end of this lesson you should be able to separate eligibility, routing and capacity; explain why a strategy change cannot create CPU; and recognize when affinity wastes usable headroom.
+
+## Mental model
+
+Think about a routing decision in three filters:
+
+1. **Health** — which targets are currently eligible?
+2. **Capacity** — which eligible targets still have headroom?
+3. **Strategy** — among the remaining targets, which one should receive this request?
+
+For two identical servers with capacity 4/s:
+
+```text
+S1 capacity = 4 req/s
+S2 capacity = 4 req/s
+healthy physical capacity = 8 req/s
+incoming = 10 req/s
+minimum overflow = 2 req/s
+```
+
+Changing Round Robin to Weighted Round Robin does not change any number on the left side.
+
+<Callout title="Routing is not scaling">
+  A routing algorithm can improve distribution and protect healthy headroom. It cannot manufacture physical capacity. Capacity changes when the set or size of usable workers changes.
+</Callout>
+
+## Interactive lab
+
+Move one step at a time. Pay special attention to the difference between the **strategy name** and the **physical capacity** number.
+
+<LoadBalancingLab client:visible />
+
+## Practical example
+
+Suppose an API has two workers:
+
+```text
+worker-a: 4 concurrent request slots
+worker-b: 4 concurrent request slots
+```
+
+With Round Robin, requests 1–8 can alternate between workers. Requests 9 and 10 still arrive after both workers are full.
+
+Weighted Round Robin is useful when workers are *actually different*. If worker-a has twice the measured capacity of worker-b, a 2:1 weight can mirror that reality. The weight does not cause the extra capacity.
+
+Least Connections can be more useful when requests have different durations. If one worker is still processing three long requests and another has one short request, the latter may have more immediate headroom.
+
+Strict affinity changes the objective again. If User A must stay on S1, then S2 can be idle while A is rejected because S1 is full. That may be acceptable for compatibility, but it is a trade-off, not free capacity.
+
+## Failure modes and trade-offs
+
+- **All targets are full.** A better strategy cannot solve fleet saturation. You need queueing, load shedding, faster work, or more capacity.
+- **Health is wrong.** Routing to an unhealthy target turns a target-selection bug into user-visible errors.
+- **Weights are guesses.** A 2:1 weight should reflect measured capacity or a deliberate traffic policy.
+- **Affinity hides headroom.** Sticky routing can create per-target hotspots.
+- **A shared downstream dependency is full.** Adding App servers may simply move the bottleneck to the database.
+
+Useful production signals include accepted rate, rejected rate, per-target utilization, healthy target count, load skew and tail latency.
+
+## Check your understanding
+
+<Quiz client:visible question="Two identical servers each handle 4 req/s. You change only Round Robin to Weighted Round Robin. What is the new physical capacity?" options={['8 req/s','12 req/s','It depends on the weight','Unlimited until a server fails']} correct={0} explanation="Weights change target-selection ratios. The two servers still provide 4 + 4 = 8 req/s of physical capacity." />
+
+<Quiz client:visible question="Why can strict affinity reject a request while another server is idle?" options={['Affinity can constrain the eligible target to the pinned server','Round Robin always rejects sticky users','The idle server has no IP address','Affinity increases total capacity']} correct={0} explanation="A strict pin can reduce the eligible target set to one server. Headroom elsewhere then cannot be used for that request." />
+
+## Takeaway
+
+Load balancing is **choosing a usable target**, not creating capacity. Always read the system in this order: healthy targets → real headroom → routing policy. If the fleet is saturated, change capacity or work—not merely the strategy dropdown.
+
+## References
+
+- [NGINX: HTTP Load Balancing](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/)
+- [HAProxy: Configuration Manual](https://docs.haproxy.org/)
+- [Kubernetes: Service traffic policies](https://kubernetes.io/docs/reference/networking/virtual-ips/)
