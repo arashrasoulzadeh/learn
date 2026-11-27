@@ -1,6 +1,6 @@
 {
-  "title": "Networking",
-  "description": "HTTP, DNS, TCP and communication between systems.",
+  "title": "شبکه",
+  "description": "HTTP، DNS، TCP و ارتباط بین سیستم‌ها.",
   "icon": "◎",
   "order": 1
 }

@@ -1,6 +1,6 @@
 {
-  "title": "Security",
-  "description": "Authentication, authorization and secure transport.",
+  "title": "امنیت",
+  "description": "احراز هویت، کنترل دسترسی و ارتباط امن.",
   "icon": "◈",
   "order": 8
 }

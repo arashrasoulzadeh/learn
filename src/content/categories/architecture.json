@@ -1,6 +1,6 @@
 {
-  "title": "Software Architecture",
-  "description": "Boundaries, event-driven systems and trade-offs.",
+  "title": "معماری نرم‌افزار",
+  "description": "مرزهای سیستم، معماری رویدادمحور و ملاحظات طراحی.",
   "icon": "◫",
   "order": 7
 }
