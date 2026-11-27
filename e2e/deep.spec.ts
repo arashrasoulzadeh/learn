@@ -219,7 +219,13 @@ for(const [category,slug,key,first,second] of fixtures){
   await page.goto('/learn/concepts/'+category+'/'+slug+'/',{waitUntil:'domcontentloaded'});
   const trigger=page.getByRole('button',{name:'آزمایشگاه پیشرفته',exact:true});
   await expect(page.locator('astro-island').filter({has:trigger})).not.toHaveAttribute('ssr','');
-  await trigger.click();
+  await expect(trigger).toBeInViewport({ratio:1});
+  await expect.poll(()=>trigger.evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+    return hit===el||el.contains(hit);
+  })).toBe(true);
+  await trigger.click({timeout:10_000});
   const dialog=page.getByRole('dialog',{name:'آزمایشگاه پیشرفته'}),player=dialog.locator('[data-deep-slug="'+slug+'"]');
   await expect(player).toBeVisible();
   const modes=player.locator('.deep-modes button');

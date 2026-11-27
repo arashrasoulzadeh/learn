@@ -388,3 +388,31 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 @media(max-width:999px){.request-canvas{overflow:visible}.request-canvas .flow-diagram[data-layout=wide]{aspect-ratio:auto;height:auto}}
 @media(max-width:600px){.request-canvas>.protocol-state .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}.request-canvas>.protocol-state .state-cell:last-child{grid-column:1/-1}.flight-chip{font-size:10px}.flight-replay{min-height:36px}.request-canvas .flow-diagram[data-layout=compact]{aspect-ratio:auto}.lab-canvas-title{align-items:flex-start}.lab-canvas-title strong{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.flight-chip{transition:none}}
+
+/* A scrollable flex column must start at the top. Centering oversized content
+   creates negative overflow that cannot be reached with scrollTop. */
+.request-canvas{justify-content:flex-start;align-items:stretch;overflow-x:hidden}
+.request-canvas>:not(.flow-diagram){flex-shrink:0}
+.lab-canvas-title{min-width:0;position:relative;z-index:1}
+.lab-canvas-title strong{min-width:0;overflow-wrap:anywhere}
+.lab-canvas-title .deep-launch-button>span::before{display:none}
+.request-experience .request-canvas>.protocol-state[data-protocol] .state-cell{min-width:0}
+@media(min-width:1000px){
+ .request-experience .request-canvas>.protocol-state[data-protocol] .state-cells{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .request-experience .request-canvas>.protocol-state[data-protocol] .state-cell{grid-column:auto}
+}
+@media(min-width:1000px) and (min-height:740px){
+ .request-canvas .flow-diagram{flex:1 0 190px;min-height:190px;height:190px;max-height:300px}
+ .request-canvas .lab-canvas-title{min-height:32px}
+ .request-canvas .network-overview{padding:7px 10px}
+ .request-canvas .backend-prediction{padding:6px 9px}
+ .request-canvas .flight-sequence{padding:6px 8px}
+ .request-canvas .protocol-state{padding:7px 8px}
+}
+@media(max-width:999px){.request-canvas{overflow:visible}.request-canvas .flow-diagram{flex:none;height:auto;min-height:0}}
+@media(max-width:600px){
+ .request-experience .request-canvas>.protocol-state[data-protocol] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .request-experience .request-canvas>.protocol-state[data-protocol] .state-cell{grid-column:auto}
+ .request-experience .request-canvas>.protocol-state[data-protocol] .state-cell:last-child{grid-column:1/-1}
+ .lab-canvas-title .deep-launch-button{white-space:normal;min-height:40px!important}
+}

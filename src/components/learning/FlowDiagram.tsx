@@ -110,20 +110,22 @@ function FlowScene({nodes,edges,activeNodes,route,playing,speed,accent='var(--ac
  const active=moving?phase:-1;
  const top=compact?0:Math.min(...nodes.map(n=>n.y))-62;
  const bottom=compact?height:Math.max(...nodes.map(n=>n.y))+72;
+ const left=compact?0:Math.max(0,Math.min(...nodes.map(n=>n.x))-74);
+ const right=compact?width:Math.min(width,Math.max(...nodes.map(n=>n.x))+74);
  return <>
   <div className="flight-sequence" aria-label="ترتیب پیام‌های این مرحله">
    <div className="flight-sequence-head"><span>{plan.length===1&&plan[0].kind==='local'?'عملیات در همان جزء':'ترتیب ارسال و دریافت'} <b>{active>=0&&active<plan.length?String(active+1)+' / '+plan.length:active===plan.length?'✓':''}</b></span>{onReplay&&<button type="button" className="flight-replay" onClick={()=>{setPhase(-1);onReplay();}}>بازپخش همین مرحله</button>}</div>
    <div className="flight-steps">{plan.map((s,i)=><div className="flight-chip" key={i} data-kind={s.kind} data-active={active===i} data-past={active>i} data-drop={!!s.drop} title={s.source===s.target?s.source:s.source+' → '+s.target}><small>{i+1}</small><bdi dir="ltr">{s.label}</bdi>{s.drop&&<span aria-label="بسته حذف می‌شود">×</span>}</div>)}</div>
   </div>
-  <svg className="flow-diagram" data-layout={compact?'compact':'wide'} viewBox={'0 '+top+' '+width+' '+(bottom-top)} direction="ltr" role="img" aria-label={label+'؛ '+caption}>
+  <svg className="flow-diagram" data-layout={compact?'compact':'wide'} viewBox={left+' '+top+' '+(right-left)+' '+(bottom-top)} direction="ltr" role="img" aria-label={label+'؛ '+caption}>
    <title>{caption}</title>
    <defs><pattern id={gridId} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="var(--line)"/></pattern></defs>
-   <rect y={top} width={width} height={bottom-top} rx="12" fill={'url(#'+gridId+')'} opacity=".55"/>
+   <rect x={left} y={top} width={right-left} height={bottom-top} rx="12" fill={'url(#'+gridId+')'} opacity=".55"/>
    {edges.map(([a,b])=>{const s=laneSegment(nodes[a],nodes[b]);return <line key={a+'-'+b} x1={s.from.x} y1={s.from.y} x2={s.to.x} y2={s.to.y} stroke="var(--line)" strokeWidth="2" strokeDasharray="5 6"/>;})}
    <FlowPacket route={route} plan={plan} active={active} accent={accent}/>
    {nodes.map((node,i)=><DiagramNode key={i} node={node} active={activeNodes.includes(i)} accent={accent}/>)}
    {moving&&<MotionPlayer key={motionVersion??0} plan={plan} speed={speed} accent={accent} onPhase={setPhase}/>}
-   <text x={width/2} y={bottom-5} fill="var(--muted)" textAnchor="middle" fontSize="10" direction="rtl">مدل آموزشی · مقیاس زمانی واقعی نیست</text>
+   <text x={(left+right)/2} y={bottom-5} fill="var(--muted)" textAnchor="middle" fontSize="10" direction="rtl">مدل آموزشی · مقیاس زمانی واقعی نیست</text>
   </svg>
  </>;
 }

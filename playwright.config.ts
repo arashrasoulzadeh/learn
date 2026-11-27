@@ -8,6 +8,8 @@ export default defineConfig({
   workers:2,
   use:{
     baseURL:'http://127.0.0.1:4321',
+    actionTimeout:12_000,
+    navigationTimeout:25_000,
     trace:'retain-on-failure',
     screenshot:'only-on-failure',
     ...devices['Desktop Chrome']

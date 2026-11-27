@@ -66,7 +66,7 @@ export function LabMessage({title,content,waiting,tag,tone}:{title:string;conten
 }
 export function LabNote({children}:{children:ReactNode}){return <p className="request-note">{children}</p>;}
 export function LabScreen({label,toolbar,graph,detail,timeline,overview,graphFooter,stepKey,headingActions,graphTitle='مسیر ارتباط',stateView}:{label:string;toolbar:ReactNode;graph:ReactNode;detail:ReactNode;timeline:ReactNode;overview?:ReactNode;graphFooter?:ReactNode;stepKey?:string;headingActions?:ReactNode;graphTitle?:string;stateView?:ReactNode}){
-  const detailRef=useRef<HTMLDivElement>(null);
-  useEffect(()=>{if(detailRef.current)detailRef.current.scrollTop=0;},[stepKey]);
-  return <section className="request-experience" aria-label={label}>{toolbar}<div className="request-canvas"><div className="lab-canvas-title"><strong>{graphTitle}</strong>{headingActions??<span>شبیه‌سازی آموزشی</span>}</div>{overview}{graph}{stateView}<div className="flow-legend" aria-label="راهنمای دیاگرام"><span><i className="legend-out"/>پیام جاری</span><span><i className="legend-return"/>مسیر برگشت</span><span><i className="legend-error"/>مسیر خطا</span><span><i className="legend-idle"/>مسیر غیرفعال</span></div>{graphFooter}</div><div className="request-detail" ref={detailRef}>{detail}</div>{timeline}</section>;
+  const detailRef=useRef<HTMLDivElement>(null),canvasRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(detailRef.current)detailRef.current.scrollTop=0;if(canvasRef.current)canvasRef.current.scrollTop=0;},[stepKey]);
+  return <section className="request-experience" aria-label={label}>{toolbar}<div className="request-canvas" ref={canvasRef}><div className="lab-canvas-title"><strong>{graphTitle}</strong>{headingActions??<span>شبیه‌سازی آموزشی</span>}</div>{overview}{graph}{stateView}<div className="flow-legend" aria-label="راهنمای دیاگرام"><span><i className="legend-out"/>پیام جاری</span><span><i className="legend-return"/>مسیر برگشت</span><span><i className="legend-error"/>مسیر خطا</span><span><i className="legend-idle"/>مسیر غیرفعال</span></div>{graphFooter}</div><div className="request-detail" ref={detailRef}>{detail}</div>{timeline}</section>;
 }
