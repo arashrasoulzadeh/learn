@@ -5,6 +5,7 @@ import {ProtocolExchange} from '../RequestDetails';
 import LearningExtras from '../LearningExtras';
 import EdgeCases from '../EdgeCases';
 import ProtocolState from '../ProtocolState';
+import {LearningGoal,PracticeCheck} from '../TeachingTools';
 import type {NetworkLesson} from './types';
 
 export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
@@ -23,15 +24,18 @@ export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
   const accent=stage.tone==='error'?'var(--danger)':stage.tone==='success'?'var(--blue)':'var(--accent)';
   return <div className="network-lab" data-lesson={lesson.slug}>
     <LabScreen label={lesson.title+' — آموزش تعاملی'}
-      toolbar={<LabToolbar playback={playback} count={scenario.steps.length} actions={<><LearningExtras pitfall={lesson.pitfall} takeaway={lesson.takeaway} quiz={lesson.quiz} references={lesson.references} onOpen={pause}/><EdgeCases cases={lesson.scenarios.filter(s=>s.edgeCase).map(s=>({id:s.id,label:s.label,explanation:s.edgeCase!}))} current={scenario.id} onSelect={selectScenario} onOpen={pause}/></>}><LabSelect label="سناریو" value={scenario.id} options={lesson.scenarios.map(s=>({value:s.id,label:s.label}))} onChange={selectScenario}/></LabToolbar>}
+      toolbar={<LabToolbar playback={playback} count={scenario.steps.length} actions={<><LearningExtras pitfall={lesson.pitfall} takeaway={lesson.takeaway} quiz={lesson.quiz} references={lesson.references} terms={lesson.teaching.terms} onOpen={pause}/><EdgeCases cases={lesson.scenarios.filter(s=>s.edgeCase).map(s=>({id:s.id,label:s.label,explanation:s.edgeCase!}))} current={scenario.id} onSelect={selectScenario} onOpen={pause}/></>}><LabSelect label="سناریو" value={scenario.id} options={lesson.scenarios.map(s=>({value:s.id,label:s.label}))} onChange={selectScenario}/></LabToolbar>}
       overview={<div className="network-overview"><strong>{scenario.label}</strong><code dir="ltr">{scenario.example}</code></div>}
       graph={<FlowDiagram nodes={nodes} edges={lesson.edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={scenario.id+'-'+step+'-'+speed} label={stage.name} caption={stage.name} returnRoute={stage.roundTrip?[...route].reverse():undefined} packetLabel={stage.packet} compactLayout={compactLayout}/>}
       graphFooter={<ProtocolExchange phase={stage.short} result={stage.result} example={stage.packet||scenario.example}/>}
+      stepKey={scenario.id+'-'+step}
       detail={<>
+        <LearningGoal goal={lesson.teaching.goal}/>
         <LabStage name={stage.name} label={stage.short} explanation={stage.explanation} route={(stage.roundTrip?[...stage.route,...stage.route.slice(0,-1).reverse()]:stage.route).map(i=>lesson.actors[i].label)} result={stage.result} next={scenario.steps[step+1]?.name}>{stage.detail}</LabStage>
         <ProtocolState kind={lesson.slug} title={lesson.visual.title} labels={lesson.visual.labels} values={stage.state} context={lesson.visual.context} step={step} tone={stage.tone}/>
         <LabMessage title="دادهٔ ورودی / پیام" content={stage.input||undefined} waiting="هنوز پیامی ارسال نشده است."/>
         <LabMessage title="نتیجهٔ مرحله" content={stage.output||undefined} waiting="در انتظار نتیجه…" tone={stage.tone}/>
+        {step===scenario.steps.length-1&&<PracticeCheck key={scenario.id} practice={lesson.teaching.practice}/>}
         <LabNote>{lesson.description}</LabNote>
       </>}
       timeline={<LabTimeline steps={scenario.steps} step={step} onChange={jump} label="مراحل درس"/>}/>

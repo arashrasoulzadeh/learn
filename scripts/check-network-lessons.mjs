@@ -15,6 +15,7 @@ for(let i=0;i<slugs.length;i++){
   const {default:l}=await import('../src/components/learning/network/'+slug+'.ts');
   assert.equal(l.slug,slug);assert.equal(l.order,i+1);
   assert.ok(l.title&&l.description&&l.pitfall&&l.takeaway);
+  assert.ok(l.teaching.goal&&l.teaching.terms.length>=3&&l.teaching.practice.question&&l.teaching.practice.options.length===3&&l.teaching.practice.correct>=0&&l.teaching.practice.correct<3&&l.teaching.practice.explanation&&l.teaching.practice.hint,slug+' missing teaching outcomes and applied practice');
   assert.ok(l.visual.title&&l.visual.context&&l.visual.labels.length===3&&new Set(l.visual.labels).size===3,slug+' missing tailored visual');
   assert.ok(l.actors.length>=2&&l.actors.length<=5);
   assert.ok(l.references.length>=2&&l.references.every(r=>r.url.startsWith('https://')));

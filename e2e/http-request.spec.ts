@@ -220,3 +220,18 @@ test('HTTP tailored state follows connection and response lifecycle',async({page
   await expect(state).toContainText('200 OK');
   await expect(state).toHaveAttribute('data-tone','success');
 });
+
+
+test('HTTP applied practice distinguishes a server response from network failure',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  await expect(lab.locator('.lesson-goal p')).not.toBeEmpty();
+  await lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button').last().click();
+  const practice=lab.locator('.practice-check');
+  await practice.locator('.practice-option').nth(0).click();
+  await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+  await practice.locator('.practice-option').nth(1).click();
+  await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
+});

@@ -1,4 +1,4 @@
-import {useEffect,useState,type ReactNode,type CSSProperties} from 'react';
+import {useEffect,useState,useRef,type ReactNode,type CSSProperties} from 'react';
 export const faNumber=(n:number)=>new Intl.NumberFormat('fa-IR',{useGrouping:false}).format(n);
 export type LearningStep={name:string;short:string};
 export type ScenarioOption={value:string;label:string};
@@ -59,6 +59,8 @@ export function LabMessage({title,content,waiting,tag,tone}:{title:string;conten
   return <section className={'request-message'+(content===undefined?' waiting':'')}><p className="eyebrow"><span className="message-heading">{title}</span>{tag&&<bdi className="lab-message-tag" data-tone={tone??'neutral'} dir="ltr">{tag}</bdi>}</p><pre dir={content===undefined?'rtl':'ltr'}>{content??waiting}</pre></section>;
 }
 export function LabNote({children}:{children:ReactNode}){return <p className="request-note">{children}</p>;}
-export function LabScreen({label,toolbar,graph,detail,timeline,overview,graphFooter}:{label:string;toolbar:ReactNode;graph:ReactNode;detail:ReactNode;timeline:ReactNode;overview?:ReactNode;graphFooter?:ReactNode}){
-  return <section className="request-experience" aria-label={label}>{toolbar}<div className="request-canvas"><div className="lab-canvas-title"><strong>مسیر ارتباط</strong><span>شبیه‌سازی</span></div>{overview}{graph}{graphFooter}</div><div className="request-detail">{detail}</div>{timeline}</section>;
+export function LabScreen({label,toolbar,graph,detail,timeline,overview,graphFooter,stepKey}:{label:string;toolbar:ReactNode;graph:ReactNode;detail:ReactNode;timeline:ReactNode;overview?:ReactNode;graphFooter?:ReactNode;stepKey?:string}){
+  const detailRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(detailRef.current)detailRef.current.scrollTop=0;},[stepKey]);
+  return <section className="request-experience" aria-label={label}>{toolbar}<div className="request-canvas"><div className="lab-canvas-title"><strong>مسیر ارتباط</strong><span>شبیه‌سازی آموزشی</span></div>{overview}{graph}<div className="flow-legend" aria-label="راهنمای دیاگرام"><span><i className="legend-out"/>پیام جاری</span><span><i className="legend-return"/>مسیر برگشت (در صورت وجود)</span><span><i className="legend-idle"/>مسیر غیرفعال</span></div>{graphFooter}</div><div className="request-detail" ref={detailRef}>{detail}</div>{timeline}</section>;
 }

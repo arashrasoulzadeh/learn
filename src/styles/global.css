@@ -220,3 +220,30 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .protocol-state[data-protocol=tcp] .state-cells,.protocol-state[data-protocol=dns] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
 .protocol-state[data-protocol=tcp] .state-cell:first-child,.protocol-state[data-protocol=dns] .state-cell:first-child{grid-column:1/-1}
 @media(max-width:600px){.protocol-state{padding:12px}.state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}.state-cell:last-child{grid-column:1/-1}}
+
+/* Instructor review: learning intention, clear legend, actionable practice and compact glossary. */
+.lesson-goal{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:10px 13px;flex:none}
+.lesson-goal>span,.practice-kicker{color:var(--accent);font-weight:600;font-size:11px}
+.lesson-goal p{font-size:13px;color:var(--ink);line-height:1.85;margin:4px 0 0}
+.flow-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 15px;flex:none;font-size:10px;color:var(--muted);line-height:1.6}
+.flow-legend>span{display:flex;align-items:center;gap:5px}
+.flow-legend i{width:20px;border-top:2px solid var(--accent);display:inline-block}
+.flow-legend .legend-return{border-top-color:var(--blue);border-top-style:dashed}
+.flow-legend .legend-idle{border-top-color:var(--line);border-top-style:dashed}
+.practice-check{border:1px solid var(--line);border-radius:var(--lab-radius);background:var(--panel);padding:15px;flex:none}
+.practice-check h3{font-size:15px;line-height:1.9;margin:6px 0 12px;color:var(--ink)}
+.practice-options{display:grid;gap:7px}
+.practice-option{font:inherit;font-size:13px;text-align:start;color:var(--ink);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);line-height:1.75;cursor:pointer}
+.practice-option:hover,.practice-option:focus-visible{border-color:var(--accent)}
+.practice-option[data-result=correct]{border-color:var(--accent);background:#79e3c114}
+.practice-option[data-result=retry]{border-color:var(--danger)}
+.practice-feedback{padding:10px 12px;margin-top:10px;border-radius:8px;background:var(--bg);font-size:13px;line-height:1.8}
+.practice-feedback strong{color:var(--danger);font-weight:600}
+.practice-feedback[data-correct=true] strong{color:var(--accent)}
+.practice-feedback p{margin:5px 0 0;color:var(--muted)}
+.lesson-glossary{margin:8px 0;display:grid;gap:10px}
+.lesson-glossary>div{padding:9px 10px;border-radius:8px;background:var(--bg)}
+.lesson-glossary dt{color:var(--accent);font:600 12px/1.6 monospace;text-align:start}
+.lesson-glossary dd{margin:5px 0 0;font-size:13px;line-height:1.8;color:var(--muted)}
+.request-detail .request-stage p{font-size:14px;line-height:1.95}
+@media(max-width:600px){.flow-legend{font-size:9.5px;gap:4px 10px}.lesson-goal,.practice-check{padding:12px}}

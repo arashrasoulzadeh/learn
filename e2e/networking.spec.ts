@@ -6,9 +6,9 @@ const curriculum=[
   {slug:'tcp',cases:[['normal',5,'ACK 105'],['loss',5,'ACK 105 after retry'],['duplicate',4,'ACK 105; no duplicate delivery']],correct:1},
   {slug:'udp',cases:[['normal',4,'Received: 1, 2, 3'],['loss',4,'No UDP retransmission'],['reorder',3,'Received: 2, 1'],['duplicate',3,'Duplicate ignored by app']],correct:2},
   {slug:'tls-https',cases:[['valid',5,'TLS application_data: ciphertext'],['invalid',3,'HTTPS request blocked'],['expired',3,'HTTPS request blocked']],correct:1},
-  {slug:'http-methods',cases:[['get',3,'Keyboard'],['post',3,'Mouse'],['put',3,'204 No Content'],['patch',3,'25'],['delete',3,'204 No Content'],['retry-post',4,'Created id=44; duplicate product']],correct:1},
+  {slug:'http-methods',cases:[['get',3,'Keyboard'],['post',3,'Mouse'],['put',3,'204 No Content'],['patch',3,'25'],['delete',3,'204 No Content'],['retry-post',5,'Created id=44; duplicate product']],correct:1},
   {slug:'http-status-codes',cases:[['continue',3,'200 OK'],['ok',3,'200 OK'],['redirect',3,'200 OK after redirect'],['missing',3,'404 Not Found'],['server-error',3,'500 Internal Server Error'],['limited',3,'200 OK after wait']],correct:0},
-  {slug:'cookies-sessions',cases:[['login',5,'200 OK · user=42'],['expired',3,'401 Unauthorized'],['logout',3,'Session revoked; cookie cleared'],['stolen-revoked',3,'401 Unauthorized']],correct:1},
+  {slug:'cookies-sessions',cases:[['login',6,'200 OK · user=42'],['expired',3,'401 Unauthorized'],['logout',3,'Session revoked; cookie cleared'],['stolen-revoked',3,'401 Unauthorized']],correct:1},
   {slug:'websocket',cases:[['chat',5,'CLOSED 1000'],['disconnect',4,'Resynced from id=43'],['rejected',2,'WebSocket not established'],['heartbeat',3,'101 Switching Protocols']],correct:1}
 ] as const;
 
@@ -21,6 +21,7 @@ for(const lesson of curriculum){
     await expect(page.locator('html')).toHaveAttribute('dir','rtl');
     const lab=page.locator('[data-lesson="'+lesson.slug+'"]');
     await expect(lab).toBeVisible();
+    await expect(lab.locator('.lesson-goal p')).not.toBeEmpty();
     await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
     const diagram=lab.locator('.flow-diagram');
     await expect(diagram).toHaveAttribute('data-layout','wide');
@@ -51,6 +52,7 @@ for(const lesson of curriculum){
         await expect(lab.locator('.request-message pre').last()).toHaveAttribute('dir','ltr');
       }
       await expect(lab.locator('.request-message pre').last()).toContainText(expected);
+      await expect(lab.locator('.practice-check')).toHaveCount(1);
     }
     await lab.getByRole('button',{name:'حالت‌های خاص',exact:true}).click();
     const edgeDialog=lab.getByRole('dialog',{name:/حالت‌های خاص و خطاها/});
@@ -110,7 +112,7 @@ const tailoredCases=[
   ['tcp','duplicate',2,'Duplicate discarded'],
   ['udp','duplicate',1,'×2'],
   ['tls-https','expired',1,'Expired'],
-  ['http-methods','retry-post',3,'44 · Mouse'],
+  ['http-methods','retry-post',4,'44 · Mouse'],
   ['http-status-codes','limited',1,'429'],
   ['cookies-sessions','logout',1,'Revoked'],
   ['websocket','disconnect',2,'OPEN']
@@ -126,5 +128,27 @@ for(const [slug,scenario,stage,expected] of tailoredCases){
     await expect(lab.locator('.protocol-state')).toContainText(expected);
     await lab.locator('.protocol-state').scrollIntoViewIfNeeded();
     await page.screenshot({path:'test-results/networking/'+slug+'-state.png',animations:'disabled'});
+  });
+}
+
+const practiceAnswers:Record<string,number>={"dns":0,"ip-port":1,"tcp":2,"udp":0,"tls-https":1,"http-methods":2,"http-status-codes":0,"cookies-sessions":1,"websocket":2};
+for(const lesson of curriculum){
+  test(lesson.slug+' — applied practice gives useful feedback',async({page})=>{
+    await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+    await page.goto('/learn/concepts/networking/'+lesson.slug+'/',{waitUntil:'domcontentloaded'});
+    const lab=page.locator('[data-lesson="'+lesson.slug+'"]');
+    await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+    const steps=lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button');
+    await expect(lab.locator('.practice-check')).toHaveCount(0);
+    await steps.last().click();
+    const practice=lab.locator('.practice-check');
+    const answer=practiceAnswers[lesson.slug];
+    await practice.locator('.practice-option').nth((answer+1)%3).click();
+    await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+    await practice.locator('.practice-option').nth(answer).click();
+    await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
+    await expect(practice.locator('.practice-feedback p')).not.toBeEmpty();
+    await lab.getByRole('button',{name:'از ابتدا',exact:true}).click();
+    await expect(practice).toHaveCount(0);
   });
 }
