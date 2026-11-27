@@ -187,3 +187,9 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .request-experience{grid-template-columns:minmax(0,1.45fr) minmax(330px,1fr)}
 @media(max-width:999px){.request-experience{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.lab-dialog-inner{padding:14px}.lab-dialog h2{font-size:17px}.lab-playback-buttons{gap:6px}}
+
+/* Motion is one exchange per stage, not a repeating particle loop. */
+.request-packet-motion{pointer-events:none}
+.flow-diagram [data-active]{transition:color .25s ease}
+.flow-diagram [data-active] rect{transition:fill .25s ease,stroke .25s ease}
+@media(prefers-reduced-motion:reduce){.request-packet-motion{display:none!important}.flow-diagram [data-active],.flow-diagram [data-active] rect{transition:none!important}}

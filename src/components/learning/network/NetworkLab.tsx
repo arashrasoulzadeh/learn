@@ -14,7 +14,7 @@ export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
   const selectScenario=(id:string)=>{setScenarioId(id);jump(0);};
   const stage=scenario.steps[step]??scenario.steps[0];
   const count=lesson.actors.length;
-  const nodes:FlowNode[]=lesson.actors.map((actor,i)=>({...actor,x:lesson.slug==='dns'?[700,475,245,245,90][i]:700-i*610/(count-1),y:lesson.slug==='dns'?[145,145,48,145,242][i]:175}));
+  const nodes:FlowNode[]=lesson.actors.map((actor,i)=>({...actor,x:lesson.slug==='dns'?[700,475,260,235,260][i]:700-i*610/(count-1),y:lesson.slug==='dns'?[145,145,48,145,242][i]:175}));
   const positions=lesson.slug==='dns'?[{x:265,y:60},{x:265,y:205},{x:95,y:60},{x:95,y:205},{x:95,y:350}]:lesson.actors.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}));
   const compactLayout={width:360,height:Math.ceil(count/2)*145+47,positions};
   const route=stage.route.map(i=>nodes[i]);

@@ -16,25 +16,43 @@ function NodeIcon({icon}:{icon:string}){
 export function DiagramNode({node,active,accent,children}:{node:FlowNode;active:boolean;accent:string;children?:ReactNode}){
   return <g data-node={node.icon} transform={'translate('+node.x+' '+node.y+')'} data-active={active} style={{color:active?accent:'var(--muted)'}}>{active&&<rect x="-65" y="-48" width="130" height="96" rx="20" fill={accent} opacity=".09"/>}<rect x="-59" y="-42" width="118" height="84" rx="15" fill={active?'var(--panel2)':'var(--bg)'} stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -12)">{children??<NodeIcon icon={node.icon}/>}</g><text y="23" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="14" direction="rtl" fontWeight="600">{node.label}</text><text y="62" textAnchor="middle" fill="var(--muted)" fontSize="12" direction="rtl">{node.sub}</text></g>;
 }
-export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,packetLabel}:{route:readonly FlowNode[];playing:boolean;speed:number;accent:string;animationKey:string;returnRoute?:readonly FlowNode[];packetLabel?:string}){
+type Point={x:number;y:number};
+function point(p:Point){return Number(p.x.toFixed(2))+' '+Number(p.y.toFixed(2));}
+function centerTrack(route:readonly FlowNode[]){return route.map((p,i)=>(i?'L ':'M ')+point(p)).join(' ');}
+function laneSegment(a:FlowNode,b:FlowNode,offset=0){
+  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,nx=-uy,ny=ux;
+  // Intersect the actual node rectangle (plus a small gap), rather than drawing through its text.
+  const extent=Math.min(Math.abs(ux)>1e-6?63/Math.abs(ux):Infinity,Math.abs(uy)>1e-6?46/Math.abs(uy):Infinity,len*.45);
+  const from={x:a.x+ux*extent+nx*offset,y:a.y+uy*extent+ny*offset};
+  const to={x:b.x-ux*extent+nx*offset,y:b.y-uy*extent+ny*offset};
+  return {from,to,angle:Math.atan2(dy,dx)*180/Math.PI,mid:{x:(from.x+to.x)/2,y:(from.y+to.y)/2}};
+}
+function lane(route:readonly FlowNode[],offset:number){return route.slice(1).map((b,i)=>laneSegment(route[i],b,offset));}
+function motionTrack(segments:ReturnType<typeof lane>){
+  return segments.map((s,i)=>(i?'L ':'M ')+point(s.from)+' L '+point(s.to)).join(' ');
+}
+export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,packetLabel,finalRoute}:{route:readonly FlowNode[];playing:boolean;speed:number;accent:string;animationKey:string;returnRoute?:readonly FlowNode[];packetLabel?:string;finalRoute?:readonly FlowNode[]}){
   if(route.length<2)return null;
-  const track=route.map((node,i)=>(i?'L ':'M ')+node.x+' '+node.y).join(' ');
-  const back=returnRoute?.length?returnRoute.slice(1).map(node=>'L '+node.x+' '+node.y).join(' '):'';
-  const motionPath=track+(back?' '+back:'');
-  const duration=(back?2.4:1.8)/speed;
-  const first=route[0],second=route[1];
-  const midX=(first.x+second.x)/2,midY=(first.y+second.y)/2;
-  const vertical=Math.abs(first.y-second.y)>Math.abs(first.x-second.x);
-  const labelX=midX+(vertical?35:0),labelY=midY-(vertical?0:22);
+  const forward=lane(route,returnRoute?.length?6:0);
+  const backward=returnRoute?.length?lane(returnRoute,6):[];
+  const final=finalRoute?.length?lane(finalRoute,6):[];
+  const segments=[...forward,...backward,...final];
+  const track=motionTrack(segments);
+  const duration=(final.length?5.4:backward.length?4.8:3.2)/speed;
+  const first=forward[0],vertical=Math.abs(first.from.y-first.to.y)>Math.abs(first.from.x-first.to.x);
+  const labelX=first.mid.x+(vertical?35:0),labelY=first.mid.y-(vertical?0:24);
   return <g>
-    <path data-flow-path d={track} fill="none" stroke={accent} strokeWidth="8" opacity=".08"/>
-    <path d={track} fill="none" stroke={accent} strokeWidth="2.5" opacity=".9"/>
-    {route.slice(1).map((to,i)=>{const from=route[i];const x=(from.x+to.x)/2,y=(from.y+to.y)/2,angle=Math.atan2(to.y-from.y,to.x-from.x)*180/Math.PI;return <path key={i} data-flow-arrow d="M -6 -5 L 6 0 L -6 5 Z" transform={'translate('+x+' '+y+') rotate('+angle+')'} fill={accent} className={playing?'request-packet-static':undefined}/>;})}
-    {playing&&<g className="request-packet-motion"><circle r="11" fill={accent} opacity=".18"/><circle r="6" fill={accent} stroke="var(--bg)" strokeWidth="1.5"/><animateMotion key={animationKey} dur={duration+'s'} path={motionPath} repeatCount="indefinite"/></g>}
-    {packetLabel&&<g transform={'translate('+labelX+' '+labelY+')'}><rect x="-25" y="-10" width="50" height="20" rx="6" fill="var(--bg)" stroke={accent} strokeOpacity=".6"/><text y="4" textAnchor="middle" fill={accent} fontSize="11" fontWeight="700" direction="ltr">{packetLabel}</text></g>}
+    <path data-flow-path d={centerTrack(route)} fill="none" stroke="none"/>
+    {[...forward.map(s=>({s,color:accent,kind:'forward'})),...backward.map(s=>({s,color:'var(--blue)',kind:'return'}))].map(({s,color,kind},i)=><g key={i} data-lane={kind}>
+      <path d={'M '+point(s.from)+' L '+point(s.to)} stroke={color} strokeWidth="8" opacity=".10" fill="none" strokeLinecap="round"/>
+      <path data-visible-flow d={'M '+point(s.from)+' L '+point(s.to)} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeDasharray={kind==='return'?'5 3':undefined}/>
+      <path data-flow-arrow={kind} d="M -8 -4.5 L 0 0 L -8 4.5" transform={'translate('+point(s.to)+') rotate('+s.angle+')'} fill="none" stroke={color} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
+    </g>)}
+    {playing&&<g className="request-packet-motion" key={animationKey+'-'+track}><circle r="10" fill={accent} opacity=".22"/><circle r="5" fill={accent} stroke="var(--bg)" strokeWidth="1.5"/><animateMotion dur={duration+'s'} path={track} calcMode="paced" repeatCount="1" fill="freeze"/></g>}
+    {packetLabel&&<g transform={'translate('+labelX+' '+labelY+')'}><rect x="-30" y="-10" width="60" height="20" rx="6" fill="var(--bg)" stroke={accent} strokeOpacity=".6"/><text y="4" textAnchor="middle" fill={accent} fontSize="11" fontWeight="700" direction="ltr">{packetLabel}</text></g>}
   </g>;
 }
-export function FlowDiagram({nodes,edges,activeNodes,route,playing,speed,accent='var(--accent)',animationKey,label,caption,captionDirection='rtl',returnRoute,packetLabel,compactLayout}:{nodes:readonly FlowNode[];edges:readonly FlowEdge[];activeNodes:readonly number[];route:readonly FlowNode[];playing:boolean;speed:number;accent?:string;animationKey:string;label:string;caption:string;captionDirection?:'rtl'|'ltr';returnRoute?:readonly FlowNode[];packetLabel?:string;compactLayout?:{width:number;height:number;positions:readonly {x:number;y:number}[]}}){
+export function FlowDiagram({nodes,edges,activeNodes,route,playing,speed,accent='var(--accent)',animationKey,label,caption,captionDirection='rtl',returnRoute,packetLabel,compactLayout,finalRoute}:{nodes:readonly FlowNode[];edges:readonly FlowEdge[];activeNodes:readonly number[];route:readonly FlowNode[];playing:boolean;speed:number;accent?:string;animationKey:string;label:string;caption:string;captionDirection?:'rtl'|'ltr';returnRoute?:readonly FlowNode[];packetLabel?:string;compactLayout?:{width:number;height:number;positions:readonly {x:number;y:number}[]};finalRoute?:readonly FlowNode[]}){
   const gridId=useId();
   const [compact,setCompact]=useState(false);
   useEffect(()=>{
@@ -50,8 +68,8 @@ export function FlowDiagram({nodes,edges,activeNodes,route,playing,speed,accent=
   return <svg className="flow-diagram" data-layout={layout?'compact':'wide'} viewBox={'0 0 '+width+' '+height} direction="ltr" role="img" aria-label={label}>
     <defs><pattern id={gridId} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="var(--line)"/></pattern></defs>
     <rect width={width} height={height} rx="12" fill={'url(#'+gridId+')'} opacity=".65"/>
-    {edges.map(([a,b])=><line key={a+'-'+b} x1={displayNodes[a].x} y1={displayNodes[a].y} x2={displayNodes[b].x} y2={displayNodes[b].y} stroke="var(--line)" strokeWidth="2" strokeDasharray="5 6"/>)}
-    <FlowPacket route={remap(route)} playing={playing} speed={speed} accent={accent} animationKey={animationKey} returnRoute={returnRoute?remap(returnRoute):undefined} packetLabel={packetLabel}/>
+    {edges.map(([a,b])=>{const s=laneSegment(displayNodes[a],displayNodes[b]);return <line key={a+'-'+b} x1={s.from.x} y1={s.from.y} x2={s.to.x} y2={s.to.y} stroke="var(--line)" strokeWidth="2" strokeDasharray="5 6"/>;})}
+    <FlowPacket route={remap(route)} playing={playing} speed={speed} accent={accent} animationKey={animationKey} returnRoute={returnRoute?remap(returnRoute):undefined} finalRoute={finalRoute?remap(finalRoute):undefined} packetLabel={packetLabel}/>
     {displayNodes.map((node,i)=><DiagramNode key={i} node={node} active={activeNodes.includes(i)} accent={accent}/>)}
     <rect x={layout?12:190} y={height-54} width={layout?width-24:410} height="38" rx="9" fill="var(--bg)" stroke="var(--line)"/>
     <text x={width/2} y={height-30} fill={accent} textAnchor="middle" fontSize={layout?12.5:15} direction={captionDirection} fontWeight="600">{caption}</text>

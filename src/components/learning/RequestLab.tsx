@@ -3,6 +3,7 @@ import {usePlayback,LabSelect,LabToolbar,LabTimeline,LabStage,LabMessage,LabNote
 import {FlowDiagram,type FlowEdge} from './FlowDiagram';
 import {RequestOverview,ProtocolExchange} from './RequestDetails';
 import LearningExtras from './LearningExtras';
+import EdgeCases from './EdgeCases';
 
 const stages = [
   {name:'آماده‌سازی درخواست',short:'مرورگر',from:0,to:0,label:'تجزیهٔ آدرس و تعیین نوع درخواست',detail:'مرورگر آدرس را تجزیه می‌کند، متد درخواست را انتخاب می‌کند و حافظهٔ نهان خود را بررسی می‌کند. در این شبیه‌سازی فرض می‌کنیم داده در حافظهٔ نهان نیست و اتصال جدیدی لازم است.'},
@@ -26,7 +27,8 @@ const scenarios = {
   get:{method:'GET',path:'/api/products/42',status:'200 OK',body:'{"id":42,"name":"Keyboard"}'},
   post:{method:'POST',path:'/api/products',status:'201 Created',body:'{"id":43,"name":"Mouse"}'},
   missing:{method:'GET',path:'/api/products/999',status:'404 Not Found',body:'{"error":"Product not found"}'},
-  error:{method:'GET',path:'/api/products/42',status:'500 Internal Server Error',body:'{"error":"Unexpected server error"}'}
+  error:{method:'GET',path:'/api/products/42',status:'500 Internal Server Error',body:'{"error":"Unexpected server error"}'},
+  conflict:{method:'POST',path:'/api/products',status:'409 Conflict',body:'{"error":"Product name already exists"}'}
 };
 type Scenario = keyof typeof scenarios;
 const edges:FlowEdge[]=[[0,1],[0,2],[2,3],[3,4]];
@@ -44,11 +46,12 @@ const stageNotes=[
   {phase:'دریافت نتیجه',result:'پاسخ به مرورگر برمی‌گردد.',example:'Status + Headers + Body'},
   {phase:'دریافت نتیجه',result:'چرخهٔ درخواست کامل شده است.',example:'Parse → Render'}
 ];
-const scenarioOptions=[{value:'get',label:'دریافت موفق · GET ۲۰۰'},{value:'post',label:'ایجاد موفق · POST ۲۰۱'},{value:'missing',label:'یافت نشد · GET ۴۰۴'},{value:'error',label:'خطای سرور · GET ۵۰۰'}];
+const scenarioOptions=[{value:'get',label:'دریافت موفق · GET ۲۰۰'},{value:'post',label:'ایجاد موفق · POST ۲۰۱'},{value:'missing',label:'یافت نشد · GET ۴۰۴'},{value:'error',label:'خطای سرور · GET ۵۰۰'},{value:'conflict',label:'تداخل داده · POST ۴۰۹'}];
 export default function RequestLab(){
   const playback=usePlayback(stages.length);
-  const {step,playing,speed,jump}=playback;
+  const {step,playing,speed,jump,pause}=playback;
   const [scenario,setScenario]=useState<Scenario>('get');
+  const selectScenario=(id:string)=>{setScenario(id as Scenario);jump(0);};
   const s=scenarios[scenario],stage=stages[step];
   const route=stage.from===stage.to?[]:step===7?[nodes[stage.from],nodes[2],nodes[stage.to]]:[nodes[stage.from],nodes[stage.to]];
   const returnRoute=[1,2,3,6].includes(step)?[...route].reverse():undefined;
@@ -62,13 +65,25 @@ export default function RequestLab(){
   const request=s.method+' '+s.path+' HTTP/1.1\nHost: shop.example\nAccept: application/json'+(requestBody?'\nContent-Type: application/json\nContent-Length: '+requestBody.length+'\n\n'+requestBody:'\n');
   const response='HTTP/1.1 '+s.status+'\nContent-Type: application/json\nContent-Length: '+s.body.length+'\nCache-Control: no-store\n\n'+s.body;
 
-  const detail=step===6&&scenario==='error'?'عملیات پایگاه داده به‌طور غیرمنتظره شکست می‌خورد. برنامه خطا را به پاسخ عمومی ۵۰۰ تبدیل می‌کند.':step===8&&scenario==='missing'?'کلاینت یک پاسخ معتبر HTTP دریافت می‌کند، اما محصول موردنظر پیدا نشده است. رابط کاربری می‌تواند پیام «یافت نشد» را نمایش دهد.':stage.detail;
+  const detail=step===6&&scenario==='conflict'?'در این فروشگاه نام محصول باید یکتا باشد. محصول Mouse از قبل وجود دارد؛ پایگاه داده درج رکورد تکراری را رد می‌کند و سرور پاسخ ۴۰۹ آماده می‌کند.':step===8&&scenario==='conflict'?'مرورگر پاسخ ۴۰۹ را دریافت می‌کند و باید به کاربر توضیح دهد که نام محصول تکراری است؛ نباید پیام ایجاد موفق نشان دهد.':step===6&&scenario==='error'?'عملیات پایگاه داده به‌طور غیرمنتظره شکست می‌خورد. برنامه خطا را به پاسخ عمومی ۵۰۰ تبدیل می‌کند.':step===8&&scenario==='missing'?'کلاینت یک پاسخ معتبر HTTP دریافت می‌کند، اما محصول موردنظر پیدا نشده است. رابط کاربری می‌تواند پیام «یافت نشد» را نمایش دهد.':stage.detail;
+  const explanation=[
+    'فرض کنید در فروشگاه اینترنتی روی یک محصول کلیک می‌کنید. مرورگر ابتدا نام میزبان shop.example و مسیر '+s.path+' را از URL جدا می‌کند. متد '+s.method+' هدف عملیات را تعیین می‌کند.',
+    'مرورگر فقط برای نام shop.example سؤال DNS می‌فرستد؛ پاسخ نمونه 192.0.2.10 است. این نشانی مستنداتی است، نه یک سرویس واقعی.',
+    'کلاینت SYN می‌فرستد، پراکسی SYN-ACK را برمی‌گرداند و کلاینت ACK نهایی را می‌فرستد. سه پیام اتصال TCP را برقرار می‌کنند؛ هنوز GET یا POST ارسال نشده است.',
+    'در دست‌دهی TLS کلاینت و سرور دربارهٔ کلیدها توافق می‌کنند. مرورگر گواهی نام دامنه را می‌سنجد؛ بعد از آن متن HTTP در مسیر رمزنگاری می‌شود.',
+    'به خط اول پنل درخواست نگاه کنید: '+s.method+' '+s.path+' HTTP/1.1. Host مقصد و Accept قالب پاسخ دلخواه را معرفی می‌کند؛ POST در این مثال بدنهٔ JSON هم دارد.',
+    'پراکسی درخواست را به سرور برنامه منتقل می‌کند. برنامه مسیر را با handler متناظر تطبیق می‌دهد و قبل از دسترسی به داده، ورودی و مجوز را بررسی می‌کند.',
+    scenario==='conflict'?'درج محصول Mouse با شرط یکتایی نام تداخل دارد. تراکنش درج ناموفق می‌شود و محصول تکراری ایجاد نمی‌شود.':scenario==='post'?'در این نمونه دادهٔ نام Mouse ذخیره می‌شود و شناسهٔ 43 تولید می‌شود.':scenario==='missing'?'درخواست خواندن محصول 999 معتبر است، ولی جست‌وجو هیچ رکوردی پیدا نمی‌کند.':scenario==='error'?'خرابی داخلی دیتابیس مانع خواندن می‌شود. جزئیات exception باید در لاگ سرور بماند.':'برنامه رکورد محصول 42 را می‌خواند و نام Keyboard را دریافت می‌کند.',
+    'پاسخ '+s.status+' از سرور برنامه به پراکسی و سپس مرورگر می‌رسد. خط وضعیت، سرآیندها و بدنهٔ JSON نتیجه را توضیح می‌دهند.',
+    'مرورگر بر اساس '+s.status+' تصمیم می‌گیرد چه چیزی نمایش دهد؛ پاسخ خطا هم یک پیام معتبر HTTP است. رابط کاربری باید وضعیت موفق یا خطا را درست منعکس کند.'
+  ][step];
+  const result=step===6&&scenario==='conflict'?'درج تکراری رد شد.':step===6&&scenario==='error'?'عملیات داده ناموفق بود.':stageNotes[step].result;
   return <LabScreen label="آموزش تعاملی درخواست HTTP"
     overview={<RequestOverview method={s.method} path={s.path} status={responseVisible?s.status:undefined} outcome={outcome}/>}
-    graphFooter={<ProtocolExchange phase={stageNotes[step].phase} result={step===6&&scenario==='error'?'عملیات داده ناموفق بود.':stageNotes[step].result} example={example}/>}
+    graphFooter={<ProtocolExchange phase={stageNotes[step].phase} result={result} example={example}/>}
     
-    toolbar={<LabToolbar playback={playback} count={stages.length}><LabSelect label="سناریو" value={scenario} options={scenarioOptions} onChange={v=>{setScenario(v as Scenario);jump(0);}}/></LabToolbar>}
-    graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={step+'-'+scenario+'-'+speed} label={stage.name} caption={stage.label} captionDirection={step===2?'ltr':'rtl'} returnRoute={returnRoute} packetLabel={packetLabel} compactLayout={compactLayout}/>}
-    detail={<><LabStage name={stage.name} label={stage.short}>{detail}</LabStage><LabMessage title="درخواست" content={step>=4?request:undefined} waiting="هنوز درخواست HTTP ارسال نشده است." tag={step>=4?s.method:undefined}/><LabMessage title="پاسخ" content={responseVisible?response:undefined} waiting="هنوز پاسخی از سرور دریافت نشده است." tag={responseVisible?s.status.slice(0,3):undefined} tone={responseVisible?outcome:undefined}/><LabNote>شبیه‌سازی یک اتصال جدید HTTPS با HTTP/1.1 و TCP؛ بدون ارسال درخواست واقعی. در عمل اتصال‌ها قابل استفادهٔ مجدد هستند و HTTP/3 از QUIC استفاده می‌کند.</LabNote><LearningExtras pitfall="وجود یک پاسخ HTTP به معنای موفقیت عملیات نیست؛ پاسخ ۴۰۴ یا ۵۰۰ نیز یک پاسخ معتبر HTTP است. اتصال TCP ممکن است برای درخواست‌های بعدی دوباره استفاده شود." takeaway="DNS نشانی را پیدا می‌کند، TCP و TLS ارتباط را آماده می‌کنند و HTTP معنای درخواست و پاسخ را تعیین می‌کند." quiz={{question:'کدام مرحله نشانی IP نام دامنه را پیدا می‌کند؟',options:['TLS','DNS','HTTP'],correct:1,explanation:'DNS نام میزبان را به رکوردهایی مانند IP نگاشت می‌کند.'}} references={[{label:'RFC 9110 — HTTP semantics',url:'https://www.rfc-editor.org/rfc/rfc9110.html'},{label:'RFC 9112 — HTTP/1.1',url:'https://www.rfc-editor.org/rfc/rfc9112.html'}]}/></>}
+    toolbar={<LabToolbar playback={playback} count={stages.length} actions={<><LearningExtras pitfall="وجود یک پاسخ HTTP به معنای موفقیت عملیات نیست؛ پاسخ ۴۰۴ یا ۵۰۰ نیز یک پاسخ معتبر HTTP است. اتصال TCP ممکن است برای درخواست‌های بعدی دوباره استفاده شود." takeaway="DNS نشانی را پیدا می‌کند، TCP و TLS ارتباط را آماده می‌کنند و HTTP معنای درخواست و پاسخ را تعیین می‌کند." quiz={{question:'کدام مرحله نشانی IP نام دامنه را پیدا می‌کند؟',options:['TLS','DNS','HTTP'],correct:1,explanation:'DNS نام میزبان را به رکوردهایی مانند IP نگاشت می‌کند.'}} references={[{label:'RFC 9110 — HTTP semantics',url:'https://www.rfc-editor.org/rfc/rfc9110.html'},{label:'RFC 9112 — HTTP/1.1',url:'https://www.rfc-editor.org/rfc/rfc9112.html'}]} onOpen={pause}/><EdgeCases current={scenario} onSelect={selectScenario} onOpen={pause} cases={[{id:'missing',label:'محصول ناموجود · ۴۰۴',explanation:'سرور سالم است اما محصول مورد نظر وجود ندارد.'},{id:'error',label:'خطای داخلی · ۵۰۰',explanation:'عملیات داده با خطای غیرمنتظره شکست می‌خورد.'},{id:'conflict',label:'تداخل داده · ۴۰۹',explanation:'درخواست ایجاد معتبر است اما نام محصول از قبل وجود دارد.'}]}/></>}><LabSelect label="سناریو" value={scenario} options={scenarioOptions} onChange={selectScenario}/></LabToolbar>}
+    graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={step+'-'+scenario+'-'+speed} label={stage.name} caption={stage.label} captionDirection={step===2?'ltr':'rtl'} returnRoute={returnRoute} finalRoute={step===2?route:undefined} packetLabel={packetLabel} compactLayout={compactLayout}/>}
+    detail={<><LabStage name={stage.name} label={stage.short} explanation={explanation} route={(step===2?[...route,...route.slice(0,-1).reverse(),...route.slice(1)]:returnRoute?[...route,...returnRoute.slice(1)]:route.length?route:[nodes[0]]).map(n=>n.label)} result={result} next={stages[step+1]?.name}>{detail}</LabStage><LabMessage title="درخواست" content={step>=4?request:undefined} waiting="هنوز درخواست HTTP ارسال نشده است." tag={step>=4?s.method:undefined}/><LabMessage title="پاسخ" content={responseVisible?response:undefined} waiting="هنوز پاسخی از سرور دریافت نشده است." tag={responseVisible?s.status.slice(0,3):undefined} tone={responseVisible?outcome:undefined}/><LabNote>شبیه‌سازی یک اتصال جدید HTTPS با HTTP/1.1 و TCP؛ بدون ارسال درخواست واقعی. در عمل اتصال‌ها قابل استفادهٔ مجدد هستند و HTTP/3 از QUIC استفاده می‌کند.</LabNote></>}
     timeline={<LabTimeline steps={stages} step={step} onChange={jump} label="مراحل درخواست"/>}/>;
 }
