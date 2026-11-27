@@ -53,10 +53,14 @@ const lesson = {
             "frame 1",
             "—",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "datagram 1"
+          ],
+          "diagnostic": "UDP header شامل source port، destination port، length و checksum است؛ frame id در payload برنامه است."
         },
         {
-          "name": "ارسال قطعهٔ اول",
+          "name": "ارسال دیتاگرام اول",
           "short": "بسته ۱",
           "detail": "دیتاگرام شامل سرآیند UDP و داده است. مرز هر دیتاگرام برای گیرنده حفظ می‌شود.",
           "route": [
@@ -73,10 +77,15 @@ const lesson = {
             "frame 1",
             "1",
             "Play 1"
-          ]
+          ],
+          "flightLabels": [
+            "frame 1",
+            "frame 1"
+          ],
+          "diagnostic": "هر recvfrom یک دیتاگرام می‌خواند (با توجه به اندازه بافر)؛ مرز پیام بر خلاف TCP حفظ می‌شود."
         },
         {
-          "name": "ارسال قطعهٔ دوم",
+          "name": "ارسال دیتاگرام دوم",
           "short": "بسته ۲",
           "detail": "بستهٔ دوم مستقل از اولی از شبکه عبور می‌کند.",
           "route": [
@@ -93,10 +102,15 @@ const lesson = {
             "frame 2",
             "1, 2",
             "Play 2"
-          ]
+          ],
+          "flightLabels": [
+            "frame 2",
+            "frame 2"
+          ],
+          "diagnostic": "بدون ACK داخلی، رسیدن قبلی تضمین رسیدن بعدی نیست."
         },
         {
-          "name": "ارسال قطعهٔ سوم",
+          "name": "ارسال دیتاگرام سوم",
           "short": "بسته ۳",
           "detail": "در این نمونه همهٔ بسته‌ها به ترتیب رسیده‌اند؛ این ترتیب تضمین UDP نیست.",
           "route": [
@@ -114,9 +128,15 @@ const lesson = {
             "frame 3",
             "1, 2, 3",
             "Play 3"
-          ]
+          ],
+          "flightLabels": [
+            "frame 3",
+            "frame 3"
+          ],
+          "diagnostic": "ترتیب ۱،۲،۳ صرفاً اجرای نمونه است؛ برنامه نباید روی تضمین ترتیب UDP تکیه کند."
         }
-      ]
+      ],
+      "prediction": "آیا دریافت سه دیتاگرام مرتب تضمین UDP است؟"
     },
     {
       "id": "loss",
@@ -141,7 +161,12 @@ const lesson = {
             "frame 1",
             "1",
             "Play 1"
-          ]
+          ],
+          "flightLabels": [
+            "frame 1",
+            "frame 1"
+          ],
+          "diagnostic": "شماره فریم در این مثال قرارداد برنامه است، نه فیلد استاندارد UDP."
         },
         {
           "name": "گم شدن قطعهٔ دوم",
@@ -161,7 +186,12 @@ const lesson = {
             "frame 2 · lost",
             "1",
             "Gap"
-          ]
+          ],
+          "flightLabels": [
+            "frame 2 lost"
+          ],
+          "diagnostic": "افت بدون ACK یا retransmit داخلی UDP رخ می‌دهد؛ روی گیرنده فقط gap دیده می‌شود.",
+          "drop": true
         },
         {
           "name": "دریافت قطعهٔ سوم",
@@ -181,7 +211,12 @@ const lesson = {
             "frame 3",
             "1, 3",
             "Play 3"
-          ]
+          ],
+          "flightLabels": [
+            "frame 3",
+            "frame 3"
+          ],
+          "diagnostic": "دریافت بعدی به نبود قبلی وابسته نیست؛ برنامه ممکن است آن را پخش کند."
         },
         {
           "name": "تصمیم برنامه",
@@ -200,10 +235,15 @@ const lesson = {
             "frame 2 · missing",
             "1, 3",
             "Conceal gap"
-          ]
+          ],
+          "flightLabels": [
+            "conceal gap"
+          ],
+          "diagnostic": "اگر دادهٔ صوتی دیررس ارزش ندارد، concealment مفید است؛ دادهٔ قابل اعتماد سیاست دیگری می‌خواهد."
         }
       ],
-      "edgeCase": "دیتاگرام گم می‌شود و UDP خودش تکرار نمی‌کند."
+      "edgeCase": "دیتاگرام گم می‌شود و UDP خودش تکرار نمی‌کند.",
+      "prediction": "وقتی فریم ۲ گم شود، چه کسی تصمیم بازیابی را می‌گیرد؟"
     },
     {
       "id": "reorder",
@@ -227,7 +267,11 @@ const lesson = {
             "frames 1, 2",
             "—",
             "In flight"
-          ]
+          ],
+          "flightLabels": [
+            "frames 1,2"
+          ],
+          "diagnostic": "دو پیام مستقل در راه‌اند؛ شبکه می‌تواند مسیر/صف متفاوت داشته باشد."
         },
         {
           "name": "رسیدن قطعهٔ دوم پیش از اول",
@@ -246,7 +290,11 @@ const lesson = {
             "frame 2",
             "2",
             "Arrived early"
-          ]
+          ],
+          "flightLabels": [
+            "frame 2"
+          ],
+          "diagnostic": "برنامه با id متوجه زود رسیدن فریم ۲ می‌شود؛ UDP خودش منتظر ۱ نمی‌ماند."
         },
         {
           "name": "رسیدن قطعهٔ اول",
@@ -266,10 +314,15 @@ const lesson = {
             "frame 1",
             "2, 1",
             "Reorder or drop late"
-          ]
+          ],
+          "flightLabels": [
+            "frame 1"
+          ],
+          "diagnostic": "jitter buffer می‌تواند مرتب‌سازی کند یا فریم دیررس را حذف کند؛ latency را با نیاز کاربرد بسنجید."
         }
       ],
-      "edgeCase": "بستهٔ دوم پیش از اول تحویل می‌شود."
+      "edgeCase": "بستهٔ دوم پیش از اول تحویل می‌شود.",
+      "prediction": "اگر ۲ قبل از ۱ برسد، ترتیب تحویل چه خواهد بود؟"
     },
     {
       "id": "duplicate",
@@ -295,7 +348,12 @@ const lesson = {
             "frame 7",
             "7",
             "Play once"
-          ]
+          ],
+          "flightLabels": [
+            "frame 7",
+            "frame 7"
+          ],
+          "diagnostic": "گیرنده یک فریم با شناسه ۷ دارد."
         },
         {
           "name": "رسیدن نسخهٔ دیگر",
@@ -314,7 +372,11 @@ const lesson = {
             "frame 7 · duplicate",
             "7, 7",
             "Duplicate detected"
-          ]
+          ],
+          "flightLabels": [
+            "frame 7 again"
+          ],
+          "diagnostic": "دیتاگرام تکراری ممکن است دوباره به برنامه برسد؛ checksum برای dedup نیست."
         },
         {
           "name": "حذف تکرار در برنامه",
@@ -333,9 +395,14 @@ const lesson = {
             "frame 7",
             "7, 7",
             "App ignores repeat"
-          ]
+          ],
+          "flightLabels": [
+            "deduplicate"
+          ],
+          "diagnostic": "برنامه می‌تواند با شناسه و پنجرهٔ محدود پیام تکراری را حذف کند؛ حافظهٔ تاریخچه باید محدود باشد."
         }
-      ]
+      ],
+      "prediction": "آیا UDP کپی تکراری را خودش حذف می‌کند؟"
     }
   ],
   "pitfall": "UDP همیشه سریع‌تر از TCP نیست؛ ازدحام، طراحی برنامه و شبکه تعیین‌کننده‌اند. QUIC با استفاده از UDP در لایهٔ بالاتر قابلیت اطمینان می‌سازد.",

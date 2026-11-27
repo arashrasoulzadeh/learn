@@ -72,7 +72,11 @@ const lesson = {
             "www.shop.example",
             "MISS",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "A?"
+          ],
+          "diagnostic": "در dig نام و نوع سؤال را جدا بخوانید؛ DNS از /path خبر ندارد."
         },
         {
           "name": "پرسش از ریشه",
@@ -82,7 +86,7 @@ const lesson = {
             1,
             2
           ],
-          "packet": "NS?",
+          "packet": "A?",
           "input": "QNAME=www.shop.example",
           "output": "Referral: .example",
           "result": "سرور پسوند پیدا می‌شود.",
@@ -92,7 +96,12 @@ const lesson = {
             "www.shop.example",
             "MISS",
             "Referral: .example"
-          ]
+          ],
+          "flightLabels": [
+            "A?",
+            "referral"
+          ],
+          "diagnostic": "پاسخ ریشه معمولاً referral است نه IP مقصد؛ Authority و Additional را بررسی کنید."
         },
         {
           "name": "پرسش از سرور پسوند",
@@ -102,7 +111,7 @@ const lesson = {
             1,
             3
           ],
-          "packet": "NS?",
+          "packet": "A?",
           "input": "QNAME=www.shop.example",
           "output": "NS ns.shop.example",
           "result": "سرور معتبر شناخته شد.",
@@ -112,7 +121,12 @@ const lesson = {
             "www.shop.example",
             "MISS",
             "NS ns.shop.example"
-          ]
+          ],
+          "flightLabels": [
+            "A?",
+            "NS referral"
+          ],
+          "diagnostic": "پاسخ سرور پسوند، NS دامنه و در صورت نیاز glue می‌دهد؛ delegation با پاسخ نهایی فرق دارد."
         },
         {
           "name": "دریافت رکورد معتبر",
@@ -132,7 +146,12 @@ const lesson = {
             "www.shop.example",
             "A · TTL=300",
             "192.0.2.10"
-          ]
+          ],
+          "flightLabels": [
+            "A?",
+            "A + TTL"
+          ],
+          "diagnostic": "در پاسخ نهایی Answer، نوع A و TTL را ببینید؛ رکورد A تنها IPv4 است."
         },
         {
           "name": "بازگشت IP به مرورگر",
@@ -152,9 +171,14 @@ const lesson = {
             "www.shop.example",
             "A · TTL=300",
             "192.0.2.10"
-          ]
+          ],
+          "flightLabels": [
+            "A answer"
+          ],
+          "diagnostic": "مرورگر می‌تواند این IP را برای اتصال استفاده کند؛ Host و SNI همچنان نام دامنه‌اند."
         }
-      ]
+      ],
+      "prediction": "چرا حل‌کننده از ریشه شروع می‌کند و IP را مستقیم نمی‌داند؟"
     },
     {
       "id": "warm",
@@ -178,7 +202,11 @@ const lesson = {
             "www.shop.example",
             "HIT",
             "192.0.2.10"
-          ]
+          ],
+          "flightLabels": [
+            "A?"
+          ],
+          "diagnostic": "HIT به این معناست که این resolver پاسخ قابل استفاده دارد؛ لزوماً کش مرورگر نیست."
         },
         {
           "name": "بررسی TTL",
@@ -196,7 +224,11 @@ const lesson = {
             "www.shop.example",
             "TTL=180",
             "192.0.2.10"
-          ]
+          ],
+          "flightLabels": [
+            "TTL check"
+          ],
+          "diagnostic": "TTL باقی‌مانده را با مقدار اولیه مقایسه کنید؛ هر hit عمر را خودکار تمدید نمی‌کند."
         },
         {
           "name": "پاسخ مستقیم",
@@ -216,10 +248,15 @@ const lesson = {
             "www.shop.example",
             "HIT · TTL=180",
             "192.0.2.10"
-          ]
+          ],
+          "flightLabels": [
+            "cached A"
+          ],
+          "diagnostic": "اگر TTL معتبر باشد، پرسش بالادست در این مدل حذف می‌شود."
         }
       ],
-      "edgeCase": "رکورد معتبر در کش؛ مسیر کوتاه‌تر."
+      "edgeCase": "رکورد معتبر در کش؛ مسیر کوتاه‌تر.",
+      "prediction": "چه تفاوتی بین کش گرم و پرسش از authoritative وجود دارد؟"
     },
     {
       "id": "missing",
@@ -243,7 +280,11 @@ const lesson = {
             "missing.shop.example",
             "MISS",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "A?"
+          ],
+          "diagnostic": "پاسخ NXDOMAIN با timeout یا SERVFAIL متفاوت است؛ نوع شکست را از RCODE تشخیص دهید."
         },
         {
           "name": "پاسخ منفی سرور معتبر",
@@ -264,7 +305,12 @@ const lesson = {
             "missing.shop.example",
             "Negative answer",
             "NXDOMAIN"
-          ]
+          ],
+          "flightLabels": [
+            "A?",
+            "NXDOMAIN"
+          ],
+          "diagnostic": "پاسخ منفی authoritative می‌تواند SOA برای negative caching داشته باشد؛ نبود نام با نبود نوع رکورد فرق دارد."
         },
         {
           "name": "اعلام خطا",
@@ -284,10 +330,15 @@ const lesson = {
             "missing.shop.example",
             "Negative cache",
             "NXDOMAIN"
-          ]
+          ],
+          "flightLabels": [
+            "NXDOMAIN"
+          ],
+          "diagnostic": "در resolver آزمایشی RCODE=3 را ببینید؛ ایجاد رکورد لزوماً کش منفی قبلی را فوراً پاک نمی‌کند."
         }
       ],
-      "edgeCase": "نام ناموجود و پاسخ منفی NXDOMAIN."
+      "edgeCase": "نام ناموجود و پاسخ منفی NXDOMAIN.",
+      "prediction": "آیا NXDOMAIN یعنی شبکه قطع است؟"
     },
     {
       "id": "expired",
@@ -303,16 +354,20 @@ const lesson = {
             0,
             1
           ],
-          "packet": "TTL",
-          "input": "A 192.0.2.10\nTTL=0",
+          "packet": "A?",
+          "input": "QNAME=www.shop.example\nQTYPE=A",
           "output": "Cache expired",
           "result": "باید رکورد تازه دریافت شود.",
-          "explanation": "اگر آدرس فروشگاه عوض شود، نباید کش منقضی‌شده را به‌عنوان پاسخ معتبر استفاده کرد.",
+          "explanation": "اگر آدرس فروشگاه عوض شود، نباید کش منقضی‌شده را به‌عنوان پاسخ معتبر استفاده کرد. Resolver TTL=0 را از ورودی محلی خودش می‌خواند، نه از درخواست کلاینت.",
           "state": [
             "www.shop.example",
             "TTL=0 · stale",
             "192.0.2.10 (old)"
-          ]
+          ],
+          "flightLabels": [
+            "A?"
+          ],
+          "diagnostic": "Resolver اعتبار ورودی را می‌سنجد؛ کلاینت معمولاً TTL قدیمی را به عنوان سؤال ارسال نمی‌کند."
         },
         {
           "name": "پرسش دوباره از مرجع",
@@ -332,7 +387,12 @@ const lesson = {
             "www.shop.example",
             "TTL=300 · refreshed",
             "192.0.2.11"
-          ]
+          ],
+          "flightLabels": [
+            "A?",
+            "new A"
+          ],
+          "diagnostic": "فرض delegation از قبل شناخته شده است؛ فقط پاسخ A تازه گرفته می‌شود."
         },
         {
           "name": "تحویل نشانی تازه",
@@ -352,9 +412,14 @@ const lesson = {
             "www.shop.example",
             "HIT",
             "192.0.2.11"
-          ]
+          ],
+          "flightLabels": [
+            "A answer"
+          ],
+          "diagnostic": "برقراری اتصال تازه ممکن است IP جدید را استفاده کند؛ اتصال قبلی الزاماً جابه‌جا نمی‌شود."
         }
-      ]
+      ],
+      "prediction": "وقتی TTL صفر شود، IP بعدی چگونه به دست می‌آید؟"
     }
   ],
   "pitfall": "این شبیه‌سازی یک ریشه و پسوند فرضی برای .example دارد، نه DNS عمومی اینترنت. DNS همیشه از ریشه شروع نمی‌شود؛ کش، CNAME و ارجاع‌های قبلی مسیر را تغییر می‌دهند.",

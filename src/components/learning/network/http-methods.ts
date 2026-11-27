@@ -54,7 +54,11 @@ const lesson = {
             "GET",
             "42 · Keyboard",
             "Read"
-          ]
+          ],
+          "flightLabels": [
+            "GET"
+          ],
+          "diagnostic": "GET معنای safe دارد؛ لاگ و شمارش فنی ممکن است رخ دهند اما عملیات درخواستی خواندن است."
         },
         {
           "name": "خواندن رکورد",
@@ -74,7 +78,12 @@ const lesson = {
             "GET",
             "42 · Keyboard",
             "Unchanged"
-          ]
+          ],
+          "flightLabels": [
+            "SELECT",
+            "row"
+          ],
+          "diagnostic": "این API محصول را از DB می‌خواند؛ GET الزاماً query SQL یا دسترسی DB ندارد."
         },
         {
           "name": "بازگشت نمایش منبع",
@@ -94,9 +103,14 @@ const lesson = {
             "GET",
             "42 · Keyboard",
             "200 · representation"
-          ]
+          ],
+          "flightLabels": [
+            "200 representation"
+          ],
+          "diagnostic": "GET نمایش منبع را می‌گیرد؛ cacheability به سرآیند و سیاست پاسخ بستگی دارد."
         }
-      ]
+      ],
+      "prediction": "آیا GET برای خواندن منبع باید وضعیت کسب‌وکار را تغییر دهد؟"
     },
     {
       "id": "post",
@@ -120,7 +134,11 @@ const lesson = {
             "POST",
             "42 · Keyboard",
             "Create"
-          ]
+          ],
+          "flightLabels": [
+            "POST"
+          ],
+          "diagnostic": "POST پردازش داده را از منبع مقصد درخواست می‌کند؛ ایجاد محصول قرارداد این API است."
         },
         {
           "name": "ساخت رکورد جدید",
@@ -140,7 +158,12 @@ const lesson = {
             "POST",
             "42 · Keyboard | 43 · Mouse",
             "Inserted"
-          ]
+          ],
+          "flightLabels": [
+            "INSERT",
+            "id=43"
+          ],
+          "diagnostic": "شناسهٔ جدید سمت سرور تعیین می‌شود؛ unique constraints مستقل از متد HTTP هستند."
         },
         {
           "name": "اعلام ایجاد",
@@ -160,9 +183,14 @@ const lesson = {
             "POST",
             "42 · Keyboard | 43 · Mouse",
             "201 · Location"
-          ]
+          ],
+          "flightLabels": [
+            "201 + Location"
+          ],
+          "diagnostic": "Location نشانی منبع تازه را می‌دهد؛ کلاینت می‌تواند بعداً GET کند."
         }
-      ]
+      ],
+      "prediction": "چرا POST جدید ممکن است شناسهٔ تازه بگیرد؟"
     },
     {
       "id": "put",
@@ -186,7 +214,11 @@ const lesson = {
             "PUT",
             "42 · Keyboard · $50",
             "Replace"
-          ]
+          ],
+          "flightLabels": [
+            "PUT"
+          ],
+          "diagnostic": "در API نمونه نمایش کامل منبع ارسال می‌شود؛ معنای PUT جایگزینی وضعیت منبع هدف است."
         },
         {
           "name": "جایگزینی رکورد",
@@ -206,7 +238,12 @@ const lesson = {
             "PUT",
             "42 · Mouse · $25",
             "Full replacement"
-          ]
+          ],
+          "flightLabels": [
+            "UPDATE",
+            "stored"
+          ],
+          "diagnostic": "هر دو فیلد name و price تغییر کرده‌اند؛ تکرار همان PUT باید اثر مورد انتظار idempotent داشته باشد."
         },
         {
           "name": "پاسخ موفق",
@@ -226,9 +263,14 @@ const lesson = {
             "PUT",
             "42 · Mouse · $25",
             "204 · no body"
-          ]
+          ],
+          "flightLabels": [
+            "204"
+          ],
+          "diagnostic": "پاسخ 204 بدنه ندارد؛ کلاینت نباید JSON parser را روی محتوای خالی اجرا کند."
         }
-      ]
+      ],
+      "prediction": "تفاوت نمایش کامل PUT با تغییر جزئی PATCH چیست؟"
     },
     {
       "id": "patch",
@@ -252,7 +294,11 @@ const lesson = {
             "PATCH",
             "42 · Keyboard · $50",
             "Change price"
-          ]
+          ],
+          "flightLabels": [
+            "PATCH"
+          ],
+          "diagnostic": "Content-Type نوع patch را مشخص می‌کند؛ JSON Merge Patch و JSON Patch قواعد متفاوت دارند."
         },
         {
           "name": "اعمال تغییر",
@@ -272,7 +318,12 @@ const lesson = {
             "PATCH",
             "42 · Keyboard · $25",
             "Name unchanged"
-          ]
+          ],
+          "flightLabels": [
+            "MERGE",
+            "updated"
+          ],
+          "diagnostic": "در این مثال فیلد غایب ثابت می‌ماند؛ null در merge patch معنای حذف عضو دارد."
         },
         {
           "name": "بازگشت نتیجه",
@@ -292,9 +343,14 @@ const lesson = {
             "PATCH",
             "42 · Keyboard · $25",
             "200 · updated"
-          ]
+          ],
+          "flightLabels": [
+            "200 updated"
+          ],
+          "diagnostic": "PATCH لزوماً idempotent نیست؛ قرارداد و نوع تغییر را برای retry ارزیابی کنید."
         }
-      ]
+      ],
+      "prediction": "اگر فقط price در merge patch باشد، name چه می‌شود؟"
     },
     {
       "id": "delete",
@@ -318,7 +374,11 @@ const lesson = {
             "DELETE",
             "42 · Keyboard",
             "Remove"
-          ]
+          ],
+          "flightLabels": [
+            "DELETE"
+          ],
+          "diagnostic": "DELETE درخواست حذف ارتباط URI با منبع است؛ soft delete ممکن است."
         },
         {
           "name": "حذف در API نمونه",
@@ -338,7 +398,12 @@ const lesson = {
             "DELETE",
             "42 · absent",
             "Removed"
-          ]
+          ],
+          "flightLabels": [
+            "DELETE",
+            "affected"
+          ],
+          "diagnostic": "در این API رکورد حذف می‌شود؛ قواعد رابطه و authorization همچنان مهم‌اند."
         },
         {
           "name": "پاسخ بدون بدنه",
@@ -358,9 +423,14 @@ const lesson = {
             "DELETE",
             "42 · absent",
             "204 · no body"
-          ]
+          ],
+          "flightLabels": [
+            "204"
+          ],
+          "diagnostic": "بدنه وجود ندارد؛ retry DELETE می‌تواند status متفاوت بگیرد و همچنان اثر نهایی idempotent باشد."
         }
-      ]
+      ],
+      "prediction": "DELETE موفق یعنی داده حتماً از دیسک پاک شده است؟"
     },
     {
       "id": "retry-post",
@@ -385,11 +455,15 @@ const lesson = {
             "POST",
             "No Mouse record yet",
             "First request"
-          ]
+          ],
+          "flightLabels": [
+            "POST"
+          ],
+          "diagnostic": "شناسهٔ درخواست برای tracing با idempotency key متفاوت است."
         },
         {
           "name": "ثبت موفق رکورد اول",
-          "short": "افت",
+          "short": "ثبت اول",
           "detail": "پایگاه داده ایجاد رکورد اول را تأیید می‌کند؛ در مرحلهٔ بعد پاسخ HTTP در مسیر سرور به کلاینت گم می‌شود.",
           "route": [
             1,
@@ -406,7 +480,12 @@ const lesson = {
             "POST",
             "43 · Mouse",
             "Committed"
-          ]
+          ],
+          "flightLabels": [
+            "INSERT",
+            "committed"
+          ],
+          "diagnostic": "تراکنش DB قبل از پاسخ موفق ثبت شده؛ وضعیت durable با دریافت پاسخ فرق دارد."
         },
         {
           "name": "پاسخ HTTP به کلاینت نمی‌رسد",
@@ -425,7 +504,12 @@ const lesson = {
             "43 · Mouse",
             "Committed; reply lost"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "201 lost"
+          ],
+          "diagnostic": "پاسخ به کلاینت نمی‌رسد؛ از timeout نمی‌توان عدم ثبت را نتیجه گرفت.",
+          "drop": true
         },
         {
           "name": "تلاش مجدد بدون کلید یکتایی",
@@ -444,7 +528,11 @@ const lesson = {
             "POST",
             "43 · Mouse",
             "Retry"
-          ]
+          ],
+          "flightLabels": [
+            "POST retry"
+          ],
+          "diagnostic": "تلاش مجدد بدون dedup ممکن است همان عملیات کسب‌وکار را دوباره اجرا کند."
         },
         {
           "name": "ایجاد رکورد دوم",
@@ -465,9 +553,15 @@ const lesson = {
             "POST",
             "43 · Mouse | 44 · Mouse",
             "Duplicate creation"
-          ]
+          ],
+          "flightLabels": [
+            "INSERT",
+            "id=44"
+          ],
+          "diagnostic": "کلید یکتایی و ذخیرهٔ اتمیک نتیجه/اثر برای retry امن POST لازم است."
         }
-      ]
+      ],
+      "prediction": "اگر پاسخ گم شود آیا می‌توان نتیجهٔ commit را از timeout فهمید؟"
     }
   ],
   "pitfall": "متد HTTP پیاده‌سازی پایگاه داده را تعیین نمی‌کند. idempotent بودن یعنی اثر مورد انتظار درخواست تکراری یکسان است، نه الزاماً پاسخ یکسان.",

@@ -55,7 +55,12 @@ const lesson = {
             "ClientHello",
             "Not checked",
             "Not sent"
-          ]
+          ],
+          "flightLabels": [
+            "ClientHello",
+            "ClientHello"
+          ],
+          "diagnostic": "ClientHello پیشنهاد نسخه‌ها، cipher suites و key_share دارد؛ هنوز هویت سرور احراز نشده است."
         },
         {
           "name": "پاسخ سرور و توافق کلید",
@@ -75,7 +80,12 @@ const lesson = {
             "Handshake keys",
             "Not checked",
             "Not sent"
-          ]
+          ],
+          "flightLabels": [
+            "ServerHello",
+            "ServerHello"
+          ],
+          "diagnostic": "ECDHE در مدل secret مشترک می‌سازد؛ TLS 1.3 کلید handshake را مشتق می‌کند و private key در مسیر فرستاده نمی‌شود."
         },
         {
           "name": "اعتبارسنجی هویت سرور",
@@ -95,7 +105,12 @@ const lesson = {
             "Certificate + Finished",
             "Verified",
             "Not sent"
-          ]
+          ],
+          "flightLabels": [
+            "Cert + Finished",
+            "Cert + Finished"
+          ],
+          "diagnostic": "Certificate chain، نام میزبان، اعتبار زمانی و اثبات CertificateVerify را بررسی کنید؛ Finished transcript را احراز می‌کند."
         },
         {
           "name": "تأیید دست‌دهی",
@@ -115,7 +130,12 @@ const lesson = {
             "Client Finished",
             "Verified",
             "Keys ready"
-          ]
+          ],
+          "flightLabels": [
+            "Client Finished",
+            "Client Finished"
+          ],
+          "diagnostic": "Client Finished صحت transcript و کلید را تأیید می‌کند؛ قبل از این مرحله دادهٔ کاربردی عادی ارسال نمی‌شود."
         },
         {
           "name": "ارسال HTTP رمزنگاری‌شده",
@@ -136,9 +156,15 @@ const lesson = {
             "Application data",
             "Verified",
             "Encrypted HTTP"
-          ]
+          ],
+          "flightLabels": [
+            "TLS ciphertext",
+            "TLS ciphertext"
+          ],
+          "diagnostic": "برنامه متن HTTP را در endpoint می‌بیند؛ روی شبکه TLS record رمزنگاری‌شده است. TLS جای کنترل مجوز برنامه نیست."
         }
-      ]
+      ],
+      "prediction": "چه زمانی مجازیم HTTP را روی کانال امن بفرستیم؟"
     },
     {
       "id": "invalid",
@@ -163,7 +189,12 @@ const lesson = {
             "ClientHello",
             "Not checked",
             "Not sent"
-          ]
+          ],
+          "flightLabels": [
+            "ClientHello",
+            "ClientHello"
+          ],
+          "diagnostic": "ClientHello آغاز مذاکره است؛ هنوز اعتبار گواهی ثابت نشده."
         },
         {
           "name": "دریافت گواهی سرور",
@@ -175,16 +206,21 @@ const lesson = {
             0
           ],
           "packet": "CERT",
-          "input": "Expected: shop.example\nCertificate: other.example",
+          "input": "ServerHello\nExpected: shop.example\nCertificate: other.example",
           "output": "Hostname mismatch",
           "result": "هویت مقصد تأیید نشد.",
           "tone": "error",
-          "explanation": "گواهی other.example برای مقصد مورد نظر معتبر نیست. حتی اگر رمزنگاری ممکن باشد، هویت مقصد قابل اعتماد نیست.",
+          "explanation": "گواهی other.example برای مقصد مورد نظر معتبر نیست. حتی اگر رمزنگاری ممکن باشد، هویت مقصد قابل اعتماد نیست. در این سناریو ServerHello و پیام‌های احراز هویت سرور در یک گام ترکیب شده‌اند.",
           "state": [
             "Certificate check",
             "Wrong hostname",
             "Blocked"
-          ]
+          ],
+          "flightLabels": [
+            "Server flight",
+            "Server flight"
+          ],
+          "diagnostic": "ServerHello و پیام‌های احراز سرور در این گام جمع شده‌اند؛ SAN نام مورد انتظار را پوشش نمی‌دهد."
         },
         {
           "name": "متوقف کردن اتصال",
@@ -205,10 +241,16 @@ const lesson = {
             "TLS alert",
             "Rejected",
             "No HTTP"
-          ]
+          ],
+          "flightLabels": [
+            "TLS alert",
+            "TLS alert"
+          ],
+          "diagnostic": "کلاینت باید اتصال را fail کند و دادهٔ حساس HTTP نفرستد؛ bypass بررسی hostname راه‌حل نیست."
         }
       ],
-      "edgeCase": "گواهی برای نام دامنهٔ دیگری صادر شده است."
+      "edgeCase": "گواهی برای نام دامنهٔ دیگری صادر شده است.",
+      "prediction": "آیا رمزنگاری بدون تطابق نام سرور کافی است؟"
     },
     {
       "id": "expired",
@@ -234,7 +276,12 @@ const lesson = {
             "ClientHello",
             "Not checked",
             "Not sent"
-          ]
+          ],
+          "flightLabels": [
+            "ClientHello",
+            "ClientHello"
+          ],
+          "diagnostic": "دست‌دهی شروع شده ولی هنوز کانال قابل اعتماد آماده نیست."
         },
         {
           "name": "اعتبار زمانی نامعتبر",
@@ -246,16 +293,21 @@ const lesson = {
             0
           ],
           "packet": "CERT",
-          "input": "Certificate: shop.example\nnotAfter: past date",
+          "input": "ServerHello\nCertificate: shop.example\nnotAfter: past date",
           "output": "Certificate expired",
           "result": "اعتبار گواهی رد شد.",
-          "explanation": "مرورگر باید بازهٔ زمانی اعتبار را هم بررسی کند.",
+          "explanation": "مرورگر باید بازهٔ زمانی اعتبار را هم بررسی کند. در این سناریو ServerHello و پیام‌های احراز هویت سرور در یک گام ترکیب شده‌اند.",
           "tone": "error",
           "state": [
             "Certificate check",
             "Expired",
             "Blocked"
-          ]
+          ],
+          "flightLabels": [
+            "Server flight",
+            "Server flight"
+          ],
+          "diagnostic": "در گام ترکیبی پاسخ سرور، notBefore/notAfter و ساعت محلی در اعتبارسنجی زنجیره مهم‌اند."
         },
         {
           "name": "توقف پیش از HTTP",
@@ -276,9 +328,15 @@ const lesson = {
             "TLS alert",
             "Rejected",
             "No HTTP"
-          ]
+          ],
+          "flightLabels": [
+            "TLS alert",
+            "TLS alert"
+          ],
+          "diagnostic": "در صورت گواهی نامعتبر خطا پیش از HTTP رخ می‌دهد؛ تمدید صحیح گواهی و ساعت را بررسی کنید."
         }
-      ]
+      ],
+      "prediction": "اگر نام درست ولی گواهی منقضی باشد چه می‌شود؟"
     }
   ],
   "pitfall": "HTTPS امنیت کامل برنامه را تضمین نمی‌کند. TLS از داده در مسیر و اعتبارسنجی هویت طرف مقابل محافظت می‌کند؛ آسیب‌پذیری سمت سرور همچنان ممکن است. این درس دست‌دهی کامل را نشان می‌دهد؛ TLS 1.3 امکان ازسرگیری و در شرایط خاص دادهٔ زودهنگام 0-RTT نیز دارد.",

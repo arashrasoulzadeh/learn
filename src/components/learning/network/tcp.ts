@@ -55,7 +55,12 @@ const lesson = {
             "SYN seq=100",
             "101",
             "SYN-SENT · awaiting SYN-ACK"
-          ]
+          ],
+          "flightLabels": [
+            "SYN seq=100",
+            "SYN seq=100"
+          ],
+          "diagnostic": "SYN یک شمارهٔ توالی مصرف می‌کند؛ شماره بعدی 101 است. هنوز payload برنامه نداریم."
         },
         {
           "name": "تأیید و همگام‌سازی",
@@ -75,7 +80,12 @@ const lesson = {
             "SYN-ACK seq=500 ack=101",
             "101",
             "SYN-ACK received · ACK pending"
-          ]
+          ],
+          "flightLabels": [
+            "SYN-ACK",
+            "SYN-ACK"
+          ],
+          "diagnostic": "سرور ISN=500 را معرفی و SYN کلاینت را با ack=101 تأیید می‌کند."
         },
         {
           "name": "تأیید نهایی",
@@ -95,7 +105,12 @@ const lesson = {
             "ACK seq=101 ack=501",
             "101",
             "ESTABLISHED"
-          ]
+          ],
+          "flightLabels": [
+            "ACK ack=501",
+            "ACK ack=501"
+          ],
+          "diagnostic": "ACK بدون داده شمارهٔ توالی تازه مصرف نمی‌کند؛ بعد از رسیدن این ACK هر دو طرف established هستند."
         },
         {
           "name": "ارسال داده",
@@ -115,7 +130,12 @@ const lesson = {
             "DATA seq=101 len=4",
             "105",
             "Awaiting ACK"
-          ]
+          ],
+          "flightLabels": [
+            "DATA 4B",
+            "DATA 4B"
+          ],
+          "diagnostic": "بازه [101,105) را در Seq/Len ببینید؛ TCP مرز پیام‌های برنامه را حفظ نمی‌کند."
         },
         {
           "name": "تأیید دریافت",
@@ -136,9 +156,15 @@ const lesson = {
             "ACK=105",
             "105",
             "4 bytes acknowledged"
-          ]
+          ],
+          "flightLabels": [
+            "ACK 105",
+            "ACK 105"
+          ],
+          "diagnostic": "ACK تجمعی یعنی دریافت همهٔ بایت‌های تا 104؛ به معنی اجرای منطق کاربردی یا commit نیست."
         }
-      ]
+      ],
+      "prediction": "SYN و ACK شمارهٔ توالی را چگونه تغییر می‌دهند؟"
     },
     {
       "id": "loss",
@@ -161,7 +187,11 @@ const lesson = {
             "ESTABLISHED",
             "101",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "ready"
+          ],
+          "diagnostic": "این سناریو اتصال برقرار را مفروض می‌گیرد؛ handshake دوباره لازم نیست."
         },
         {
           "name": "بسته در شبکه گم می‌شود",
@@ -181,7 +211,12 @@ const lesson = {
             "DATA seq=101 len=4 · lost",
             "101",
             "Awaiting ACK"
-          ]
+          ],
+          "flightLabels": [
+            "DATA lost"
+          ],
+          "diagnostic": "افت در شبکه قبل از گیرنده است، پس ACK مورد انتظار و بافر گیرنده جلو نمی‌روند.",
+          "drop": true
         },
         {
           "name": "پایان مهلت ارسال مجدد",
@@ -199,7 +234,11 @@ const lesson = {
             "RTO",
             "101",
             "Retransmit"
-          ]
+          ],
+          "flightLabels": [
+            "RTO"
+          ],
+          "diagnostic": "RTO از تخمین RTT و تغییرات آن می‌آید؛ زمان انیمیشن معادل RTO واقعی نیست."
         },
         {
           "name": "ارسال دوبارهٔ داده",
@@ -219,7 +258,12 @@ const lesson = {
             "DATA seq=101 len=4 · retry",
             "105",
             "Awaiting ACK"
-          ]
+          ],
+          "flightLabels": [
+            "DATA retry",
+            "DATA retry"
+          ],
+          "diagnostic": "بازفرستادن همان بازهٔ بایت است؛ دادهٔ جدید با sequence تازه محسوب نمی‌شود."
         },
         {
           "name": "تأیید موفق",
@@ -240,10 +284,16 @@ const lesson = {
             "ACK=105",
             "105",
             "Acknowledged"
-          ]
+          ],
+          "flightLabels": [
+            "ACK 105",
+            "ACK 105"
+          ],
+          "diagnostic": "گیرنده بایت‌های پیوسته را تأیید می‌کند؛ فرستنده می‌تواند آن بازه را از صف retransmission حذف کند."
         }
       ],
-      "edgeCase": "گم شدن داده و ارسال مجدد پس از timeout."
+      "edgeCase": "گم شدن داده و ارسال مجدد پس از timeout.",
+      "prediction": "در صورت افت، چرا Seq ارسال مجدد همان مقدار قبلی است؟"
     },
     {
       "id": "duplicate",
@@ -269,7 +319,12 @@ const lesson = {
             "DATA seq=101 len=4",
             "105",
             "Awaiting ACK"
-          ]
+          ],
+          "flightLabels": [
+            "DATA 4B",
+            "DATA 4B"
+          ],
+          "diagnostic": "گیرنده داده را تحویل می‌دهد؛ هنوز تأیید به فرستنده نرسیده."
         },
         {
           "name": "ACK در مسیر گم می‌شود",
@@ -289,7 +344,12 @@ const lesson = {
             "ACK=105 · lost",
             "105",
             "No ACK received"
-          ]
+          ],
+          "flightLabels": [
+            "ACK lost"
+          ],
+          "diagnostic": "ACK از گیرنده خارج شده اما در مسیر حذف می‌شود؛ وضعیت دو endpoint یکسان نیست.",
+          "drop": true
         },
         {
           "name": "ارسال دوباره",
@@ -309,7 +369,12 @@ const lesson = {
             "DATA seq=101 len=4 · retry",
             "105",
             "Duplicate discarded"
-          ]
+          ],
+          "flightLabels": [
+            "DATA retry",
+            "DATA retry"
+          ],
+          "diagnostic": "گیرنده از شماره‌های توالی تشخیص می‌دهد بازه قبلاً دریافت شده؛ تحویل تکراری برنامه لازم نیست."
         },
         {
           "name": "تأیید مجدد",
@@ -330,9 +395,15 @@ const lesson = {
             "ACK=105",
             "105",
             "Acknowledged"
-          ]
+          ],
+          "flightLabels": [
+            "ACK 105",
+            "ACK 105"
+          ],
+          "diagnostic": "ACK دوباره همان next expected byte را اعلام می‌کند؛ TCP از duplicate delivery جریان جلوگیری می‌کند."
         }
-      ]
+      ],
+      "prediction": "اگر فقط ACK گم شود، آیا برنامه داده را دوباره می‌گیرد؟"
     }
   ],
   "pitfall": "TCP مرز پیام‌های برنامه را حفظ نمی‌کند؛ جریان بایت است. ACK دریافت TCP را نشان می‌دهد، نه موفقیت عملیات کسب‌وکار.",

@@ -55,7 +55,12 @@ const lesson = {
             "CONNECTING",
             "Upgrade",
             "HTTP handshake"
-          ]
+          ],
+          "flightLabels": [
+            "HTTP Upgrade",
+            "HTTP Upgrade"
+          ],
+          "diagnostic": "در مدل HTTP/1.1 سرآیند Upgrade و Key برای دست‌دهی هستند؛ Key secret احراز هویت نیست."
         },
         {
           "name": "پذیرش سرور",
@@ -75,7 +80,12 @@ const lesson = {
             "OPEN",
             "101",
             "Upgrade accepted"
-          ]
+          ],
+          "flightLabels": [
+            "101 Switching",
+            "101 Switching"
+          ],
+          "diagnostic": "Sec-WebSocket-Accept از Key و GUID ساخته می‌شود؛ بعد از پاسخ موفق فریم‌های WebSocket مبادله می‌شوند."
         },
         {
           "name": "پیام کلاینت",
@@ -95,7 +105,12 @@ const lesson = {
             "OPEN",
             "Hello",
             "Client → server"
-          ]
+          ],
+          "flightLabels": [
+            "TEXT masked",
+            "TEXT masked"
+          ],
+          "diagnostic": "کلاینت فریم را mask می‌کند؛ masking رمزنگاری نیست و WSS همچنان TLS لازم دارد."
         },
         {
           "name": "پیام مستقل سرور",
@@ -115,7 +130,12 @@ const lesson = {
             "OPEN",
             "Welcome",
             "Server → client"
-          ]
+          ],
+          "flightLabels": [
+            "TEXT unmasked",
+            "TEXT unmasked"
+          ],
+          "diagnostic": "سرور می‌تواند مستقل push کند؛ فریم سرور mask نمی‌شود."
         },
         {
           "name": "بستن ارتباط",
@@ -137,9 +157,17 @@ const lesson = {
             "CLOSED",
             "1000",
             "Close handshake"
-          ]
+          ],
+          "flightLabels": [
+            "CLOSE",
+            "CLOSE",
+            "CLOSE",
+            "CLOSE"
+          ],
+          "diagnostic": "دو طرف close frame ردوبدل می‌کنند؛ پایان TCP جداست و 1000 کد پایان عادی است."
         }
-      ]
+      ],
+      "prediction": "بعد از 101 آیا برای هر پیام باید HTTP GET بفرستیم؟"
     },
     {
       "id": "disconnect",
@@ -162,7 +190,11 @@ const lesson = {
             "OPEN",
             "—",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "OPEN"
+          ],
+          "diagnostic": "readyState فقط وضعیت محلی سوکت است و تحویل پیام را تأیید نمی‌کند."
         },
         {
           "name": "قطع ناگهانی شبکه",
@@ -182,7 +214,12 @@ const lesson = {
             "CLOSED",
             "1006 (local)",
             "Transport lost"
-          ]
+          ],
+          "flightLabels": [
+            "transport loss"
+          ],
+          "diagnostic": "1006 وضعیت محلی abnormal closure است؛ روی wire به عنوان close code ارسال نمی‌شود.",
+          "drop": true
         },
         {
           "name": "تلاش مجدد با فاصله",
@@ -203,7 +240,14 @@ const lesson = {
             "OPEN",
             "101",
             "New handshake"
-          ]
+          ],
+          "flightLabels": [
+            "Upgrade",
+            "Upgrade",
+            "101",
+            "101"
+          ],
+          "diagnostic": "اتصال تازه دست‌دهی تازه دارد؛ backoff و jitter از هجوم reconnect جلوگیری می‌کنند."
         },
         {
           "name": "همگام‌سازی پیام‌ها",
@@ -225,10 +269,18 @@ const lesson = {
             "OPEN",
             "lastSeenId=42",
             "App sync"
-          ]
+          ],
+          "flightLabels": [
+            "SYNC request",
+            "SYNC request",
+            "replay",
+            "replay"
+          ],
+          "diagnostic": "شناسهٔ آخرین پیام و قرارداد resync لازم است؛ سرور ممکن است تاریخچه کافی نداشته باشد."
         }
       ],
-      "edgeCase": "قطع ناگهانی و بازیابی ارتباط با منطق برنامه."
+      "edgeCase": "قطع ناگهانی و بازیابی ارتباط با منطق برنامه.",
+      "prediction": "آیا reconnect خودبه‌خود پیام‌های گم‌شده را بازیابی می‌کند؟"
     },
     {
       "id": "rejected",
@@ -253,7 +305,12 @@ const lesson = {
             "CONNECTING",
             "Upgrade",
             "Origin check"
-          ]
+          ],
+          "flightLabels": [
+            "Upgrade",
+            "Upgrade"
+          ],
+          "diagnostic": "Origin برای کاهش درخواست cross-site در مرورگر مهم است؛ authentication و authorization مستقل‌اند."
         },
         {
           "name": "رد درخواست",
@@ -274,10 +331,16 @@ const lesson = {
             "CLOSED",
             "403",
             "No upgrade"
-          ]
+          ],
+          "flightLabels": [
+            "403",
+            "403"
+          ],
+          "diagnostic": "چون دست‌دهی موفق نشد، هیچ WebSocket frame قابل تبادل نیست."
         }
       ],
-      "edgeCase": "درخواست ارتقا با 403 رد می‌شود."
+      "edgeCase": "درخواست ارتقا با 403 رد می‌شود.",
+      "prediction": "Origin check چه ارتباطی با احراز هویت WebSocket دارد؟"
     },
     {
       "id": "heartbeat",
@@ -303,18 +366,23 @@ const lesson = {
             "OPEN",
             "Ping",
             "Await Pong"
-          ]
+          ],
+          "flightLabels": [
+            "PING",
+            "PING"
+          ],
+          "diagnostic": "در پروتکل WebSocket ping/pong فریم کنترلی‌اند؛ API مرورگر raw ping را به JS نمی‌دهد."
         },
         {
           "name": "پاسخ نمی‌رسد",
           "short": "انتظار",
-          "detail": "در این سناریو مسیر قطع شده و Pong به سرور نمی‌رسد.",
+          "detail": "در این مدل مرورگر به Ping با Pong پاسخ داده اما پیام در مسیر شبکه گم می‌شود؛ سرور پس از مهلت نمونه timeout را تشخیص می‌دهد.",
           "route": [
             0,
             1
           ],
           "packet": "LOSS",
-          "input": "No Pong received",
+          "input": "Pong frame lost in transit\nNo Pong received",
           "output": "Heartbeat timeout",
           "result": "ارتباط سالم فرض نمی‌شود.",
           "explanation": "حتی اگر سوکت ظاهراً باز باشد، timeout heartbeat می‌تواند مشکل را آشکار کند.",
@@ -323,7 +391,12 @@ const lesson = {
             "Unresponsive",
             "No Pong",
             "Timeout"
-          ]
+          ],
+          "flightLabels": [
+            "Pong lost"
+          ],
+          "diagnostic": "فرض این trace افت پاسخ در شبکه است؛ timeout می‌تواند از تأخیر هم ناشی شود.",
+          "drop": true
         },
         {
           "name": "اتصال تازه",
@@ -345,9 +418,17 @@ const lesson = {
             "OPEN",
             "101",
             "Reconnect"
-          ]
+          ],
+          "flightLabels": [
+            "Upgrade",
+            "Upgrade",
+            "101",
+            "101"
+          ],
+          "diagnostic": "reconnect را محدود و با backoff انجام دهید؛ state و subscriptionها را دوباره برقرار کنید."
         }
-      ]
+      ],
+      "prediction": "اگر Pong نرسد، آیا قطع قطعی اتصال ثابت می‌شود؟"
     }
   ],
   "pitfall": "WebSocket برای هر پیام یک درخواست HTTP جدید نمی‌فرستد، اما همچنان نیاز به احراز هویت، کنترل Origin، مدیریت قطع ارتباط و محدودسازی منابع دارد. این نمونه دست‌دهی HTTP/1.1 را نشان می‌دهد.",

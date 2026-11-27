@@ -54,7 +54,11 @@ const lesson = {
             "—",
             "No session",
             "Credentials checked"
-          ]
+          ],
+          "flightLabels": [
+            "POST /login"
+          ],
+          "diagnostic": "اعتبارسنجی password verifier روی سرور است؛ نمونه اطلاعات واقعی ندارد."
         },
         {
           "name": "ساخت نشست",
@@ -74,7 +78,12 @@ const lesson = {
             "—",
             "opaque-demo → user=42",
             "Session created"
-          ]
+          ],
+          "flightLabels": [
+            "SAVE",
+            "session id"
+          ],
+          "diagnostic": "شناسه opaque و غیرقابل‌حدس باید بعد از ورود چرخانده شود؛ state سمت سرور نگه داشته می‌شود."
         },
         {
           "name": "تنظیم Cookie",
@@ -93,7 +102,11 @@ const lesson = {
             "sid=opaque-demo",
             "user=42 · valid",
             "Cookie stored"
-          ]
+          ],
+          "flightLabels": [
+            "Set-Cookie"
+          ],
+          "diagnostic": "Secure و HttpOnly به ترتیب انتقال امن و محدودیت خواندن JS دارند؛ SameSite روی ارسال میان‌سایتی اثر دارد."
         },
         {
           "name": "درخواست بعدی",
@@ -112,7 +125,11 @@ const lesson = {
             "sid=opaque-demo",
             "user=42 · valid",
             "Lookup"
-          ]
+          ],
+          "flightLabels": [
+            "Cookie: sid"
+          ],
+          "diagnostic": "مرورگر فقط برای scope مجاز cookie را ارسال می‌کند؛ cookie با localStorage یکی نیست."
         },
         {
           "name": "بازیابی نشست معتبر",
@@ -133,7 +150,12 @@ const lesson = {
             "sid=opaque-demo",
             "user=42 · valid",
             "Session validated"
-          ]
+          ],
+          "flightLabels": [
+            "LOOKUP",
+            "valid"
+          ],
+          "diagnostic": "سرور انقضا، ابطال و هویت را بررسی می‌کند؛ مجوز منبع جداست."
         },
         {
           "name": "بازگشت اطلاعات پروفایل",
@@ -153,9 +175,14 @@ const lesson = {
             "user=42 · valid",
             "200 · allowed"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "200 profile"
+          ],
+          "diagnostic": "پاسخ دارای داده حساس را با سیاست cache مناسب محافظت کنید؛ اطلاعات نشست خام را لاگ نکنید."
         }
-      ]
+      ],
+      "prediction": "Cookie دقیقاً چه چیزی را نگه می‌دارد؛ هویت یا شناسه؟"
     },
     {
       "id": "expired",
@@ -179,7 +206,11 @@ const lesson = {
             "sid=expired-demo",
             "Expired",
             "Lookup"
-          ]
+          ],
+          "flightLabels": [
+            "Cookie: sid"
+          ],
+          "diagnostic": "عمر cookie مرورگر و عمر server session مستقل‌اند."
         },
         {
           "name": "نبود نشست معتبر",
@@ -200,7 +231,12 @@ const lesson = {
             "sid=expired-demo",
             "Expired",
             "Rejected"
-          ]
+          ],
+          "flightLabels": [
+            "LOOKUP",
+            "expired"
+          ],
+          "diagnostic": "سرور باید انقضا را اعمال کند؛ صرف داشتن id کافی نیست."
         },
         {
           "name": "نیاز به ورود مجدد",
@@ -220,10 +256,15 @@ const lesson = {
             "—",
             "Expired",
             "401 · login"
-          ]
+          ],
+          "flightLabels": [
+            "401 + clear cookie"
+          ],
+          "diagnostic": "پاک‌کردن cookie سمت کلاینت مکمل رد سمت سرور است؛ پاسخ 401 واقعی باید challenge مناسب داشته باشد."
         }
       ],
-      "edgeCase": "شناسه در مرورگر وجود دارد اما نشست منقضی شده."
+      "edgeCase": "شناسه در مرورگر وجود دارد اما نشست منقضی شده.",
+      "prediction": "داشتن cookie قدیمی چرا به معنی نشست معتبر نیست؟"
     },
     {
       "id": "logout",
@@ -247,7 +288,11 @@ const lesson = {
             "sid=opaque-demo",
             "Valid",
             "Logout requested"
-          ]
+          ],
+          "flightLabels": [
+            "POST /logout"
+          ],
+          "diagnostic": "Logout تغییر وضعیت است؛ کنترل CSRF متناسب با قرارداد لازم است."
         },
         {
           "name": "ابطال سمت سرور",
@@ -267,7 +312,12 @@ const lesson = {
             "sid=opaque-demo",
             "Revoked",
             "Rejected"
-          ]
+          ],
+          "flightLabels": [
+            "DEL",
+            "revoked"
+          ],
+          "diagnostic": "ابطال سمت سرور باعث رد استفاده بعدی همان شناسه می‌شود."
         },
         {
           "name": "پاک کردن Cookie",
@@ -287,10 +337,15 @@ const lesson = {
             "—",
             "Revoked",
             "Logged out"
-          ]
+          ],
+          "flightLabels": [
+            "Set-Cookie Max-Age=0"
+          ],
+          "diagnostic": "پاک‌کردن باید domain/path همان cookie را هدف بگیرد؛ state سمت سرور نیز قبلاً ابطال شده."
         }
       ],
-      "edgeCase": "ابطال نشست و پاک شدن کوکی."
+      "edgeCase": "ابطال نشست و پاک شدن کوکی.",
+      "prediction": "اگر فقط cookie را حذف کنیم، نسخهٔ کپی‌شدهٔ شناسه چه می‌شود؟"
     },
     {
       "id": "stolen-revoked",
@@ -315,7 +370,11 @@ const lesson = {
             "sid=revoked-demo",
             "Revoked",
             "Lookup"
-          ]
+          ],
+          "flightLabels": [
+            "Cookie: revoked"
+          ],
+          "diagnostic": "کلاینت قابل اعتماد نیست؛ مقدار cookie صرفاً credential ارائه‌شده است."
         },
         {
           "name": "بررسی ابطال",
@@ -336,7 +395,12 @@ const lesson = {
             "sid=revoked-demo",
             "Revoked",
             "Rejected"
-          ]
+          ],
+          "flightLabels": [
+            "CHECK",
+            "revoked"
+          ],
+          "diagnostic": "سیاست ابطال باید در lookup سمت سرور اجرا شود؛ نسخه‌های cache نشست هم باید هماهنگ باشند."
         },
         {
           "name": "رد دسترسی",
@@ -356,9 +420,14 @@ const lesson = {
             "sid=revoked-demo",
             "Revoked",
             "401 · denied"
-          ]
+          ],
+          "flightLabels": [
+            "401"
+          ],
+          "diagnostic": "هیچ داده خصوصی یا مجوز تازه صادر نمی‌شود؛ نمونه پاسخ خلاصه است و challenge مناسب لازم است."
         }
-      ]
+      ],
+      "prediction": "اگر شناسهٔ ابطال‌شده دوباره ارسال شود، چرا درخواست باید رد شود؟"
     }
   ],
   "pitfall": "Cookie همان Session نیست. HttpOnly دسترسی اسکریپت به Cookie را محدود می‌کند، Secure ارسال را به ارتباط امن محدود می‌کند و SameSite بخشی از حفاظت CSRF است؛ هیچ‌کدام جایگزین کنترل امنیت سمت سرور نیست. نمونه‌های 401 در این آزمایش خلاصهٔ پیام‌اند؛ پاسخ HTTP کامل 401 باید چالش WWW-Authenticate مناسب داشته باشد. برنامه‌های مبتنی بر فرم می‌توانند راهکار ورود دیگری انتخاب کنند.",

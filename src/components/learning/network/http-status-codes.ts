@@ -54,7 +54,11 @@ const lesson = {
             "—",
             "Pending",
             "Wait for 100"
-          ]
+          ],
+          "flightLabels": [
+            "headers + Expect"
+          ],
+          "diagnostic": "کلاینت می‌تواند پیش از ارسال بدنه بزرگ دربارهٔ ادامه ارسال تصمیم بگیرد."
         },
         {
           "name": "پاسخ اطلاعاتی",
@@ -73,7 +77,11 @@ const lesson = {
             "100 Continue",
             "1xx · informational",
             "Send body"
-          ]
+          ],
+          "flightLabels": [
+            "100 Continue"
+          ],
+          "diagnostic": "۱۰۰ informational است؛ پاسخ نهایی بعداً می‌آید."
         },
         {
           "name": "ارسال بدنه و پاسخ نهایی",
@@ -94,10 +102,16 @@ const lesson = {
             "200 OK",
             "2xx · final",
             "Finish upload"
-          ]
+          ],
+          "flightLabels": [
+            "body",
+            "200 OK"
+          ],
+          "diagnostic": "پس از ارسال بدنه نتیجهٔ نهایی جداگانه دریافت می‌شود."
         }
       ],
-      "edgeCase": "پاسخ میانی 100 پیش از پاسخ نهایی."
+      "edgeCase": "پاسخ میانی 100 پیش از پاسخ نهایی.",
+      "prediction": "آیا 100 Continue پایان درخواست HTTP است؟"
     },
     {
       "id": "ok",
@@ -121,7 +135,11 @@ const lesson = {
             "—",
             "Pending",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "GET"
+          ],
+          "diagnostic": "درخواست پذیرفته شده اما هنوز status نهایی مشخص نیست."
         },
         {
           "name": "پردازش موفق",
@@ -141,7 +159,12 @@ const lesson = {
             "—",
             "Processing",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "READ",
+            "found"
+          ],
+          "diagnostic": "وجود محصول در سرویس داخلی با موفقیت ارسال پاسخ به کلاینت فرق دارد."
         },
         {
           "name": "پاسخ ۲۰۰",
@@ -161,9 +184,14 @@ const lesson = {
             "200 OK",
             "2xx · success",
             "Render"
-          ]
+          ],
+          "flightLabels": [
+            "200 OK"
+          ],
+          "diagnostic": "معنای موفقیت با متد و قرارداد API تفسیر می‌شود؛ body نیز باید معتبر باشد."
         }
-      ]
+      ],
+      "prediction": "کد ۲۰۰ چه چیزی را تضمین می‌کند و چه چیزی را نه؟"
     },
     {
       "id": "redirect",
@@ -187,7 +215,11 @@ const lesson = {
             "—",
             "Pending",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "GET /old"
+          ],
+          "diagnostic": "URI قدیمی درخواست شده؛ redirect هنوز پاسخ بعدی نیست."
         },
         {
           "name": "بازگشت Location",
@@ -206,7 +238,11 @@ const lesson = {
             "301",
             "3xx · redirect",
             "GET /new"
-          ]
+          ],
+          "flightLabels": [
+            "301 + Location"
+          ],
+          "diagnostic": "کلاینت مقصد جدید را از Location می‌گیرد؛ cache و policy redirect می‌توانند دخیل باشند."
         },
         {
           "name": "دنبال کردن تغییر مسیر",
@@ -227,10 +263,16 @@ const lesson = {
             "200 OK",
             "2xx · success",
             "Render new URL"
-          ]
+          ],
+          "flightLabels": [
+            "GET /new",
+            "200 OK"
+          ],
+          "diagnostic": "این redirect GET را دنبال می‌کند؛ برای POST، 303/307/308 رفتار متفاوت دارند."
         }
       ],
-      "edgeCase": "دریافت 301 و ایجاد درخواست تازه."
+      "edgeCase": "دریافت 301 و ایجاد درخواست تازه.",
+      "prediction": "در ۳۰۱، Location چه تغییری در درخواست بعدی ایجاد می‌کند؟"
     },
     {
       "id": "missing",
@@ -254,7 +296,11 @@ const lesson = {
             "—",
             "Pending",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "GET"
+          ],
+          "diagnostic": "درخواست به سرور رسیده؛ هنوز علت پاسخ معلوم نیست."
         },
         {
           "name": "بررسی وجود منبع",
@@ -274,7 +320,12 @@ const lesson = {
             "—",
             "Resource absent",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "READ",
+            "absent"
+          ],
+          "diagnostic": "در این نمونه مسیر درست ولی رکورد ناموجود است؛ router هم ممکن است 404 بدهد."
         },
         {
           "name": "پاسخ خطای درخواست",
@@ -294,10 +345,15 @@ const lesson = {
             "404",
             "4xx · client error",
             "Show not found"
-          ]
+          ],
+          "flightLabels": [
+            "404"
+          ],
+          "diagnostic": "از خود کد نمی‌توان محل دقیق خطا را فهمید؛ route template و شناسه منبع را در لاگ بررسی کنید."
         }
       ],
-      "edgeCase": "منبع ناموجود."
+      "edgeCase": "منبع ناموجود.",
+      "prediction": "آیا 404 یعنی اتصال یا کل سرور از کار افتاده؟"
     },
     {
       "id": "server-error",
@@ -321,7 +377,11 @@ const lesson = {
             "—",
             "Pending",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "GET"
+          ],
+          "diagnostic": "درخواست معتبر هم می‌تواند به خطای داخلی برسد."
         },
         {
           "name": "خرابی پیش‌بینی‌نشده",
@@ -342,7 +402,12 @@ const lesson = {
             "—",
             "Backend exception",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "READ",
+            "exception"
+          ],
+          "diagnostic": "exception داخلی را ثبت کنید؛ stack trace و اطلاعات حساس نباید به کلاینت برود."
         },
         {
           "name": "پاسخ خطای سرور",
@@ -362,10 +427,15 @@ const lesson = {
             "500",
             "5xx · server error",
             "Show error"
-          ]
+          ],
+          "flightLabels": [
+            "500"
+          ],
+          "diagnostic": "پاسخ عمومی خطا معتبر است؛ retry به ایمنی عملیات و سیاست backoff وابسته است."
         }
       ],
-      "edgeCase": "خرابی داخلی هنگام پردازش."
+      "edgeCase": "خرابی داخلی هنگام پردازش.",
+      "prediction": "در صورت ۵۰۰ چه داده‌ای باید در لاگ بماند نه پاسخ؟"
     },
     {
       "id": "limited",
@@ -390,7 +460,11 @@ const lesson = {
             "—",
             "Rate limit reached",
             "Wait"
-          ]
+          ],
+          "flightLabels": [
+            "GET"
+          ],
+          "diagnostic": "سرور شمارنده نرخ را طبق سیاست کلید و بازه بررسی می‌کند."
         },
         {
           "name": "پاسخ محدودیت",
@@ -410,7 +484,11 @@ const lesson = {
             "429",
             "4xx · rate limit",
             "Wait 30 s"
-          ]
+          ],
+          "flightLabels": [
+            "429 + Retry-After"
+          ],
+          "diagnostic": "Retry-After می‌تواند عدد ثانیه یا تاریخ HTTP باشد؛ محدودسازی با 503 یکی نیست."
         },
         {
           "name": "انتظار و تلاش بعدی",
@@ -431,9 +509,15 @@ const lesson = {
             "200 OK",
             "2xx · success",
             "Resume"
-          ]
+          ],
+          "flightLabels": [
+            "GET retry",
+            "200 OK"
+          ],
+          "diagnostic": "بعد از صبر مجاز بودن تلاش تازه را دوباره بررسی کنید؛ موفقیت این trace تضمین عمومی نیست."
         }
-      ]
+      ],
+      "prediction": "Retry-After چه زمانی به معنی ادامه قطعی موفقیت است؟"
     }
   ],
   "pitfall": "همهٔ پاسخ‌های HTTP خطای شبکه نیستند. ۴۰۱ برای نبود اعتبار احراز هویت معتبر است و ۴۰۳ یعنی سرور از انجام درخواست خودداری می‌کند. ۵۰۳ برای عدم دسترسی موقت مناسب است. کدهای وضعیت به تنهایی علت ریشه‌ای خرابی را اثبات نمی‌کنند. 401 طبق HTTP نیاز به چالش WWW-Authenticate مناسب دارد؛ 403 یعنی سرور درخواست را فهمیده اما از انجام آن خودداری می‌کند.",
