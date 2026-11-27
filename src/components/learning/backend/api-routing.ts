@@ -1,0 +1,308 @@
+import type {BackendLesson} from './types';
+const lesson = {
+  "slug": "api-routing",
+  "title": "API Routing — انتخاب مسیر و Handler",
+  "description": "متد، مسیر، پارامتر و انتخاب handler را در یک API فروشگاه دنبال کنید.",
+  "order": 15,
+  "model": "pipeline",
+  "actors": [
+    {
+      "label": "کلاینت",
+      "sub": "HTTP client",
+      "icon": "browser"
+    },
+    {
+      "label": "مسیریاب",
+      "sub": "Router",
+      "icon": "router"
+    },
+    {
+      "label": "تابع مقصد",
+      "sub": "Handler",
+      "icon": "app"
+    }
+  ],
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "visual": {
+    "title": "جدول مسیریابی و انتخاب تابع",
+    "labels": [
+      "درخواست ورودی",
+      "تطابق مسیر",
+      "تابع یا پاسخ"
+    ],
+    "context": "در این API فرضی اولویت مسیر ثابت بر مسیر پارامتری تعریف شده است. قواعد تطابق، ترتیب و پاسخ پیش‌فرض به چارچوب و پیکربندی بستگی دارند."
+  },
+  "teaching": {
+    "goal": "از روی متد و مسیر، handler مناسب و تفاوت 404 و 405 را تشخیص دهید.",
+    "terms": [
+      [
+        "Route",
+        "قاعدهٔ تطابق درخواست با تابع مقصد."
+      ],
+      [
+        "Handler",
+        "تابعی که درخواست تطبیق‌یافته را پردازش می‌کند."
+      ],
+      [
+        "Path parameter",
+        "بخش متغیر مسیر مانند id در /products/:id."
+      ],
+      [
+        "Query string",
+        "پارامترهای بعد از ? که بخشی از path نیستند."
+      ]
+    ],
+    "practice": {
+      "question": "مسیر /products/:id فقط GET را پشتیبانی می‌کند. درخواست DELETE /products/42 به همین منبع در API نمونه چه پاسخی می‌گیرد؟",
+      "options": [
+        "405 همراه Allow",
+        "200 همیشه",
+        "404 فقط به دلیل متد متفاوت"
+      ],
+      "correct": 0,
+      "explanation": "در این API منبع شناخته می‌شود اما متد پشتیبانی نمی‌شود. پاسخ 405 باید Allow داشته باشد.",
+      "hint": "وجود مسیر را از پشتیبانی متد جدا کنید."
+    }
+  },
+  "scenarios": [
+    {
+      "id": "match",
+      "label": "خواندن محصول با پارامتر",
+      "example": "GET /products/42?lang=fa",
+      "steps": [
+        {
+          "name": "جداسازی اجزای درخواست",
+          "short": "Parse",
+          "detail": "مسیریاب متد و path را از query جدا می‌کند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "GET",
+          "input": "GET /products/42?lang=fa",
+          "output": "method=GET; path=/products/42",
+          "result": "آمادهٔ تطابق با جدول مسیر است.",
+          "explanation": "lang=fa یک query parameter است؛ شناسهٔ 42 بخشی از مسیر است.",
+          "state": [
+            "GET /products/42",
+            "Searching",
+            "—"
+          ]
+        },
+        {
+          "name": "تطابق مسیر پارامتری",
+          "short": "Match",
+          "detail": "قاعدهٔ GET /products/:id پیدا می‌شود و id استخراج می‌شود.",
+          "route": [
+            1
+          ],
+          "packet": "MATCH",
+          "input": "GET /products/:id",
+          "output": "params.id = '42'",
+          "result": "تابع مقصد مشخص است.",
+          "explanation": "شناسهٔ ورودی هنوز باید از نظر قالب و دسترسی اعتبارسنجی شود.",
+          "state": [
+            "GET /products/42",
+            "GET /products/:id",
+            "getProduct"
+          ]
+        },
+        {
+          "name": "اجرای Handler",
+          "short": "Handle",
+          "detail": "تابع دادهٔ محصول نمونه را می‌خواند و پاسخ را می‌سازد.",
+          "route": [
+            1,
+            2
+          ],
+          "packet": "CALL",
+          "input": "getProduct({id:'42'})",
+          "output": "{\"id\":42,\"name\":\"Keyboard\"}",
+          "result": "handler نتیجه را تولید کرد.",
+          "explanation": "مسیریاب تابع را انتخاب کرد؛ منطق دریافت داده کار handler است.",
+          "state": [
+            "GET /products/42",
+            "id=42",
+            "getProduct: OK"
+          ]
+        },
+        {
+          "name": "تحویل پاسخ",
+          "short": "Response",
+          "detail": "پاسخ 200 به کلاینت برمی‌گردد.",
+          "route": [
+            2,
+            1,
+            0
+          ],
+          "packet": "200",
+          "input": "HTTP/1.1 200 OK",
+          "output": "200 OK; product 42",
+          "result": "درخواست موفق است.",
+          "explanation": "انتخاب موفق مسیر، موفقیت منطق برنامه را تضمین نمی‌کند؛ ممکن است خود محصول وجود نداشته باشد.",
+          "state": [
+            "GET /products/42",
+            "Matched",
+            "200 OK"
+          ],
+          "tone": "success"
+        }
+      ]
+    },
+    {
+      "id": "not-found",
+      "label": "مسیر ناموجود",
+      "example": "GET /unknown",
+      "steps": [
+        {
+          "name": "جست‌وجوی مسیر",
+          "short": "Match",
+          "detail": "مسیر /unknown در جدول این API جست‌وجو می‌شود.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "GET",
+          "input": "GET /unknown",
+          "output": "No route matched",
+          "result": "مسیر شناخته نشد.",
+          "explanation": "این نمونه با محصول ناموجود در یک handler معتبر فرق دارد.",
+          "state": [
+            "GET /unknown",
+            "No match",
+            "—"
+          ]
+        },
+        {
+          "name": "پاسخ پیش‌فرض",
+          "short": "404",
+          "detail": "مسیریاب بدون فراخوانی handler محصول پاسخ 404 می‌دهد.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "404",
+          "input": "HTTP/1.1 404 Not Found",
+          "output": "404 Not Found",
+          "result": "کلاینت باید مسیر را بررسی کند.",
+          "explanation": "404 می‌تواند از مسیریاب یا منطق خود برنامه بیاید؛ کد به‌تنهایی محل خطا را اثبات نمی‌کند.",
+          "state": [
+            "GET /unknown",
+            "No match",
+            "404"
+          ],
+          "tone": "error"
+        }
+      ],
+      "edgeCase": "هیچ مسیر متناظری تعریف نشده است."
+    },
+    {
+      "id": "wrong-method",
+      "label": "مسیر معتبر، متد نامجاز",
+      "example": "DELETE /products/42",
+      "steps": [
+        {
+          "name": "تطابق path",
+          "short": "Path",
+          "detail": "مسیر پارامتری شناخته می‌شود.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "DEL",
+          "input": "DELETE /products/42",
+          "output": "Path exists",
+          "result": "مسیریاب متدها را بررسی می‌کند.",
+          "explanation": "در این مثال جدول فقط GET را دارد.",
+          "state": [
+            "DELETE /products/42",
+            "/products/:id",
+            "—"
+          ]
+        },
+        {
+          "name": "بررسی متد",
+          "short": "Method",
+          "detail": "DELETE برای این مسیر ثبت نشده است.",
+          "route": [
+            1
+          ],
+          "packet": "CHECK",
+          "input": "Allowed: GET, HEAD",
+          "output": "Method not allowed",
+          "result": "handler اجرا نمی‌شود.",
+          "explanation": "HEAD در این API فرضی جداگانه پشتیبانی شده است؛ همهٔ فریم‌ورک‌ها چنین رفتار یکسانی ندارند.",
+          "state": [
+            "DELETE /products/42",
+            "Path matched",
+            "Method mismatch"
+          ]
+        },
+        {
+          "name": "ارسال 405",
+          "short": "405",
+          "detail": "سرور متدهای مجاز را همراه پاسخ اعلام می‌کند.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "405",
+          "input": "HTTP/1.1 405 Method Not Allowed\nAllow: GET, HEAD",
+          "output": "405 Method Not Allowed",
+          "result": "مسیر وجود دارد اما متد پشتیبانی نمی‌شود.",
+          "explanation": "در HTTP پاسخ 405 باید سرآیند Allow داشته باشد.",
+          "state": [
+            "DELETE /products/42",
+            "Path matched",
+            "405; Allow"
+          ],
+          "tone": "error"
+        }
+      ],
+      "edgeCase": "تطابق مسیر بدون تطابق متد."
+    }
+  ],
+  "pitfall": "Routing احراز هویت یا اعتبارسنجی نیست. ترتیب routeها و نحوهٔ normalize کردن path به پیاده‌سازی وابسته است.",
+  "takeaway": "ابتدا متد و مسیر را تطبیق دهید، سپس handler ورودی و مجوز را بررسی کند.",
+  "quiz": {
+    "question": "در /products/42?lang=fa کدام بخش query است؟",
+    "options": [
+      "/products",
+      "42",
+      "lang=fa"
+    ],
+    "correct": 2,
+    "explanation": "پارامترهای بعد از ? بخش query هستند."
+  },
+  "references": [
+    {
+      "label": "RFC 9110 — HTTP semantics",
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html"
+    },
+    {
+      "label": "RFC 3986 — URI syntax",
+      "url": "https://www.rfc-editor.org/rfc/rfc3986.html"
+    }
+  ],
+  "field": {
+    "task": "در Node.js یک تابع کوچک برای تطابق متد و مسیر بنویسید و سه درخواست را با آن آزمایش کنید.",
+    "observe": "GET مسیر محصول 200، DELETE همان مسیر 405 و مسیر ناموجود 404 می‌دهد.",
+    "limit": "این تابع آموزشی سرور کامل نیست؛ URL decoding و امنیت routing واقعی را پیاده نمی‌کند.",
+    "command": "function route(method, path) {\n  if (!/^\\/products\\/\\d+$/.test(path)) return 404;\n  return method === 'GET' ? 200 : 405;\n}\nconsole.log(route('GET','/products/42'));\nconsole.log(route('DELETE','/products/42'));\nconsole.log(route('GET','/unknown'));",
+    "next": {
+      "slug": "middleware",
+      "label": "Middleware",
+      "category": "software-engineering"
+    }
+  }
+} satisfies BackendLesson;
+export default lesson;
