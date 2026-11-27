@@ -1,0 +1,399 @@
+import type {BackendLesson} from './types';
+const lesson = {
+  "slug": "jwt",
+  "title": "JWT — توکن امضاشده و اعتبارسنجی",
+  "description": "ساختار JWT امضاشده، بررسی امضا و claims، انقضا و تفاوت رمزنگاری با امضا.",
+  "order": 20,
+  "model": "identity",
+  "actors": [
+    {
+      "label": "کلاینت",
+      "sub": "Bearer token",
+      "icon": "browser"
+    },
+    {
+      "label": "سرویس API",
+      "sub": "Verifier",
+      "icon": "shield"
+    },
+    {
+      "label": "کلید و سیاست",
+      "sub": "Trusted configuration",
+      "icon": "key"
+    }
+  ],
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "visual": {
+    "title": "مراحل اعتبارسنجی توکن",
+    "labels": [
+      "Header / Payload",
+      "امضا و claims",
+      "تصمیم API"
+    ],
+    "context": "این درس JWT امضاشده در قالب JWS را مدل می‌کند. داده‌های نمونه ساختگی‌اند؛ هیچ امضای واقعی یا توکن قابل استفاده تولید نمی‌شود. JWT می‌تواند در قالب رمزنگاری‌شده نیز باشد."
+  },
+  "teaching": {
+    "goal": "decode را از verify جدا کنید و تشخیص دهید چرا امضای معتبر بدون بررسی exp، iss، aud و مجوز کافی نیست.",
+    "terms": [
+      [
+        "JWT",
+        "قالب انتقال مجموعه‌ای از claims."
+      ],
+      [
+        "JWS",
+        "قالب داده با امضا یا MAC برای حفاظت از یکپارچگی و اصالت."
+      ],
+      [
+        "Claims",
+        "ادعاهای توکن مانند sub، exp، iss و aud."
+      ],
+      [
+        "Bearer token",
+        "دارندهٔ توکن می‌تواند آن را استفاده کند؛ باید محرمانه بماند."
+      ],
+      [
+        "Base64url",
+        "کدگذاری بایت‌ها برای URL، نه رمزنگاری."
+      ]
+    ],
+    "practice": {
+      "question": "توکن امضای معتبر دارد اما aud آن برای سرویس پرداخت است؛ به API سفارش ارسال شده. API سفارش چه کند؟",
+      "options": [
+        "پذیرش چون امضا درست است",
+        "رد چون مخاطب مورد انتظار تطابق ندارد",
+        "تغییر aud در payload و پذیرش"
+      ],
+      "correct": 1,
+      "explanation": "امضا فقط یکپارچگی و اصالت را نسبت به کلید بررسی می‌کند. سرویس باید مخاطب، صادرکننده، زمان و سیاست توکن را نیز اعتبارسنجی کند.",
+      "hint": "توکن معتبر برای یک سرویس لزوماً برای سرویس دیگر معتبر نیست."
+    }
+  },
+  "scenarios": [
+    {
+      "id": "valid",
+      "label": "توکن معتبر برای API سفارش",
+      "example": "Bearer · signed JWT",
+      "steps": [
+        {
+          "name": "دریافت توکن",
+          "short": "Bearer",
+          "detail": "کلاینت توکن نمونه را در سرآیند Authorization ارسال می‌کند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "JWT",
+          "input": "Authorization: Bearer [redacted]",
+          "output": "Token received",
+          "result": "هنوز اعتبار توکن ثابت نشده.",
+          "explanation": "توکن bearer باید فقط در کانال امن ارسال و از log حذف شود.",
+          "state": [
+            "3 JWS segments",
+            "Unchecked",
+            "Pending"
+          ]
+        },
+        {
+          "name": "بررسی امضا",
+          "short": "Verify",
+          "detail": "API الگوریتم مجاز و کلید معتبر را از پیکربندی قابل اعتماد انتخاب و امضا را بررسی می‌کند.",
+          "route": [
+            1,
+            2
+          ],
+          "packet": "SIG",
+          "input": "alg=RS256 (allowed); trusted key",
+          "output": "Signature valid",
+          "result": "یکپارچگی داده تأیید شد.",
+          "explanation": "به alg و کلید دلخواه ارائه‌شده در توکن اعتماد نکنید؛ کتابخانه باید سیاست الگوریتم را اعمال کند.",
+          "state": [
+            "sub=42; aud=orders",
+            "Signature valid",
+            "Pending"
+          ],
+          "roundTrip": true
+        },
+        {
+          "name": "بررسی ادعاها",
+          "short": "Claims",
+          "detail": "API زمان، issuer و audience مورد انتظار را بررسی می‌کند.",
+          "route": [
+            1
+          ],
+          "packet": "CHECK",
+          "input": "iss=auth.example; aud=orders; exp>now",
+          "output": "Claims valid",
+          "result": "توکن برای این API و زمان معتبر است.",
+          "explanation": "sub به تنهایی مجوز دسترسی نیست؛ scope و سیاست شیء باید بررسی شوند.",
+          "state": [
+            "sub=42; aud=orders",
+            "iss/aud/exp valid",
+            "Identity verified"
+          ]
+        },
+        {
+          "name": "تصمیم مجوز و پاسخ",
+          "short": "200",
+          "detail": "درخواست نمونه scope و مالکیت لازم را دارد، بنابراین API پاسخ مجاز می‌دهد.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "200",
+          "input": "scope=orders:read; owner=42",
+          "output": "200 OK",
+          "result": "احراز و مجوز هر دو موفق بودند.",
+          "explanation": "این پاسخ نتیجهٔ هر دو مرحله است، نه صرفاً داشتن JWT.",
+          "state": [
+            "sub=42",
+            "Claims + policy valid",
+            "200 Allow"
+          ],
+          "tone": "success"
+        }
+      ]
+    },
+    {
+      "id": "expired",
+      "label": "توکن با امضای معتبر اما منقضی",
+      "example": "exp <= now",
+      "steps": [
+        {
+          "name": "دریافت و بررسی امضا",
+          "short": "Verify",
+          "detail": "توکن قدیمی به API می‌رسد و در این نمونه امضایش معتبر است.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "JWT",
+          "input": "Authorization: Bearer [expired-demo]",
+          "output": "Signature valid",
+          "result": "اعتبار زمانی هنوز بررسی نشده.",
+          "explanation": "توکن ممکن است اصالت داشته باشد ولی دیگر قابل استفاده نباشد.",
+          "state": [
+            "sub=42",
+            "Signature valid",
+            "Pending"
+          ]
+        },
+        {
+          "name": "رد بر اساس exp",
+          "short": "Expiry",
+          "detail": "زمان فعلی پس از exp است و از مهلت ارفاقی نمونه گذشته.",
+          "route": [
+            1
+          ],
+          "packet": "EXP",
+          "input": "exp=1000; now=1100",
+          "output": "Token expired",
+          "result": "claims معتبر نیستند.",
+          "explanation": "exp زمان NumericDate است؛ خطای ساعت فقط با leeway محدود مدیریت می‌شود.",
+          "state": [
+            "exp=1000",
+            "now=1100; expired",
+            "Deny"
+          ],
+          "tone": "error"
+        },
+        {
+          "name": "پاسخ نامعتبر بودن توکن",
+          "short": "401",
+          "detail": "API پاسخ 401 همراه چالش Bearer می‌فرستد.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "401",
+          "input": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer error=\"invalid_token\"",
+          "output": "401 invalid_token",
+          "result": "توکن قدیمی پذیرفته نشد.",
+          "explanation": "کلاینت مطابق سیاست احراز هویت می‌تواند دوباره وارد شود یا توکن را نوسازی کند.",
+          "state": [
+            "Expired token",
+            "Rejected",
+            "401 Deny"
+          ],
+          "tone": "error"
+        }
+      ],
+      "edgeCase": "امضا معتبر است اما زمان استفاده گذشته است."
+    },
+    {
+      "id": "tampered",
+      "label": "تغییر payload بدون امضای معتبر",
+      "example": "Payload changed · invalid signature",
+      "steps": [
+        {
+          "name": "دریافت ادعای تغییر یافته",
+          "short": "Decode",
+          "detail": "API توکن نمونه با payload تغییر یافته را دریافت می‌کند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "JWT",
+          "input": "decoded sub=42; role=admin (untrusted)",
+          "output": "Decoded; not trusted",
+          "result": "خواندن payload اثبات اعتبار نیست.",
+          "explanation": "Base64url قابل خواندن است؛ JWT امضاشده محل ذخیرهٔ راز نیست.",
+          "state": [
+            "role=admin (untrusted)",
+            "Unchecked",
+            "Pending"
+          ]
+        },
+        {
+          "name": "بررسی امضای ناموفق",
+          "short": "Verify",
+          "detail": "تغییر payload باعث عدم تطابق امضا با ورودی امضاشده می‌شود.",
+          "route": [
+            1,
+            2
+          ],
+          "packet": "SIG",
+          "input": "verify with trusted key",
+          "output": "Signature invalid",
+          "result": "توکن نامعتبر است.",
+          "explanation": "اعتبارسنجی باید پیش از استفاده از claims برای تصمیم امنیتی انجام شود.",
+          "state": [
+            "Payload changed",
+            "Signature invalid",
+            "Deny"
+          ],
+          "roundTrip": true,
+          "tone": "error"
+        },
+        {
+          "name": "رد درخواست",
+          "short": "401",
+          "detail": "سرور بدون اعتماد به role ادعاشده درخواست را رد می‌کند.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "401",
+          "input": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer error=\"invalid_token\"",
+          "output": "401 invalid_token",
+          "result": "نقش ساختگی پذیرفته نشد.",
+          "explanation": "توکن امضاشده را با کتابخانهٔ استاندارد بررسی کنید؛ parser به تنهایی کافی نیست.",
+          "state": [
+            "Untrusted claims",
+            "Rejected",
+            "401 Deny"
+          ],
+          "tone": "error"
+        }
+      ],
+      "edgeCase": "کدگشایی موفق payload به معنی صحت امضا نیست."
+    },
+    {
+      "id": "audience",
+      "label": "توکن برای سرویس دیگر",
+      "example": "aud=payments; expected=orders",
+      "steps": [
+        {
+          "name": "دریافت توکن اصیل",
+          "short": "Verify",
+          "detail": "توکن نمونه امضای معتبر و زمان معتبر دارد.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "JWT",
+          "input": "aud=payments; exp>now",
+          "output": "Signature valid",
+          "result": "مخاطب باید بررسی شود.",
+          "explanation": "کلید مشترک بین سرویس‌ها به معنی مجاز بودن همهٔ توکن‌ها برای همهٔ سرویس‌ها نیست.",
+          "state": [
+            "aud=payments",
+            "Signature valid",
+            "Pending"
+          ]
+        },
+        {
+          "name": "عدم تطابق مخاطب",
+          "short": "Audience",
+          "detail": "API سفارش انتظار aud=orders دارد.",
+          "route": [
+            1
+          ],
+          "packet": "AUD",
+          "input": "expected=orders; actual=payments",
+          "output": "Audience mismatch",
+          "result": "توکن برای این سرویس معتبر نیست.",
+          "explanation": "issuer و audience را با سیاست ثابت و معتبر بررسی کنید.",
+          "state": [
+            "aud=payments",
+            "Expected orders",
+            "Deny"
+          ],
+          "tone": "error"
+        },
+        {
+          "name": "رد توکن",
+          "short": "401",
+          "detail": "API چالش مناسب و عدم پذیرش توکن را اعلام می‌کند.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "401",
+          "input": "HTTP/1.1 401 Unauthorized\nWWW-Authenticate: Bearer error=\"invalid_token\"",
+          "output": "401 invalid_token",
+          "result": "توکن سرویس دیگر رد شد.",
+          "explanation": "انقضای کوتاه و اعتبارسنجی کامل به کاهش ریسک کمک می‌کنند؛ لغو دسترسی طراحی جدا دارد.",
+          "state": [
+            "Wrong audience",
+            "Rejected",
+            "401 Deny"
+          ],
+          "tone": "error"
+        }
+      ],
+      "edgeCase": "توکن اصیل ولی با مخاطب نامعتبر."
+    }
+  ],
+  "pitfall": "JWT امضاشده محرمانه نیست؛ decode با verify فرق دارد. امضا، issuer، audience، exp، nbf در صورت وجود و سیاست الگوریتم و کلید را بررسی کنید. لغو فوری توکن ممکن است نیاز به state سمت سرور داشته باشد.",
+  "takeaway": "توکن یک حامل ادعاست؛ اعتبار امضا، claims و مجوز مستقل بررسی می‌شوند.",
+  "quiz": {
+    "question": "Base64url کردن payload در JWT امضاشده چه تضمینی ایجاد می‌کند؟",
+    "options": [
+      "محرمانگی",
+      "جلوگیری از خواندن با ابزار",
+      "فقط کدگذاری؛ نه محرمانگی"
+    ],
+    "correct": 2,
+    "explanation": "Base64url روش نمایش بایت‌هاست و به راحتی قابل decode است."
+  },
+  "references": [
+    {
+      "label": "RFC 7519 — JWT",
+      "url": "https://www.rfc-editor.org/rfc/rfc7519.html"
+    },
+    {
+      "label": "RFC 8725 — JWT Best Current Practices",
+      "url": "https://www.rfc-editor.org/rfc/rfc8725.html"
+    },
+    {
+      "label": "RFC 6750 — Bearer Token Usage",
+      "url": "https://www.rfc-editor.org/rfc/rfc6750.html"
+    }
+  ],
+  "field": {
+    "task": "در Node.js یک payload ساختگی را به Base64url تبدیل و سپس decode کنید. این نمونه JWT کامل نیست.",
+    "observe": "JSON اولیه دوباره قابل خواندن است؛ کدگذاری هیچ راز یا امضایی ایجاد نکرده است.",
+    "limit": "توکن واقعی را در ابزار آنلاین یا log وارد نکنید. برای اعتبارسنجی واقعی از کتابخانهٔ استاندارد و کلید آزمایشی خودتان استفاده کنید.",
+    "command": "const payload = {sub: 'demo', aud: 'orders'};\nconst encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');\nconsole.log(encoded);\nconsole.log(Buffer.from(encoded,'base64url').toString());"
+  }
+} satisfies BackendLesson;
+export default lesson;
