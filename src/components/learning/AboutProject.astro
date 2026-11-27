@@ -1,0 +1,16 @@
+---
+import Popover from './Popover.astro';
+---
+<Popover label="درباره پروژه" id="about-project">
+  <section class="about-project" aria-label="درباره پروژه">
+    <strong>لرن</strong>
+    <p>توسعه‌دهنده: آرش</p>
+    <a href="https://github.com/arashrasoulzadeh/learn" target="_blank" rel="noopener noreferrer">مشاهده پروژه در گیت‌هاب ↗</a>
+    <p class="dedication">تقدیم به دوست عزیزم سمیه</p>
+  </section>
+</Popover>
+<style>
+  .about-project{display:grid;gap:10px;font-size:14px}
+  p{margin:0}
+  .dedication{border-top:1px solid var(--line);padding-top:12px;color:var(--accent)}
+</style>

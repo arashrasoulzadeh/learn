@@ -23,7 +23,7 @@
 .request-message .eyebrow{margin-bottom:7px}.request-message pre{font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:var(--ink)}
 .request-message.waiting pre{color:var(--muted)}
 .request-note{font-size:12px;line-height:1.45;color:var(--muted);margin:0}
-.request-timeline{grid-column:1/-1;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+.request-timeline{grid-column:1/-1;display:grid;grid-template-columns:repeat(var(--step-count,9),minmax(0,1fr));gap:6px}
 .request-step{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--muted);padding:9px;line-height:1.2;font-size:12px}
 .request-step span{font:11px monospace}.request-step[aria-current=step]{color:var(--accent);border-color:var(--accent);background:var(--panel2)}.request-step[data-done=true]{color:var(--ink)}
 .request-packet-static{display:none}

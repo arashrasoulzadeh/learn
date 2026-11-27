@@ -1,0 +1,15 @@
+---
+import LessonPicker from './LessonPicker.astro';
+import AboutProject from './AboutProject.astro';
+const {title,currentId}=Astro.props as {title:string;currentId:string};
+---
+<header class="learning-title">
+  <h1>{title}</h1>
+  <div class="learning-actions"><LessonPicker currentId={currentId}/><AboutProject/></div>
+</header>
+<style>
+  .learning-title{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+  h1{min-width:0}
+  .learning-actions{display:flex;gap:8px;flex:none;position:relative;margin-inline-start:auto}
+  @media(max-width:600px){.learning-title{flex-wrap:wrap}.learning-actions{max-width:100%;justify-content:flex-end}}
+</style>

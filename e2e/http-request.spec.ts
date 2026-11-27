@@ -35,3 +35,42 @@ test('Persian HTTP lesson opens directly and all stages and scenarios work',asyn
   }
   expect(errors).toEqual([]);
 });
+
+
+test('RTL diagram and shared header controls work on desktop and phone',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const header=page.locator('.learning-title');
+  const picker=header.locator('#lesson-picker summary');
+  const about=header.locator('#about-project summary');
+  const title=header.getByRole('heading',{level:1});
+  await expect(picker).toBeVisible();
+  expect((await picker.boundingBox())!.x).toBeLessThan((await title.boundingBox())!.x);
+  await picker.click();
+  const menu=header.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
+  await expect(menu.getByRole('link')).toHaveCount(1);
+  await expect(menu.getByRole('link')).toHaveAttribute('href','/learn/concepts/networking/http-request/');
+  await about.click();
+  await expect(menu).not.toBeVisible();
+  await expect(header.getByText('توسعه‌دهنده: آرش',{exact:true})).toBeVisible();
+  await expect(header.getByText('تقدیم به دوست عزیزم سمیه',{exact:true})).toBeVisible();
+  await expect(header.getByRole('link',{name:/گیت‌هاب/})).toHaveAttribute('href','https://github.com/arashrasoulzadeh/learn');
+  await page.keyboard.press('Escape');
+  await expect(header.getByText('تقدیم به دوست عزیزم سمیه',{exact:true})).not.toBeVisible();
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  const graph=lab.locator('svg');
+  await expect(graph.locator('[data-node=browser]')).toHaveAttribute('transform','translate(700 220)');
+  await expect(graph.locator('[data-node=db]')).toHaveAttribute('transform','translate(90 220)');
+  const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
+  await steps.nth(4).click();
+  await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 700 220 L 500 220');
+  await steps.nth(7).click();
+  await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 295 220 L 500 220 L 700 220');
+  await page.setViewportSize({width:390,height:844});
+  await picker.click();
+  await expect(menu.getByRole('link')).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
+  await menu.getByRole('link').click();
+  await expect(page).toHaveURL(/\/concepts\/networking\/http-request\/$/);
+});

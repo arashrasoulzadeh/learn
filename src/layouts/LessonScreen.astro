@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import LearningHeader from '../components/learning/LearningHeader.astro';
 import { renderLesson, lessonUrl, type Lesson } from '../lib/content';
 const { lesson, isHome = false } = Astro.props as { lesson: Lesson; isHome?: boolean };
 const { Content } = await renderLesson(lesson);
@@ -17,7 +18,7 @@ const canonical = new URL(lessonUrl(lesson.id), Astro.site);
 </head>
 <body class="learning-page">
   <main class="learning-screen" data-pagefind-body={isHome ? undefined : ''} data-pagefind-ignore={isHome ? 'all' : undefined}>
-    <header class="learning-title"><h1>{lesson.data.title}</h1></header>
+    <LearningHeader title={lesson.data.title} currentId={lesson.id} />
     <div class="learning-content"><Content /></div>
   </main>
 </body>

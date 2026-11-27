@@ -1,0 +1,17 @@
+---
+import { catalog, lessonUrl, type Lesson } from '../../lib/content';
+import Popover from './Popover.astro';
+const { currentId } = Astro.props as {currentId:string};
+const pickerIds = ['networking/http-request'];
+const { concepts } = await catalog();
+const pickerLessons = pickerIds.map(id=>concepts.find(item=>item.id===id)).filter((item):item is Lesson=>!!item);
+---
+<Popover label="انتخاب درس" id="lesson-picker">
+  <nav aria-label="درس‌های قابل انتخاب">
+    {pickerLessons.map(item=><a href={lessonUrl(item.id)} aria-current={item.id===currentId?'page':undefined}>{item.data.title}{item.id===currentId&&<span aria-hidden="true">✓</span>}</a>)}
+  </nav>
+</Popover>
+<style>
+  a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-radius:7px;color:var(--ink);font-size:14px}
+  a:hover,a[aria-current=page]{background:var(--panel2);color:var(--accent);text-decoration:none}
+</style>
