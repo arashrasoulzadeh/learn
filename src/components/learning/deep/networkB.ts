@@ -1,5 +1,5 @@
 import type {DeepLesson} from './types';
-export const networkB = [
+export const networkB: DeepLesson[] = [
   {
     "slug": "udp",
     "title": "Jitter buffer و مهلت پخش",
@@ -1253,4 +1253,4 @@ export const networkB = [
       }
     ]
   }
-] satisfies DeepLesson[];
+];

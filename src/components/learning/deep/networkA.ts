@@ -1,5 +1,5 @@
 import type {DeepLesson} from './types';
-export const networkA = [
+export const networkA: DeepLesson[] = [
   {
     "slug": "http-request",
     "title": "تحلیل TTFB و اتصال گرم",
@@ -779,4 +779,4 @@ export const networkA = [
       }
     ]
   }
-] satisfies DeepLesson[];
+];

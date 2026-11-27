@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import {readFileSync,readdirSync} from 'node:fs';
 import {snapshot} from '../src/components/learning/deep/types.ts';
 const root='src/components/learning/deep/';
 const files=['networkA','networkB','backendA','backendB','dataA','dataB'];

@@ -1,5 +1,5 @@
 import type {DeepLesson} from './types';
-export const dataB = [
+export const dataB: DeepLesson[] = [
   {
     "slug": "connection-pooling",
     "title": "بودجه اتصال و زمان انتظار",
@@ -893,4 +893,4 @@ export const dataB = [
       }
     ]
   }
-] satisfies DeepLesson[];
+];

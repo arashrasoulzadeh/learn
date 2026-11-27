@@ -1,5 +1,5 @@
 import type {DeepLesson} from './types';
-export const dataA = [
+export const dataA: DeepLesson[] = [
   {
     "slug": "sql-nosql",
     "title": "مدل داده بر اساس invariant و هزینهٔ نوشتن",
@@ -887,4 +887,4 @@ export const dataA = [
       }
     ]
   }
-] satisfies DeepLesson[];
+];

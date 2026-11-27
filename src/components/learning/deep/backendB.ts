@@ -1,5 +1,5 @@
 import type {DeepLesson} from './types';
-export const backendB = [
+export const backendB: DeepLesson[] = [
   {
     "slug": "middleware",
     "title": "بازگشت زنجیره و await فراموش‌شده",
@@ -889,4 +889,4 @@ export const backendB = [
       }
     ]
   }
-] satisfies DeepLesson[];
+];
