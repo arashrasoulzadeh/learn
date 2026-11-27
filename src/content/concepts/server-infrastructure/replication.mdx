@@ -1,0 +1,94 @@
+---
+title: "Replication"
+description: "Follow committed changes from a primary through a replication log to a replica, then separate delay, stale reads and apply saturation."
+category: server-infrastructure
+difficulty: intermediate
+estimatedMinutes: 17
+order: 2
+tags: [replication, database, consistency, lag, failover]
+---
+import { ReplicationLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+In asynchronous replication, a successful write on the Primary does **not** imply that every Replica already contains the same state.
+
+A write can be committed on Primary, waiting in a replication stream, and not yet applied on Replica. That gap matters for stale reads and for failover safety.
+
+## Mental model
+
+Keep three states separate:
+
+```text
+Committed on Primary
+        ↓
+Pending replication changes
+        ↓
+Applied on Replica
+```
+
+For this teaching model:
+
+```text
+replication lag = committed changes - applied changes
+```
+
+A Replica can be healthy and still be behind.
+
+<Callout title="Healthy is not fresh">
+  Health answers whether the Replica is operating. Freshness answers how closely its applied state follows the Primary. Read routing and failover decisions often need both.
+</Callout>
+
+## Interactive lab
+
+The lab keeps the topology fixed: **Primary → Replication Log → Replica**. Only the versions, pending changes and rates change.
+
+<ReplicationLab client:visible />
+
+## Practical example
+
+Imagine an account record update commits as version 43 on Primary while Replica is still version 42:
+
+```text
+Primary: v43
+Pending: 1 change
+Replica: v42
+```
+
+A read sent to Primary can observe v43. A read sent to Replica can still observe v42. If the product requires read-after-write behavior, the routing policy must account for that consistency requirement.
+
+Delay and overload are different. Suppose Replica can apply 8 changes/s:
+
+- 6 writes/s with a fixed 2-second delay can create a **bounded window** of pending changes.
+- 12 writes/s with only 8 applies/s creates a net backlog of about 4 changes/s after warm-up.
+- If writes later fall to 2/s, the unused apply capacity can drain old backlog.
+
+In a real database, replication protocols, batching, network delay, WAL/binlog behavior, storage latency and transaction boundaries make the details richer. The core distinction remains: **transport delay** and **apply saturation** are not the same failure.
+
+## Failure modes and trade-offs
+
+- **Stale reads.** Replica reads may lag behind recently committed writes.
+- **Growing lag.** If incoming change rate exceeds apply throughput, the Replica cannot catch up.
+- **Unsafe failover.** Promoting a Replica that has not applied the required changes can increase data-loss exposure.
+- **Bad writes replicate too.** Replication is not a historical backup. A logical delete or corruption can propagate.
+- **Synchronous acknowledgment costs latency.** Waiting for additional nodes can improve durability guarantees but adds coordination.
+
+Monitor version/LSN gap, lag time, oldest pending change age, write rate, apply rate and catch-up time.
+
+## Check your understanding
+
+<Quiz client:visible question="Primary receives 12 changes/s and Replica can apply 8 changes/s. After warm-up, what happens to lag?" options={['It tends to grow by about 4 changes/s','It must remain zero because Replica is healthy','The Primary automatically slows to 8/s','Replication becomes a backup']} correct={0} explanation="When incoming change rate exceeds sustained apply capacity, unapplied work accumulates." />
+
+<Quiz client:visible question="Why is replication not the same as backup?" options={['A live Replica can receive the same bad delete or corruption','Backups cannot contain data','Replicas never use durable storage','Replication only works over HTTP']} correct={0} explanation="Replication follows current changes. Backup or point-in-time recovery is designed to recover earlier historical state." />
+
+## Takeaway
+
+Replication is a pipeline from **committed** to **pending** to **applied**. Read freshness and failover safety depend on where a change is in that pipeline, not merely on whether the Replica process is alive.
+
+## References
+
+- [PostgreSQL: Warm Standby and Streaming Replication](https://www.postgresql.org/docs/current/warm-standby.html)
+- [PostgreSQL: Monitoring Replication](https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-REPLICATION-VIEW)
+- [MySQL: Replication](https://dev.mysql.com/doc/refman/8.4/en/replication.html)
