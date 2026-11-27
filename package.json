@@ -13,7 +13,8 @@
     "preview": "astro preview",
     "new:concept": "node scripts/new-concept.mjs",
     "check:server": "node scripts/check-server-lessons.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "verify": "npm run check:server && npm run check && npm run build && npm run test:e2e"
   },
   "dependencies": {
     "astro": "^5.16.16",

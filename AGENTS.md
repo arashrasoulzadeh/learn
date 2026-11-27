@@ -6,7 +6,7 @@
 - Every lesson must contain a motivation, mental model, visual explanation or interactive demo, practical example, pitfalls, knowledge check, takeaway and authoritative references.
 - Use accessible controls, labels, keyboard navigation, reduced-motion support and text alternatives. Keep browser storage optional. Avoid collecting user data.
 - Use local reusable components; keep third-party dependencies minimal. Do not embed unlicensed images or large binaries.
-- Run npm run check and npm run build before submission. Never claim a deployment succeeded without verification. Use base-aware URLs from src/lib/content.ts.
+- Before pushing changes run `npm run verify` (server checks, Astro typecheck, production build and all Playwright tests). Install Chromium with `npx playwright install chromium` first. Push directly to main; do not create pull requests or feature branches unless explicitly requested by the owner. Run all checks before pushing. If local verification is blocked, report the blocker and do not claim tests passed; the owner may explicitly authorize an unverified push. Update tests when translating UI and use stable route identifiers for discovery assertions. Never claim a deployment succeeded without verification. Use base-aware URLs from src/lib/content.ts.
 - Keep existing lesson IDs stable. Draft lessons do not appear in navigation.
 
 ## Immersive presentation
