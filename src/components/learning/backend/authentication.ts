@@ -96,7 +96,11 @@ const lesson = {
             "Credentials submitted",
             "Pending",
             "Anonymous"
-          ]
+          ],
+          "flightLabels": [
+            "POST login"
+          ],
+          "diagnostic": "HTTPS از انتقال credential محافظت می‌کند؛ ثبت رمز یا توکن در log ممنوع باشد."
         },
         {
           "name": "بررسی verifier ذخیره‌شده",
@@ -116,7 +120,12 @@ const lesson = {
             "Password matches",
             "Identity verified"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "verify",
+            "match"
+          ],
+          "diagnostic": "salt و هزینهٔ الگوریتم password hashing در verifier ذخیره می‌شوند؛ hash سریع مناسب رمز نیست."
         },
         {
           "name": "ایجاد نشست تازه",
@@ -134,7 +143,11 @@ const lesson = {
             "demo",
             "Verified",
             "Session user=42"
-          ]
+          ],
+          "flightLabels": [
+            "rotate session"
+          ],
+          "diagnostic": "پس از احراز کامل، شناسه session را تازه کنید؛ fixation و طول عمر را مدیریت کنید."
         },
         {
           "name": "بازگشت پاسخ ورود",
@@ -154,7 +167,11 @@ const lesson = {
             "Verified",
             "Authenticated"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "200 + Set-Cookie"
+          ],
+          "diagnostic": "Cookie با scope/flags مناسب ارسال می‌شود؛ نشست معتبر جای مجوز منبع نیست."
         }
       ],
       "prediction": "آیا دریافت گذرواژه به تنهایی برای ساخت نشست کافی است؟"
@@ -181,7 +198,11 @@ const lesson = {
             "Credentials submitted",
             "Pending",
             "Anonymous"
-          ]
+          ],
+          "flightLabels": [
+            "POST login"
+          ],
+          "diagnostic": "قبل از verify هیچ هویت معتبری اثبات نشده؛ محدودیت تلاش را رعایت کنید."
         },
         {
           "name": "عدم تطابق اعتبار",
@@ -202,7 +223,12 @@ const lesson = {
             "Anonymous"
           ],
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "verify",
+            "mismatch"
+          ],
+          "diagnostic": "پیام عمومی و رفتار زمانی مناسب برای حساب ناموجود و رمز غلط از افشای حساب کم می‌کند."
         },
         {
           "name": "اعلام خطای عمومی",
@@ -222,7 +248,11 @@ const lesson = {
             "Rejected",
             "Anonymous"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "invalid credentials"
+          ],
+          "diagnostic": "این API نمونه 400 دارد؛ شکست ورود به قرارداد بستگی دارد و 401 challenge می‌خواهد."
         }
       ],
       "edgeCase": "اطلاعات ورود نامعتبر؛ هیچ نشست جدیدی ساخته نمی‌شود.",
@@ -250,7 +280,11 @@ const lesson = {
             "Login request",
             "Rate limit reached",
             "Anonymous"
-          ]
+          ],
+          "flightLabels": [
+            "rate check"
+          ],
+          "diagnostic": "سیاست نرخ باید هزینه verify و abuse را مهار کند؛ کلید فقط IP ممکن است کافی نباشد."
         },
         {
           "name": "پاسخ محدودیت",
@@ -270,7 +304,11 @@ const lesson = {
             "Wait 30 s",
             "Anonymous"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "429"
+          ],
+          "diagnostic": "Retry-After برای زمان انتظار است؛ قفل دائمی حساب می‌تواند DoS بسازد."
         },
         {
           "name": "تلاش بعد از انتظار",
@@ -289,7 +327,11 @@ const lesson = {
             "New attempt",
             "Verification pending",
             "Anonymous"
-          ]
+          ],
+          "flightLabels": [
+            "retry"
+          ],
+          "diagnostic": "گذشت مهلت فقط اجازه بررسی دوباره می‌دهد؛ هنوز هیچ احراز هویتی انجام نشده است."
         }
       ],
       "edgeCase": "تلاش‌های مکرر باید بدون افشای اعتبار حساب کنترل شوند.",

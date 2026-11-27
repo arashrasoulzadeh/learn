@@ -96,7 +96,11 @@ const lesson = {
             "POST /products",
             "No product 43",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "POST collection"
+          ],
+          "diagnostic": "منبع collection و نمایش داده را از URL اکشن‌محور تفکیک کنید؛ REST فقط CRUD نیست."
         },
         {
           "name": "ثبت منبع",
@@ -116,7 +120,12 @@ const lesson = {
             "43 · Mouse · v1",
             "Pending"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "INSERT",
+            "id + version"
+          ],
+          "diagnostic": "شناسه و نسخه سمت منبع تعیین می‌شوند؛ قیدهای DB مستقل از REST هستند."
         },
         {
           "name": "اعلام نشانی منبع",
@@ -136,7 +145,11 @@ const lesson = {
             "43 · Mouse · v1",
             "201; /products/43"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "201 + Location"
+          ],
+          "diagnostic": "Location URI منبع تازه را معرفی می‌کند؛ قرارداد API باید نتیجهٔ ایجاد را واضح کند."
         }
       ],
       "prediction": "سرور هنگام ایجاد محصول چگونه نشانی منبع تازه را به کلاینت معرفی می‌کند؟"
@@ -164,7 +177,12 @@ const lesson = {
             "42 · price=50 · v1",
             "ETag: v1"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "GET",
+            "ETag v1"
+          ],
+          "diagnostic": "ETag قوی validator نمایش است؛ این مدل از نسخهٔ منبع به‌عنوان validator استفاده می‌کند."
         },
         {
           "name": "ارسال ویرایش شرطی",
@@ -183,7 +201,11 @@ const lesson = {
             "PUT; If-Match v1",
             "42 · price=50 · v1",
             "Matched"
-          ]
+          ],
+          "flightLabels": [
+            "PUT If-Match"
+          ],
+          "diagnostic": "شرط v1 باید همراه عملیات نوشتن اعمال شود؛ check-then-write جدا race دارد."
         },
         {
           "name": "ذخیرهٔ نسخهٔ تازه",
@@ -203,7 +225,12 @@ const lesson = {
             "42 · price=45 · v2",
             "Saved"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "CAS update",
+            "v2"
+          ],
+          "diagnostic": "UPDATE WHERE version=v1 و تعداد affected rows را بررسی کنید؛ شرط و نوشتن هماهنگ‌اند."
         },
         {
           "name": "پاسخ ویرایش",
@@ -223,7 +250,11 @@ const lesson = {
             "42 · price=45 · v2",
             "200 OK"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "200 + ETag"
+          ],
+          "diagnostic": "نمایش تازه و validator تازه به کلاینت می‌رسند؛ cache و فرم UI نسخهٔ جدید را نگه دارند."
         }
       ],
       "edgeCase": "از درخواست شرطی برای کنترل هم‌زمانی استفاده می‌شود.",
@@ -251,7 +282,11 @@ const lesson = {
             "Local version v1",
             "42 · price=45 · v2",
             "Stale view"
-          ]
+          ],
+          "flightLabels": [
+            "UPDATE v2"
+          ],
+          "diagnostic": "کلاینت دیگر نسخهٔ منبع را تغییر داده؛ نمایش قدیمی B دیگر جاری نیست."
         },
         {
           "name": "دریافت درخواست قدیمی",
@@ -270,7 +305,11 @@ const lesson = {
             "PUT; If-Match v1",
             "42 · price=45 · v2",
             "Mismatch"
-          ]
+          ],
+          "flightLabels": [
+            "PUT If-Match v1"
+          ],
+          "diagnostic": "شرط با ETag فعلی v2 تطبیق ندارد؛ بدنهٔ جدید نباید اعمال شود."
         },
         {
           "name": "رد به‌روزرسانی",
@@ -290,7 +329,11 @@ const lesson = {
             "42 · price=45 · v2",
             "412; unchanged"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "412"
+          ],
+          "diagnostic": "پاسخ 412 یعنی precondition شکست خورد؛ بازخوانی و حل تعارض بهتر از retry کور است."
         }
       ],
       "edgeCase": "رقابت دو کلاینت برای نوشتن؛ نسخهٔ قدیمی رد می‌شود.",

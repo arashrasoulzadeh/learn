@@ -96,7 +96,11 @@ const lesson = {
             "A",
             "—",
             "B (when ready)"
-          ]
+          ],
+          "flightLabels": [
+            "schedule B"
+          ],
+          "diagnostic": "delay=0 یعنی task پس از فرصت اجرا، نه اجرای فوری یا مهلت دقیق."
         },
         {
           "name": "ثبت Promise و پایان اسکریپت",
@@ -115,7 +119,11 @@ const lesson = {
             "A D",
             "C",
             "B"
-          ]
+          ],
+          "flightLabels": [
+            "enqueue C"
+          ],
+          "diagnostic": "A و D همگام‌اند؛ Promise واکنش را در microtask قرار می‌دهد."
         },
         {
           "name": "تخلیه microtask",
@@ -134,7 +142,11 @@ const lesson = {
             "A D C",
             "—",
             "B"
-          ]
+          ],
+          "flightLabels": [
+            "run C"
+          ],
+          "diagnostic": "پس از stack جاری microtask checkpoint انجام می‌شود؛ C پیش از task تایمر این trace است."
         },
         {
           "name": "اجرای task تایمر",
@@ -154,7 +166,11 @@ const lesson = {
             "—",
             "—"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "run B"
+          ],
+          "diagnostic": "پس از تخلیه microtask و آماده بودن timer، B اجرا می‌شود؛ زمان دقیق تضمین نیست."
         }
       ],
       "prediction": "A و D همگام‌اند، B تایمر است و C واکنش Promise؛ ترتیب چاپ چیست؟"
@@ -181,7 +197,11 @@ const lesson = {
             "Script running",
             "—",
             "callback"
-          ]
+          ],
+          "flightLabels": [
+            "schedule timer"
+          ],
+          "diagnostic": "تایمر ثبت شده ولی callback به agent اصلی نیاز دارد."
         },
         {
           "name": "مشغول بودن پشته",
@@ -200,7 +220,11 @@ const lesson = {
             "—",
             "callback waiting"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "CPU busy"
+          ],
+          "diagnostic": "Long task مانع ورودی و render می‌شود؛ async keyword محاسبه را به worker منتقل نمی‌کند."
         },
         {
           "name": "آزاد شدن پشته",
@@ -220,7 +244,11 @@ const lesson = {
             "—",
             "—"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "run timer"
+          ],
+          "diagnostic": "Performance panel فاصله زمان آماده شدن تا callback را نشان می‌دهد؛ worker یا تقسیم کار را بررسی کنید."
         }
       ],
       "edgeCase": "کار همگام طولانی مانع پاسخ‌گویی thread اصلی می‌شود.",
@@ -248,7 +276,11 @@ const lesson = {
             "Script done",
             "job1",
             "timer"
-          ]
+          ],
+          "flightLabels": [
+            "enqueue job1"
+          ],
+          "diagnostic": "microtask و task صف‌های متفاوت دارند؛ مرورگر چند task source دارد."
         },
         {
           "name": "افزودن کار تازه",
@@ -268,7 +300,11 @@ const lesson = {
             "job2",
             "timer"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "job1 / enqueue2"
+          ],
+          "diagnostic": "checkpoint می‌تواند کارهای تازه ثبت‌شده را نیز تخلیه کند."
         },
         {
           "name": "اجرای microtask تازه",
@@ -287,7 +323,11 @@ const lesson = {
             "job1 job2",
             "—",
             "timer"
-          ]
+          ],
+          "flightLabels": [
+            "run job2"
+          ],
+          "diagnostic": "تا وقتی صف microtask در checkpoint خالی نشده، task تایمر وارد نمی‌شود."
         },
         {
           "name": "اجرای task تایمر",
@@ -307,7 +347,11 @@ const lesson = {
             "—",
             "—"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "run timer"
+          ],
+          "diagnostic": "زنجیره نامحدود microtask می‌تواند starvation بسازد؛ yield منصفانه را طراحی کنید."
         }
       ],
       "edgeCase": "microtaskهای بازگشتی می‌توانند taskهای دیگر را عقب بیندازند.",

@@ -105,7 +105,11 @@ const lesson = {
             "start",
             "—",
             "Not called"
-          ]
+          ],
+          "flightLabels": [
+            "request"
+          ],
+          "diagnostic": "request ID را در logger آغاز کنید و دادهٔ حساس را لاگ نکنید."
         },
         {
           "name": "عبور از کنترل ورود",
@@ -124,7 +128,11 @@ const lesson = {
             "start",
             "Passed",
             "Not called"
-          ]
+          ],
+          "flightLabels": [
+            "next()"
+          ],
+          "diagnostic": "در onion pipeline await next یعنی انتظار پایان لایه‌های داخلی، نه پایان فوری این لایه."
         },
         {
           "name": "اجرای منطق برنامه",
@@ -143,7 +151,11 @@ const lesson = {
             "start",
             "Passed",
             "200 OK"
-          ]
+          ],
+          "flightLabels": [
+            "handler result"
+          ],
+          "diagnostic": "context پاسخ در handler تنظیم می‌شود؛ هنوز لایه‌های بیرونی فرصت تکمیل دارند."
         },
         {
           "name": "بازگشت و ثبت پایان",
@@ -165,7 +177,13 @@ const lesson = {
             "Passed",
             "200 OK"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return handler",
+            "unwind auth",
+            "log end"
+          ],
+          "diagnostic": "ترتیب بازگشت معکوس ورود است؛ زمان logger بعد از await کل downstream را پوشش می‌دهد."
         }
       ],
       "prediction": "در مدل onion، ثبت پایان logger قبل از handler است یا پس از آن؟"
@@ -192,7 +210,11 @@ const lesson = {
             "start",
             "—",
             "Not called"
-          ]
+          ],
+          "flightLabels": [
+            "request"
+          ],
+          "diagnostic": "لایه بیرونی می‌تواند ورود درخواست را حتی برای پاسخ رد ثبت کند."
         },
         {
           "name": "رد پیش از handler",
@@ -212,7 +234,11 @@ const lesson = {
             "Denied",
             "Not called"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "auth deny"
+          ],
+          "diagnostic": "بدون next، handler نباید اجرا شود؛ در پاسخ واقعی 401 challenge متناسب لازم است."
         },
         {
           "name": "بازگشت پاسخ",
@@ -233,7 +259,12 @@ const lesson = {
             "Denied",
             "401; skipped"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "return 401",
+            "log end"
+          ],
+          "diagnostic": "بازگشت عادی پاسخ رد، کد بعد await next را اجرا می‌کند؛ exception با return عادی فرق دارد."
         }
       ],
       "edgeCase": "درخواست فاقد اعتبار پیش از منطق کسب‌وکار رد می‌شود.",
@@ -261,7 +292,11 @@ const lesson = {
             "try",
             "—",
             "Not called"
-          ]
+          ],
+          "flightLabels": [
+            "try / await next"
+          ],
+          "diagnostic": "مرز خطا باید Promise زنجیره را await کند تا rejection قابل گرفتن باشد."
         },
         {
           "name": "عبور از احراز هویت",
@@ -280,7 +315,11 @@ const lesson = {
             "try",
             "Passed",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "next()"
+          ],
+          "diagnostic": "عبور از کنترل هویت موفقیت عملیات داخلی را تضمین نمی‌کند."
         },
         {
           "name": "پرتاب خطا",
@@ -300,7 +339,11 @@ const lesson = {
             "Passed",
             "Exception"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "handler throws"
+          ],
+          "diagnostic": "خطای handler در Promise پایین‌دست propagate می‌شود؛ stack trace خصوصی بماند."
         },
         {
           "name": "گرفتن خطا و پاسخ عمومی",
@@ -322,7 +365,13 @@ const lesson = {
             "Passed",
             "500"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "throw",
+            "catch",
+            "HTTP 500"
+          ],
+          "diagnostic": "خطا پیش از ارسال پاسخ در مرز بیرونی به 500 تبدیل می‌شود؛ finally برای cleanup و log مناسب است."
         }
       ],
       "edgeCase": "خطای پایین‌دست باید در مرز مناسب مدیریت شود.",

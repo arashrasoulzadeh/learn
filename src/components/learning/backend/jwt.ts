@@ -104,12 +104,16 @@ const lesson = {
             "header | payload | signature",
             "Unchecked",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "Bearer token"
+          ],
+          "diagnostic": "JWT امضاشده در قالب JWS سه بخش دارد؛ Base64url محرمانگی ایجاد نمی‌کند و claims پیش از verify غیرقابل اعتمادند."
         },
         {
           "name": "بررسی امضا",
           "short": "بررسی امضا",
-          "detail": "API الگوریتم مجاز و کلید معتبر را از پیکربندی قابل اعتماد انتخاب و امضا را بررسی می‌کند.",
+          "detail": "API الگوریتم را با سیاست ثابت کنترل می‌کند و کلید معتبر را از پیکربندی قابل اعتماد می‌گیرد؛ سپس خود verifier امضای توکن را بررسی می‌کند. مسیر رفت‌وبرگشت در نمودار دریافت کلید و نتیجهٔ بررسی را خلاصه می‌کند.",
           "route": [
             1,
             2
@@ -124,7 +128,12 @@ const lesson = {
             "Signature valid",
             "Pending"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "verify",
+            "valid sig"
+          ],
+          "diagnostic": "Verifier از issuer/JWKS و الگوریتم مورد اعتماد استفاده می‌کند؛ امضا را با کلید دلخواه header نپذیرید."
         },
         {
           "name": "بررسی ادعاها",
@@ -142,7 +151,11 @@ const lesson = {
             "sub=42; aud=orders",
             "iss/aud/exp valid",
             "Identity verified"
-          ]
+          ],
+          "flightLabels": [
+            "validate claims"
+          ],
+          "diagnostic": "exp، iss، aud و nbf در صورت وجود را بررسی کنید؛ NumericDate و clock skew را درست اعمال کنید."
         },
         {
           "name": "تصمیم مجوز و پاسخ",
@@ -162,7 +175,11 @@ const lesson = {
             "Claims + policy valid",
             "200 Allow"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "200 allowed"
+          ],
+          "diagnostic": "توکن معتبر برای هویت است؛ scope و policy شیء باید جدا بررسی شوند."
         }
       ],
       "prediction": "بعد از بررسی موفق امضا، آیا API می‌تواند بدون بررسی claims پاسخ بدهد؟"
@@ -189,7 +206,11 @@ const lesson = {
             "sub=42",
             "Signature valid",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "verify signature"
+          ],
+          "diagnostic": "امضای معتبر به معنای مجاز بودن زمان استفاده نیست."
         },
         {
           "name": "رد بر اساس exp",
@@ -208,7 +229,11 @@ const lesson = {
             "now=1100; expired",
             "Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "check exp"
+          ],
+          "diagnostic": "در مدل now بعد از exp و leeway است؛ نوسازی توکن قرارداد جدا دارد."
         },
         {
           "name": "پاسخ نامعتبر بودن توکن",
@@ -228,7 +253,11 @@ const lesson = {
             "Rejected",
             "401 Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "401 invalid_token"
+          ],
+          "diagnostic": "WWW-Authenticate Bearer نتیجه شکست توکن را اعلام می‌کند؛ توکن خام را log نکنید."
         }
       ],
       "edgeCase": "امضا معتبر است اما زمان استفاده گذشته است.",
@@ -256,7 +285,11 @@ const lesson = {
             "role=admin (untrusted)",
             "Unchecked",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "decode untrusted"
+          ],
+          "diagnostic": "payload خوانده شده ولی هیچ تصمیم مجوز نباید هنوز بر اساس آن گرفته شود."
         },
         {
           "name": "بررسی امضای ناموفق",
@@ -277,7 +310,12 @@ const lesson = {
             "Deny"
           ],
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "verify",
+            "bad sig"
+          ],
+          "diagnostic": "تغییر payload بدون امضای درست اعتبار JWS را خراب می‌کند؛ parser جای verifier نیست."
         },
         {
           "name": "رد درخواست",
@@ -297,7 +335,11 @@ const lesson = {
             "Rejected",
             "401 Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "401 invalid_token"
+          ],
+          "diagnostic": "نقش ادعایی رد شد؛ هیچ عملیات یا داده خصوصی نباید منتشر شود."
         }
       ],
       "edgeCase": "کدگشایی موفق payload به معنی صحت امضا نیست.",
@@ -325,7 +367,11 @@ const lesson = {
             "aud=payments",
             "Signature valid",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "verify signature"
+          ],
+          "diagnostic": "اصالت و انقضا ممکن است درست باشند اما مخاطب هنوز کنترل نشده."
         },
         {
           "name": "عدم تطابق مخاطب",
@@ -344,7 +390,11 @@ const lesson = {
             "Expected orders",
             "Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "check aud"
+          ],
+          "diagnostic": "توکن payments برای orders معتبر نیست؛ aud و issuer را با سیاست ثابت مقایسه کنید."
         },
         {
           "name": "رد توکن",
@@ -364,7 +414,11 @@ const lesson = {
             "Rejected",
             "401 Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "401 invalid_token"
+          ],
+          "diagnostic": "اعتماد به کلید مشترک بین سرویس‌ها مجوز cross-service ایجاد نمی‌کند."
         }
       ],
       "edgeCase": "توکن اصیل ولی با مخاطب نامعتبر.",

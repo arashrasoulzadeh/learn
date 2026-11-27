@@ -95,7 +95,11 @@ const lesson = {
             "Running",
             "pending",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "start async"
+          ],
+          "diagnostic": "کد قبل از نخستین await همگام اجرا می‌شود؛ تابع async یک Promise برمی‌گرداند."
         },
         {
           "name": "رسیدن به await",
@@ -114,7 +118,11 @@ const lesson = {
             "Suspended",
             "pending",
             "Can run"
-          ]
+          ],
+          "flightLabels": [
+            "suspend"
+          ],
+          "diagnostic": "فقط continuation همین تابع معلق می‌شود؛ caller می‌تواند ادامه بدهد."
         },
         {
           "name": "تکمیل عملیات",
@@ -133,7 +141,11 @@ const lesson = {
             "Queued",
             "fulfilled=42",
             "Can run"
-          ]
+          ],
+          "flightLabels": [
+            "resolve(42)"
+          ],
+          "diagnostic": "settlement نتیجه را مشخص و continuation را برای اجرا زمان‌بندی می‌کند؛ اجرای وسط stack جاری نیست."
         },
         {
           "name": "ادامهٔ تابع",
@@ -153,7 +165,11 @@ const lesson = {
             "fulfilled=42",
             "Completed"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "resume"
+          ],
+          "diagnostic": "کد بعد await در job مناسب اجرا می‌شود؛ CPU-bound کار خودکار به thread دیگر نمی‌رود."
         }
       ],
       "prediction": "آیا کد فراخواننده هنگام انتظار Promise می‌تواند ادامه پیدا کند؟"
@@ -180,7 +196,11 @@ const lesson = {
             "Suspended",
             "pending",
             "Can run"
-          ]
+          ],
+          "flightLabels": [
+            "await pending"
+          ],
+          "diagnostic": "try/catch باید دور await باشد تا rejection در همان کنترل جریان گرفته شود."
         },
         {
           "name": "شکست I/O",
@@ -200,7 +220,11 @@ const lesson = {
             "rejected",
             "Can run"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "reject"
+          ],
+          "diagnostic": "خطای شبکه می‌تواند fetch را reject کند؛ HTTP 404 به‌تنهایی rejection نیست."
         },
         {
           "name": "مدیریت خطا",
@@ -220,7 +244,11 @@ const lesson = {
             "rejected",
             "Can run"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "catch"
+          ],
+          "diagnostic": "Promise تابع بیرونی فقط در صورت مدیریت/بازگرداندن مناسب خطا رفتار مورد نظر را دارد."
         }
       ],
       "edgeCase": "Promise رد شده و مسیر خطا باید به‌درستی مدیریت شود.",
@@ -248,7 +276,11 @@ const lesson = {
             "Suspended",
             "A pending | B pending",
             "I/O active"
-          ]
+          ],
+          "flightLabels": [
+            "start A + B"
+          ],
+          "diagnostic": "هر دو عملیات پیش از await آغاز شده‌اند؛ Promise.all خودش کار جدید ایجاد نمی‌کند."
         },
         {
           "name": "پایان A",
@@ -267,12 +299,16 @@ const lesson = {
             "Suspended",
             "A fulfilled | B pending",
             "I/O active"
-          ]
+          ],
+          "flightLabels": [
+            "A fulfilled"
+          ],
+          "diagnostic": "نتیجه ترکیبی تا پایان همهٔ ورودی‌ها منتظر می‌ماند؛ ترتیب completion با ترتیب خروجی فرق دارد."
         },
         {
           "name": "پایان B و ادامه",
           "short": "پایان B",
-          "detail": "هر دو نتیجه آماده‌اند و Promise ترکیبی fulfilled می‌شود.",
+          "detail": "B تکمیل می‌شود؛ پس از تعیین Promise ترکیبی، ادامهٔ تابع با هر دو نتیجه اجرا می‌شود. در این گام تکمیل B و resume را یک snapshot در نظر گرفته‌ایم.",
           "route": [
             1,
             0
@@ -287,7 +323,11 @@ const lesson = {
             "A fulfilled | B fulfilled",
             "Done"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "resume all"
+          ],
+          "diagnostic": "خروجی مطابق ترتیب iterable است؛ اگر یکی reject شود دیگری خودکار cancel نمی‌شود."
         }
       ],
       "edgeCase": "انتظار متوالی برای عملیات مستقل می‌تواند زمان بیهوده ایجاد کند.",

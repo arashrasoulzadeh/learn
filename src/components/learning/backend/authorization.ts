@@ -96,7 +96,11 @@ const lesson = {
             "user=42",
             "Pending",
             "Undecided"
-          ]
+          ],
+          "flightLabels": [
+            "principal"
+          ],
+          "diagnostic": "هویت باید از credential تأییدشده سمت سرور بیاید نه userId بدنه."
         },
         {
           "name": "بررسی مالکیت",
@@ -116,7 +120,12 @@ const lesson = {
             "owner=42",
             "Allow"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "scope check",
+            "allow"
+          ],
+          "diagnostic": "قید مالک/tenant و مجوز عملیات را در query یا policy اعمال کنید؛ داده پیش از تصمیم افشا نشود."
         },
         {
           "name": "ارسال پاسخ مجاز",
@@ -136,7 +145,11 @@ const lesson = {
             "Ownership matched",
             "200 Allow"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "200 own order"
+          ],
+          "diagnostic": "پاسخ فقط فیلدهای مجاز همین منبع را بدهد؛ نتیجهٔ تصمیم را بدون داده حساس لاگ کنید."
         }
       ],
       "prediction": "برای خواندن سفارش، علاوه بر هویت معتبر کدام شرط باید بررسی شود؟"
@@ -163,7 +176,11 @@ const lesson = {
             "user=42",
             "Pending",
             "Undecided"
-          ]
+          ],
+          "flightLabels": [
+            "GET order99"
+          ],
+          "diagnostic": "وجود نشست، اجازه خواندن شناسه دلخواه را ایجاد نمی‌کند."
         },
         {
           "name": "عدم تطابق مالکیت",
@@ -184,7 +201,12 @@ const lesson = {
             "Deny"
           ],
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "owner check",
+            "deny"
+          ],
+          "diagnostic": "مالک 17 و principal 42 متفاوت‌اند؛ authorization سطح شیء لازم است."
         },
         {
           "name": "بازگرداندن پاسخ رد",
@@ -204,7 +226,11 @@ const lesson = {
             "Ownership mismatch",
             "403 Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "403"
+          ],
+          "diagnostic": "403 یا 404 پنهان‌کننده وجود منبع طبق قرارداد؛ داده سفارش نباید برگردد."
         }
       ],
       "edgeCase": "کنترل مالکیت شیء با وجود احراز هویت معتبر ضروری است.",
@@ -232,7 +258,11 @@ const lesson = {
             "viewer",
             "DELETE required",
             "Undecided"
-          ]
+          ],
+          "flightLabels": [
+            "DELETE request"
+          ],
+          "diagnostic": "بررسی مجوز عملیات مستقل از تطابق مالکیت است."
         },
         {
           "name": "بررسی مجوز عملیات",
@@ -251,7 +281,11 @@ const lesson = {
             "Missing delete permission",
             "Deny"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "policy deny"
+          ],
+          "diagnostic": "viewer در مدل فقط read دارد؛ کنترل UI کافی نیست."
         },
         {
           "name": "رد بدون تغییر داده",
@@ -271,7 +305,11 @@ const lesson = {
             "Permission denied",
             "403; unchanged"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "403"
+          ],
+          "diagnostic": "هیچ اثر DELETE ثبت نمی‌شود؛ تست side effect هم به‌اندازه status مهم است."
         }
       ],
       "edgeCase": "نقش خواندنی نباید عملیات حذف انجام دهد.",

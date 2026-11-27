@@ -96,7 +96,11 @@ const lesson = {
             "caller | make",
             "—",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "CALL frame"
+          ],
+          "diagnostic": "فریم شامل وضعیت فراخوانی و ادامهٔ اجرای تابع است؛ مدل جای فیزیکی همهٔ متغیرها نیست."
         },
         {
           "name": "ساخت شیء",
@@ -115,7 +119,11 @@ const lesson = {
             "caller | make",
             "obj#1={n:7}",
             "obj → #1"
-          ]
+          ],
+          "flightLabels": [
+            "ALLOC #1"
+          ],
+          "diagnostic": "ارجاع محلی با خود شیء متفاوت است؛ runtime ممکن است بهینه‌سازی تخصیص داشته باشد."
         },
         {
           "name": "بازگشت ارجاع",
@@ -135,7 +143,11 @@ const lesson = {
             "obj#1={n:7}",
             "x → #1"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return ref"
+          ],
+          "diagnostic": "POP فریم با آزاد شدن شیء برابر نیست؛ x در caller مسیر زنده دارد."
         }
       ],
       "prediction": "بعد از return آیا شیء ساخته‌شده هنوز از caller قابل دسترس است؟"
@@ -162,7 +174,11 @@ const lesson = {
             "caller",
             "obj#1={n:7}",
             "x → #1"
-          ]
+          ],
+          "flightLabels": [
+            "REF #1"
+          ],
+          "diagnostic": "یک شیء و یک ارجاع داریم؛ identity را جدا از مقدار ویژگی ببینید."
         },
         {
           "name": "کپی ارجاع",
@@ -180,7 +196,11 @@ const lesson = {
             "caller",
             "obj#1={n:7}",
             "x,y → #1"
-          ]
+          ],
+          "flightLabels": [
+            "copy ref"
+          ],
+          "diagnostic": "انتساب y=x یک کپی از ارجاع می‌دهد نه clone عمیق."
         },
         {
           "name": "تغییر از طریق y",
@@ -200,7 +220,11 @@ const lesson = {
             "obj#1={n:9}",
             "x,y → #1"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "SET n=9"
+          ],
+          "diagnostic": "تغییر از y در x هم دیده می‌شود؛ spread نیز فقط کپی سطحی است."
         }
       ],
       "edgeCase": "کپی ارجاع با کپی شیء اشتباه می‌شود.",
@@ -228,7 +252,11 @@ const lesson = {
             "caller | work",
             "obj#1",
             "cache[0] → #1"
-          ]
+          ],
+          "flightLabels": [
+            "retain #1"
+          ],
+          "diagnostic": "در heap snapshot retaining path به cache را دنبال کنید؛ عمر cache می‌تواند بیشتر از تابع باشد."
         },
         {
           "name": "پایان تابع",
@@ -247,7 +275,11 @@ const lesson = {
             "obj#1",
             "cache[0] → #1"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "POP frame"
+          ],
+          "diagnostic": "اگر cache همچنان ریشهٔ زنده دارد، پایان work حافظهٔ شیء را آزاد نمی‌کند."
         },
         {
           "name": "حذف آخرین ارجاع",
@@ -267,7 +299,11 @@ const lesson = {
             "obj#1 eligible",
             "—"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "remove reference"
+          ],
+          "diagnostic": "واجد شرایط GC شدن با اجرای فوری collector و کاهش RSS متفاوت است."
         }
       ],
       "edgeCase": "رشد حافظه به علت نگهداری ارجاع‌های غیرضروری.",
@@ -297,10 +333,14 @@ const lesson = {
             "caller | recurse",
             "—",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "CALL recurse"
+          ],
+          "diagnostic": "پیش از بازگشت اولین فریم، فریم تازه لازم می‌شود."
         },
         {
-          "name": "رشد پشته بدون بازگشت",
+          "name": "افزایش عمق فراخوانی بدون بازگشت",
           "short": "رشد پشته",
           "detail": "در این مدل هر فراخوانی فریم تازه‌ای می‌سازد و هیچ فراخوانی به حالت return نمی‌رسد.",
           "route": [
@@ -315,7 +355,11 @@ const lesson = {
             "caller | recurse#1 | recurse#2 | recurse#3",
             "—",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "PUSH frames"
+          ],
+          "diagnostic": "شرط پایان و عمق recursion را بررسی کنید؛ پیاده‌سازی tail call وابسته به runtime است."
         },
         {
           "name": "رسیدن به حد فراخوانی",
@@ -334,7 +378,11 @@ const lesson = {
             "—",
             "—"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "stack limit"
+          ],
+          "diagnostic": "پیغام Maximum call stack size exceeded یا خطای معادل به محدودیت stack مربوط است، نه الزاماً heap."
         }
       ]
     }

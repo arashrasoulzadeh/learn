@@ -96,7 +96,11 @@ const lesson = {
             "GET /products/42",
             "Searching",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "GET path"
+          ],
+          "diagnostic": "در لاگ route template را جدا از URL خام ثبت کنید تا cardinality بالا ایجاد نشود."
         },
         {
           "name": "تطابق مسیر پارامتری",
@@ -114,7 +118,11 @@ const lesson = {
             "GET /products/42",
             "GET /products/:id",
             "getProduct"
-          ]
+          ],
+          "flightLabels": [
+            "match :id"
+          ],
+          "diagnostic": "params.id رشته است؛ query جداست و id هنوز اعتبارسنجی نشده."
         },
         {
           "name": "اجرای Handler",
@@ -133,7 +141,11 @@ const lesson = {
             "GET /products/42",
             "id=42",
             "getProduct: OK"
-          ]
+          ],
+          "flightLabels": [
+            "call handler"
+          ],
+          "diagnostic": "handler باید validation، authentication/authorization و query پارامتری مناسب انجام دهد."
         },
         {
           "name": "تحویل پاسخ",
@@ -154,7 +166,12 @@ const lesson = {
             "Matched",
             "200 OK"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "result",
+            "HTTP 200"
+          ],
+          "diagnostic": "پاسخ موفق از handler برمی‌گردد؛ middleware ممکن است قبل از خروج آن را پردازش کند."
         }
       ],
       "prediction": "در /products/42?lang=fa کدام بخش برای تطابق مسیر و استخراج id استفاده می‌شود؟"
@@ -181,7 +198,11 @@ const lesson = {
             "GET /unknown",
             "No match",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "GET /unknown"
+          ],
+          "diagnostic": "مسیر تعریف نشده با رکورد ناموجود در مسیر معتبر فرق دارد."
         },
         {
           "name": "پاسخ پیش‌فرض",
@@ -201,7 +222,11 @@ const lesson = {
             "No match",
             "404"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "404"
+          ],
+          "diagnostic": "404 فقط outcome است؛ route name و لاگ handler برای تشخیص علت مهم‌اند."
         }
       ],
       "edgeCase": "هیچ مسیر متناظری تعریف نشده است.",
@@ -229,7 +254,11 @@ const lesson = {
             "DELETE /products/42",
             "/products/:id",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "DELETE path"
+          ],
+          "diagnostic": "مسیریاب path را می‌شناسد ولی هنوز method را بررسی نکرده است."
         },
         {
           "name": "بررسی متد",
@@ -247,7 +276,11 @@ const lesson = {
             "DELETE /products/42",
             "Path matched",
             "Method mismatch"
-          ]
+          ],
+          "flightLabels": [
+            "method check"
+          ],
+          "diagnostic": "در API نمونه GET و HEAD مجازند؛ رفتار چارچوب‌ها یکسان نیست."
         },
         {
           "name": "ارسال 405",
@@ -267,7 +300,11 @@ const lesson = {
             "Path matched",
             "405; Allow"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "405 + Allow"
+          ],
+          "diagnostic": "پاسخ 405 باید Allow داشته باشد؛ با 404 یا 403 اشتباه نشود."
         }
       ],
       "edgeCase": "تطابق مسیر بدون تطابق متد.",

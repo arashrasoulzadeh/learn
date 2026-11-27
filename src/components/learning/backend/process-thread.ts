@@ -95,7 +95,11 @@ const lesson = {
             "Ready",
             "counter=0",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "init counter"
+          ],
+          "diagnostic": "فرایند فضای آدرس دارد؛ نخ‌ها stack و register جدا و heap مشترک دارند. /proc یا thread dump را در محیط محلی بررسی کنید."
         },
         {
           "name": "نخ A افزایش می‌دهد",
@@ -114,7 +118,11 @@ const lesson = {
             "Done",
             "counter=1",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "STORE 1"
+          ],
+          "diagnostic": "counter++ در این مدل خواندن، محاسبه و نوشتن است؛ دستور واحد زبان لزوماً اتمیک نیست."
         },
         {
           "name": "نخ B افزایش می‌دهد",
@@ -134,7 +142,11 @@ const lesson = {
             "counter=2",
             "Done"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "STORE 2"
+          ],
+          "diagnostic": "اجرای نوبتی نتیجهٔ ۲ می‌دهد، ولی یک اجرای سالم race را رد نمی‌کند."
         }
       ],
       "prediction": "اگر هر دو نخ به نوبت افزایش را کامل کنند، مقدار نهایی چند می‌شود؟"
@@ -161,7 +173,11 @@ const lesson = {
             "local=0",
             "counter=0",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "READ 0"
+          ],
+          "diagnostic": "A مقدار ۰ را در وضعیت محلی نگه داشته؛ هنوز حافظه تغییر نکرده است."
         },
         {
           "name": "خواندن نخ B",
@@ -180,7 +196,11 @@ const lesson = {
             "local=0",
             "counter=0",
             "local=0"
-          ]
+          ],
+          "flightLabels": [
+            "READ 0"
+          ],
+          "diagnostic": "زمان‌بندی B پیش از STORE A موجب خواندن مقدار قدیمی شد."
         },
         {
           "name": "نوشتن نخ A",
@@ -199,7 +219,11 @@ const lesson = {
             "Done",
             "counter=1",
             "local=0"
-          ]
+          ],
+          "flightLabels": [
+            "STORE 1"
+          ],
+          "diagnostic": "A از ۰ به ۱ محاسبه کرده و ثبت می‌کند؛ مقدار محلی B به طور خودکار تازه نمی‌شود."
         },
         {
           "name": "نوشتن نخ B",
@@ -219,7 +243,11 @@ const lesson = {
             "counter=1",
             "Done"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "STORE 1"
+          ],
+          "diagnostic": "دو عملیات کامل شده ولی counter=1؛ invariant مورد انتظار ۲ نقض شده است."
         }
       ],
       "edgeCase": "خواندن هم‌زمان مقدار قدیمی باعث از دست رفتن یک افزایش می‌شود.",
@@ -247,7 +275,11 @@ const lesson = {
             "Running",
             "counter=0; lock=A",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "LOCK"
+          ],
+          "diagnostic": "مالکیت lock و داده دو چیز جدا هستند؛ همهٔ دسترسی‌های حفاظت‌شده باید همان mutex را بگیرند."
         },
         {
           "name": "انتظار نخ B",
@@ -266,7 +298,11 @@ const lesson = {
             "Running",
             "counter=0; lock=A",
             "Waiting"
-          ]
+          ],
+          "flightLabels": [
+            "WAIT"
+          ],
+          "diagnostic": "B به‌جای خواندن مقدار مشترک منتظر می‌ماند؛ انتظار lock با توقف کل process یکی نیست."
         },
         {
           "name": "آزادسازی توسط A",
@@ -285,7 +321,11 @@ const lesson = {
             "Done",
             "counter=1; free",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "UNLOCK"
+          ],
+          "diagnostic": "ثبت داده و آزادسازی قفل باید درست ترتیب داشته باشند؛ finally/RAII در خطا اهمیت دارد."
         },
         {
           "name": "اجرای امن B",
@@ -305,7 +345,11 @@ const lesson = {
             "counter=2; free",
             "Done"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "LOCK + RMW"
+          ],
+          "diagnostic": "B اکنون ۱ می‌خواند و ۲ می‌نویسد؛ lock فقط STORE کافی نیست."
         }
       ],
       "edgeCase": "قفل برای جلوگیری از تداخل؛ هزینهٔ انتظار و احتمال بن‌بست را هم در نظر بگیرید.",
@@ -361,7 +405,11 @@ const lesson = {
             "A.counter=0",
             "IPC empty",
             "B.counter=0"
-          ]
+          ],
+          "flightLabels": [
+            "start processes"
+          ],
+          "diagnostic": "آدرس یکسان ظاهری در دو فرایند الزاماً به حافظهٔ فیزیکی مشترک اشاره ندارد."
         },
         {
           "name": "تغییر حافظهٔ خصوصی A",
@@ -379,7 +427,11 @@ const lesson = {
             "A.counter=1",
             "IPC empty",
             "B.counter=0"
-          ]
+          ],
+          "flightLabels": [
+            "private STORE"
+          ],
+          "diagnostic": "نوشتن A در حافظه خصوصی خود، counter B را تغییر نمی‌دهد."
         },
         {
           "name": "ارسال پیام صریح از A به B",
@@ -400,7 +452,12 @@ const lesson = {
             "Message delivered",
             "B.counter=1"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "send",
+            "receive"
+          ],
+          "diagnostic": "IPC انتقال یا اشتراک صریح داده می‌خواهد؛ pipe/socket/shared memory قراردادهای متفاوت دارند."
         }
       ]
     }
