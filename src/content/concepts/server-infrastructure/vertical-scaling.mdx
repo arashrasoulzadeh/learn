@@ -1,0 +1,72 @@
+---
+title: "Vertical Scaling"
+description: "Resize one host, compare the same workload before and after, and keep resource headroom separate from redundancy."
+category: server-infrastructure
+difficulty: beginner
+estimatedMinutes: 14
+order: 5
+tags: [vertical-scaling, cpu, memory, capacity, availability]
+---
+import { VerticalScalingLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+A host with **2 CPU / 8 GB** is saturated by an **8 requests/s** workload. Making that same machine larger can be a valid fix—but it solves a different problem from adding redundancy.
+
+## Mental model
+
+Vertical scaling changes resources **inside one failure domain**.
+
+In this model:
+
+```text
+Before: 2 CPU / 8 GB  → capacity 4 req/s
+After:  8 CPU / 32 GB → capacity 12 req/s
+Workload: 8 req/s in both cases
+```
+
+The workload stays constant so the effect of resizing is visible.
+
+<Callout title="Bigger is not redundant">
+  Headroom answers “can this machine do more work?” Redundancy answers “can the service continue if this machine disappears?” They are separate dimensions.
+</Callout>
+
+## Interactive lab
+
+Watch the same Host ID and local volume before and after the resource change.
+
+<VerticalScalingLab client:visible />
+
+## Practical example
+
+Vertical scaling is common for databases and stateful systems where distributing state is a larger architectural change than resizing a machine.
+
+A cloud VM might be stopped and resized to a larger instance type. A container platform might increase CPU and memory requests/limits. In either case, verify whether the workload can use the added resources: a single-threaded bottleneck may not benefit from more CPUs, and memory growth may only delay an unbounded leak.
+
+The teaching model shows P99 improving from 240 ms to 70 ms. Those numbers are illustrative, not a benchmark. In production, measure your own latency before and after the change.
+
+## Failure modes and trade-offs
+
+- **Hardware ceiling.** There is always a largest practical instance.
+- **Maintenance can still interrupt one node.**
+- **A single failure domain remains.**
+- **The workload cannot use the extra resource.** More CPUs do not fix serialization or a remote dependency.
+- **Cost jumps in large steps.** Bigger instances can be less flexible than several smaller workers.
+
+## Check your understanding
+
+<Quiz client:visible question="A host is resized from 2 CPU to 8 CPU. How many host failure domains does that create?" options={['Still one','Two','Eight','One per request']} correct={0} explanation="The same machine became larger. No additional independent host was created." />
+
+<Quiz client:visible question="What should remain constant when comparing whether a resize improved capacity?" options={['The test workload, as much as possible','The CPU utilization percentage','The machine size','The failure itself']} correct={0} explanation="Holding the workload stable makes the effect of the resource change easier to measure." />
+
+## Takeaway
+
+Vertical scaling is **more resources in the same machine**. It can buy headroom quickly, but it does not automatically create high availability. Measure performance and failure domains separately.
+
+## References
+
+- [Kubernetes: Resource Management for Pods and Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+- [AWS EC2: Change the instance type](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/change-instance-type-of-ebs-backed-instance.html)
+- [Google SRE Book: Distributed Systems for Fun and Profit](https://sre.google/sre-book/part-III-practices/)
