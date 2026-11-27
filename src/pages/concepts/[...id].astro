@@ -1,0 +1,42 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { catalog, lessonUrl, url, type Lesson } from '../../lib/content';
+export async function getStaticPaths() {
+  const {concepts}=await catalog();
+  return concepts.map(lesson=>({params:{id:lesson.id},props:{lesson}}));
+}
+const {lesson}=Astro.props as {lesson:Lesson};
+const {categories,concepts}=await catalog();
+const {Content,headings}=await render(lesson);
+const category=categories.find(c=>c.id===lesson.data.category.id)!;
+const related=lesson.data.related.map(r=>concepts.find(c=>c.id===r.id)).filter((x):x is Lesson=>!!x);
+const prerequisites=lesson.data.prerequisites.map(r=>concepts.find(c=>c.id===r.id)).filter((x):x is Lesson=>!!x);
+const siblings=concepts.filter(c=>c.data.category.id===category.id);
+const index=siblings.findIndex(c=>c.id===lesson.id);
+---
+<Base title={lesson.data.title} description={lesson.data.description}>
+  <div class="breadcrumbs"><a href={url('catalog/')}>Explore</a> / <a href={url('catalog/#'+category.id)}>{category.data.title}</a></div>
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar"><p class="eyebrow">TOPICS</p>{categories.map(c=><details open={c.id===category.id}><summary>{c.data.title}</summary>{concepts.filter(l=>l.data.category.id===c.id).map(l=><a href={lessonUrl(l.id)} aria-current={l.id===lesson.id?'page':undefined}>{l.data.title}</a>)}</details>)}</aside>
+    <article data-pagefind-body>
+      <header class="lesson-head"><p class="eyebrow">{category.data.title} / {lesson.data.difficulty} / {lesson.data.estimatedMinutes} MIN</p><h1>{lesson.data.title}</h1><p class="lede">{lesson.data.description}</p>{prerequisites.length>0&&<p>Before you start: {prerequisites.map(p=><a href={lessonUrl(p.id)}>{p.data.title} </a>)}</p>}</header>
+      <div class="mobile-toc"><details><summary>On this page</summary>{headings.filter(h=>h.depth===2).map(h=><a href={'#'+h.slug}>{h.text}</a>)}</details></div>
+      <div class="prose"><Content /></div>
+      <div class="completion" data-pagefind-ignore><button class="primary" id="complete" data-id={lesson.id}>Mark as complete</button><span id="completion-status" role="status"></span></div>
+      {related.length>0&&<section><h2>Related concepts</h2>{related.map(l=><p><a href={lessonUrl(l.id)}>{l.data.title} →</a></p>)}</section>}
+      <nav class="lesson-pagination" aria-label="Adjacent lessons">{index>0&&<a href={lessonUrl(siblings[index-1].id)}>← {siblings[index-1].data.title}</a>}{index<siblings.length-1&&<a href={lessonUrl(siblings[index+1].id)}>{siblings[index+1].data.title} →</a>}</nav>
+    </article>
+    <aside class="toc"><p class="eyebrow">ON THIS PAGE</p>{headings.filter(h=>h.depth===2).map(h=><a href={'#'+h.slug}>{h.text}</a>)}</aside>
+  </div>
+  <script>
+    const button=document.querySelector<HTMLButtonElement>('#complete');
+    const status=document.querySelector('#completion-status');
+    if(button&&status){
+      const key='learn.complete.'+button.dataset.id;let done=false;
+      try{done=localStorage.getItem(key)==='1';}catch{}
+      const draw=()=>{button.textContent=done?'✓ Completed · undo':'Mark as complete';button.setAttribute('aria-pressed',String(done));status.textContent=done?'Lesson completed.':'';};
+      draw();button.addEventListener('click',()=>{done=!done;draw();try{localStorage.setItem(key,done?'1':'0');}catch{status.textContent='Storage unavailable; progress is session-only.';}});
+    }
+  </script>
+</Base>

@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import LessonCard from '../components/LessonCard.astro';
+import { catalog } from '../lib/content';
+const {categories, concepts}=await catalog();
+---
+<Base title="Explore" page="catalog">
+  <section class="page-head"><p class="eyebrow">THE LIBRARY</p><h1>Explore concepts.</h1><p class="lede">Find your next mental model.</p></section>
+  <div class="catalog-filter"><label for="filter">Filter lessons</label><input id="filter" type="search" placeholder="HTTP, patterns, caching…" /></div>
+  {categories.map(c=><section class="section catalog-section" id={c.id}><h2>{c.data.icon} {c.data.title}</h2><p class="muted">{c.data.description}</p><div class="lesson-grid">{concepts.filter(x=>x.data.category.id===c.id).map(lesson=><LessonCard lesson={lesson}/>)}</div>{!concepts.some(x=>x.data.category.id===c.id)&&<p class="muted">Lessons coming soon.</p>}</section>)}
+  <p id="no-results" hidden role="status">No matching lessons.</p>
+  <script>
+    const input=document.querySelector<HTMLInputElement>('#filter');
+    input?.addEventListener('input',()=>{
+      const q=input.value.toLowerCase().trim(); let n=0;
+      document.querySelectorAll<HTMLElement>('.catalog-section').forEach(section=>{
+        let visible=0; section.querySelectorAll<HTMLElement>('.lesson-card').forEach(card=>{const match=(card.textContent+' '+section.querySelector('h2')?.textContent).toLowerCase().includes(q);card.hidden=!match;if(match){visible++;n++;}});
+        section.hidden=!!q&&!visible;
+      });
+      const empty=document.querySelector<HTMLElement>('#no-results'); if(empty)empty.hidden=!q||n>0;
+    });
+  </script>
+</Base>

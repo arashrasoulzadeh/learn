@@ -1,0 +1,149 @@
+---
+title: "The life of an HTTP request"
+description: "Follow a request from a browser through DNS, TCP, TLS, a reverse proxy, application logic and back as an HTTP response."
+category: networking
+difficulty: beginner
+estimatedMinutes: 12
+order: 1
+tags: [http, https, dns, tcp, tls, request, response, networking]
+---
+import RequestLab from '@/components/learning/RequestLab';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## Start with a question
+
+You open an online shop and click a product. In a fraction of a second, your browser displays a price, an image and a description. What happened between the click and the screen update?
+
+A **request** is a message from a client asking a server to perform an operation. A **response** is the server's reply. HTTP defines the semantics of these messages; networking protocols deliver them.
+
+By the end of this lesson, you should be able to trace a request, read its key fields and distinguish network failures from HTTP errors.
+
+## Watch the journey
+
+Choose a scenario, press Play, or move through each step manually. Change the scenario to compare a successful read, a created resource, a missing resource and an unexpected server failure.
+
+<RequestLab client:visible />
+
+<Callout title="A simplified mental model">
+  This lab assumes a fresh HTTPS connection over TCP with HTTP/1.1, a DNS cache miss and an application behind an edge proxy. Real systems may reuse connections, serve cached responses, skip the database, or use HTTP/2 or HTTP/3.
+</Callout>
+
+## 1. Find the destination
+
+The URL identifies the scheme, host, optional port, path and optional query. In `https://shop.example/api/products/42?currency=EUR`, the scheme is HTTPS, the host is `shop.example` and the path is `/api/products/42`. The query is `currency=EUR`. A URL fragment is not sent as part of the HTTP request target.
+
+DNS resolves the hostname to one or more IP addresses. The result can be cached by the browser, operating system or resolver. DNS is not HTTP and does not transmit the URL path.
+
+## 2. Establish a secure connection
+
+For HTTPS over TCP, the client establishes a reliable connection using SYN, SYN-ACK and ACK. TLS then authenticates the server (usually through certificates) and establishes encrypted communication.
+
+The server may negotiate HTTP/2 through TLS. HTTP/3 instead uses QUIC, which integrates TLS over UDP. An existing connection can often be reused, so not every request needs new handshakes.
+
+## 3. Understand the request message
+
+Here is the textual form of an HTTP/1.1 request, before TLS encryption:
+
+```http
+GET /api/products/42 HTTP/1.1
+Host: shop.example
+Accept: application/json
+```
+
+| Part | Purpose |
+| --- | --- |
+| Method | Intended operation, such as GET or POST |
+| Request target | Path and optional query |
+| Headers | Metadata, such as accepted formats or credentials |
+| Body | Optional data, for example JSON in a POST |
+
+HTTP/2 and HTTP/3 use different wire framing while preserving the core HTTP semantics.
+
+### Methods
+
+| Method | Typical use | Safe | Idempotent |
+| --- | --- | --- | --- |
+| GET | Retrieve a representation | Yes | Yes |
+| POST | Submit data or create a resource | No | No |
+| PUT | Replace a resource | No | Yes |
+| PATCH | Partially modify a resource | No | Not guaranteed |
+| DELETE | Remove a resource | No | Yes |
+
+Safe means the client does not request a state change. Idempotent means repeating the same request has the same intended effect, not necessarily the same response.
+
+## 4. Inside the server
+
+A common request path is edge or reverse proxy → application router → middleware → handler → service → optional database/cache. The reverse proxy might terminate TLS, distribute traffic or serve cached content. The application validates data, checks access and applies business rules.
+
+A database read or write is not required for every HTTP request. A static file, cached response or rejected request may never reach the application.
+
+## 5. Read the response
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{"id":42,"name":"Keyboard"}
+```
+
+The status code expresses the outcome, headers provide metadata, and the optional body carries content. HTTP/1.1 responses need a valid framing mechanism, such as Content-Length, chunked transfer encoding or connection close; framing headers are omitted in this illustrative excerpt.
+
+| Family | Meaning | Examples |
+| --- | --- | --- |
+| 1xx | Informational | 100 Continue |
+| 2xx | Successful | 200 OK, 201 Created, 204 No Content |
+| 3xx | Redirection / cache validation | 301, 304 |
+| 4xx | Client error | 400, 401, 403, 404, 429 |
+| 5xx | Server error | 500, 502, 503 |
+
+A 404 is a valid HTTP response, not a failure to connect. A DNS failure or a TLS certificate failure can prevent any HTTP response from arriving.
+
+## 6. Try it in your browser
+
+Open DevTools → Network, reload this page and select a request. Inspect the Headers, Response and Timing tabs. Look for the request URL, method, response status and content type.
+
+From JavaScript, check HTTP status explicitly. The fetch promise does not reject merely because the server returns 404 or 500.
+
+```js
+async function getProduct(id) {
+  const response = await fetch('/api/products/' + encodeURIComponent(id));
+  if (!response.ok) {
+    throw new Error('HTTP ' + response.status);
+  }
+  return response.json();
+}
+```
+
+This is an illustrative client snippet; Learn is a static website and does not host this API.
+
+## Common misconceptions
+
+- DNS resolves names, not URL paths.
+- TCP provides a byte stream, not HTTP semantics.
+- HTTPS is HTTP protected by TLS, not a different set of HTTP methods.
+- A 200 response does not necessarily mean the returned data matches your expectations.
+- Retrying a POST can duplicate side effects unless the API provides suitable idempotency guarantees.
+- Never put secrets in URL query parameters; URLs can appear in logs and history.
+
+## Check your understanding
+
+<Quiz client:visible question="Which layer resolves shop.example to an IP address?" options={['HTTP','DNS','TLS','Application router']} correct={1} explanation="DNS maps names to address records. HTTP uses the connection to exchange application messages." />
+
+<Quiz client:visible question="The server returns 404. What does this tell you?" options={['DNS always failed','The TLS certificate is invalid','An HTTP response was received, but the requested resource was not found or disclosed','No connection was ever established']} correct={2} explanation="404 is an HTTP status code. It differs from a network failure that prevents a response." />
+
+<Quiz client:visible question="Does every HTTPS request require a new TCP handshake?" options={['Yes','No, connections may be reused and HTTP/3 uses QUIC']} correct={1} explanation="Connection reuse avoids repeated setup, and HTTP/3 does not use TCP." />
+
+## Takeaway
+
+Think of an HTTP request as a message carried by a networking stack. DNS finds the destination, a transport and security layer establish communication, HTTP carries the intent, and application logic produces a response.
+
+Next concepts to explore as the library grows: DNS, TCP, TLS, caching, load balancing, HTTP/2 and HTTP/3.
+
+## References
+
+- [MDN: Overview of HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview)
+- [MDN: Using Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
+- [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
+- [RFC 9114: HTTP/3](https://www.rfc-editor.org/rfc/rfc9114)

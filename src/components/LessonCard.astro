@@ -1,0 +1,15 @@
+---
+import { lessonUrl, type Lesson } from '../lib/content';
+const { lesson } = Astro.props as { lesson: Lesson };
+---
+<a class="lesson-card" href={lessonUrl(lesson.id)} data-lesson={lesson.id}>
+  <div class="eyebrow">{lesson.data.difficulty} · {lesson.data.estimatedMinutes} min</div>
+  <h3>{lesson.data.title}</h3>
+  <p>{lesson.data.description}</p>
+  <div class="card-bottom"><span data-progress={lesson.id}>Interactive lesson</span><span aria-hidden="true">↗</span></div>
+</a>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-progress]').forEach(el=>{
+    try { if(localStorage.getItem('learn.complete.'+el.dataset.progress)==='1') el.textContent='✓ Completed'; } catch {}
+  });
+</script>

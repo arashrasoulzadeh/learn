@@ -1,0 +1,35 @@
+---
+import '../styles/global.css';
+import { url } from '../lib/content';
+const { title = 'Learn', description = 'Visual, interactive software engineering.', page = '' } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content={description} />
+  <meta name="theme-color" content="#10141e" />
+  <title>{title === 'Learn' ? 'Learn — Engineering, explained visually' : title + ' | Learn'}</title>
+  <script is:inline>
+    try { document.documentElement.dataset.theme = localStorage.getItem('learn.theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar"><nav class="nav wrap" aria-label="Main navigation">
+    <a class="brand" href={url()}><span class="logo">L<span>.</span></span> learn<span class="brand-tag">/ engineering</span></a>
+    <div class="navlinks"><a href={url('catalog/')} aria-current={page==='catalog'?'page':undefined}>Explore</a><a href={url('search/')} aria-current={page==='search'?'page':undefined}>Search</a><a href="https://github.com/arashrasoulzadeh/learn">GitHub ↗</a><button type="button" id="theme-toggle" class="icon-button" aria-label="Toggle color theme">◐</button></div>
+  </nav></header>
+  <main id="main" class="wrap"><slot /></main>
+  <footer class="wrap footer"><span>LEARN / BUILT FOR THE CURIOUS</span><span>Open source · Learn by seeing.</span></footer>
+  <script>
+    document.querySelector('#theme-toggle')?.addEventListener('click', () => {
+      const root=document.documentElement;
+      const next=root.dataset.theme==='dark'?'light':'dark';
+      root.dataset.theme=next;
+      try { localStorage.setItem('learn.theme',next); } catch {}
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+---
+const { src, title, captions, poster } = Astro.props as {src:string;title:string;captions?:string;poster?:string};
+---
+<figure><video class="video-frame" controls preload="metadata" aria-label={title} poster={poster} playsinline><source src={src} />{captions&&<track kind="captions" src={captions} srclang="en" label="English" default/>}Your browser does not support video.</video><figcaption>{title}</figcaption></figure>

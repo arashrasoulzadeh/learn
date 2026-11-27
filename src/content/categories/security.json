@@ -1,0 +1,6 @@
+{
+  "title": "Security",
+  "description": "Authentication, authorization and secure transport.",
+  "icon": "◈",
+  "order": 8
+}

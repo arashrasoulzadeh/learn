@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import {url} from '../lib/content';
+---
+<Base title="Search" page="search">
+  <section class="page-head"><p class="eyebrow">FULL TEXT SEARCH</p><h1>Find a concept.</h1><p class="lede">Search explanations, examples and lesson titles.</p></section>
+  <link rel="stylesheet" href={url('pagefind/pagefind-ui.css')} />
+  <div id="search"></div>
+  <p id="search-fallback"><a href={url('catalog/')}>Browse the catalog</a> if the search index is unavailable in development.</p>
+  <script is:inline define:vars={{scriptUrl:url('pagefind/pagefind-ui.js'),baseUrl:url()}}>
+    const script=document.createElement('script');script.src=scriptUrl;
+    script.onload=()=>{new window.PagefindUI({element:'#search',baseUrl,showImages:false,showSubResults:true});document.getElementById('search-fallback').hidden=true;};
+    document.head.appendChild(script);
+  </script>
+</Base>
