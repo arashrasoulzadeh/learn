@@ -48,7 +48,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /products/42 HTTP/1.1",
           "output": "Read operation",
-          "result": "API درخواست خواندن را دریافت کرد."
+          "result": "API درخواست خواندن را دریافت کرد.",
+          "explanation": "کاربر صفحهٔ محصول 42 را باز می‌کند؛ هدف GET دریافت اطلاعات است، نه تغییر قیمت یا ساخت محصول."
         },
         {
           "name": "خواندن رکورد",
@@ -62,7 +63,8 @@ const lesson = {
           "input": "SELECT name FROM products WHERE id=42",
           "output": "Keyboard",
           "result": "رکورد موجود است.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "این API فقط نام محصول را از پایگاه داده می‌خواند. استفاده از SELECT یک انتخاب پیاده‌سازی است."
         },
         {
           "name": "بازگشت نمایش منبع",
@@ -76,7 +78,8 @@ const lesson = {
           "input": "HTTP/1.1 200 OK",
           "output": "{\"id\":42,\"name\":\"Keyboard\"}",
           "result": "خواندن موفق بود.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "بدنهٔ JSON به مرورگر برمی‌گردد؛ کلیک مجدد روی نمایش محصول نباید به‌طور معمول محصول تازه‌ای بسازد."
         }
       ]
     },
@@ -96,7 +99,8 @@ const lesson = {
           "packet": "POST",
           "input": "POST /products\n{\"name\":\"Mouse\"}",
           "output": "Create requested",
-          "result": "درخواست ایجاد دریافت شد."
+          "result": "درخواست ایجاد دریافت شد.",
+          "explanation": "فرم ساخت محصول نام Mouse را می‌فرستد. سرور معنای ایجاد را برای این مسیر تعریف کرده است."
         },
         {
           "name": "ساخت رکورد جدید",
@@ -110,7 +114,8 @@ const lesson = {
           "input": "INSERT name=Mouse",
           "output": "Created id=43",
           "result": "رکورد جدید ایجاد شد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "شناسهٔ 43 تولید می‌شود. اگر کلاینت همان POST را دوباره بفرستد، ممکن است شناسهٔ دیگری ایجاد شود."
         },
         {
           "name": "اعلام ایجاد",
@@ -124,7 +129,8 @@ const lesson = {
           "input": "HTTP/1.1 201 Created\nLocation: /products/43",
           "output": "{\"id\":43,\"name\":\"Mouse\"}",
           "result": "محصول ایجاد شد.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "201 و Location آدرس محصول ساخته‌شده را معرفی می‌کنند؛ کلاینت می‌تواند بعداً همان آدرس را بخواند."
         }
       ]
     },
@@ -144,7 +150,8 @@ const lesson = {
           "packet": "PUT",
           "input": "PUT /products/42\n{\"name\":\"Mouse\",\"price\":25}",
           "output": "Replace requested",
-          "result": "جایگزینی کامل خواسته شد."
+          "result": "جایگزینی کامل خواسته شد.",
+          "explanation": "کلاینت نام و قیمت را با هم می‌فرستد تا نمایش کامل محصول 42 جایگزین شود."
         },
         {
           "name": "جایگزینی رکورد",
@@ -158,7 +165,8 @@ const lesson = {
           "input": "old={name:Keyboard,price:50}",
           "output": "new={name:Mouse,price:25}",
           "result": "وضعیت جدید ذخیره شد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "وضعیت نهایی نام Mouse و قیمت 25 است. درخواست یکسانِ بعدی هم همین وضعیت مورد انتظار را ایجاد می‌کند."
         },
         {
           "name": "پاسخ موفق",
@@ -172,7 +180,8 @@ const lesson = {
           "input": "HTTP/1.1 204 No Content",
           "output": "204 No Content",
           "result": "جایگزینی انجام شد.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "204 یعنی عملیات موفق است ولی پاسخ بدنه ندارد. کلاینت نباید منتظر JSON باشد."
         }
       ]
     },
@@ -192,7 +201,8 @@ const lesson = {
           "packet": "PATCH",
           "input": "PATCH /products/42\nContent-Type: application/merge-patch+json\n{\"price\":25}",
           "output": "Patch requested",
-          "result": "فقط تغییر قیمت خواسته شد."
+          "result": "فقط تغییر قیمت خواسته شد.",
+          "explanation": "اگر فقط قیمت تغییر کرده، کلاینت می‌تواند سند تغییر جزئی بفرستد؛ نوع محتوا مشخص می‌کند چگونه تفسیر شود."
         },
         {
           "name": "اعمال تغییر",
@@ -206,7 +216,8 @@ const lesson = {
           "input": "old={name:Keyboard,price:50}",
           "output": "new={name:Keyboard,price:25}",
           "result": "فقط قیمت تغییر کرد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "نام Keyboard دست‌نخورده می‌ماند و فقط قیمت 25 می‌شود. بعضی عملیات PATCH مثل افزایش شمارنده ذاتاً idempotent نیستند."
         },
         {
           "name": "بازگشت نتیجه",
@@ -220,7 +231,8 @@ const lesson = {
           "input": "HTTP/1.1 200 OK",
           "output": "{\"name\":\"Keyboard\",\"price\":25}",
           "result": "تغییر جزئی انجام شد.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "پاسخ نمایش تازه را می‌دهد تا رابط کاربری قیمت درست را نشان دهد."
         }
       ]
     },
@@ -240,7 +252,8 @@ const lesson = {
           "packet": "DEL",
           "input": "DELETE /products/42",
           "output": "Delete requested",
-          "result": "حذف منبع خواسته شد."
+          "result": "حذف منبع خواسته شد.",
+          "explanation": "کاربر حذف محصول 42 را درخواست می‌کند؛ DELETE معنی حذف ارتباط منبع با URI را دارد."
         },
         {
           "name": "حذف در API نمونه",
@@ -254,7 +267,8 @@ const lesson = {
           "input": "DELETE WHERE id=42",
           "output": "Resource removed",
           "result": "منبع حذف شد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "در این فروشگاه رکورد واقعاً حذف می‌شود. تکرار DELETE منبع را دوباره به وجود نمی‌آورد."
         },
         {
           "name": "پاسخ بدون بدنه",
@@ -268,7 +282,76 @@ const lesson = {
           "input": "HTTP/1.1 204 No Content",
           "output": "204 No Content",
           "result": "حذف موفق بود.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "204 پاسخ بدون بدنه است. بار دوم ممکن است 404 بگیریم، با وجود اینکه اثر نهایی همان حذف است."
+        }
+      ]
+    },
+    {
+      "id": "retry-post",
+      "label": "تکرار POST و ایجاد ناخواسته",
+      "example": "POST /products · retry",
+      "edgeCase": "پاسخ اول گم می‌شود، کلاینت POST را تکرار می‌کند.",
+      "steps": [
+        {
+          "name": "ایجاد محصول",
+          "short": "POST",
+          "detail": "سرور POST اول را دریافت می‌کند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "POST",
+          "input": "POST /products {name:Mouse}",
+          "output": "Request received",
+          "result": "درخواست ایجاد شروع شد.",
+          "explanation": "کاربر فقط یک بار روی دکمهٔ ایجاد کلیک کرده است."
+        },
+        {
+          "name": "ثبت ولی پاسخ گم می‌شود",
+          "short": "افت",
+          "detail": "رکورد ایجاد شده ولی پاسخ در مسیر بازگشت نمی‌رسد.",
+          "route": [
+            1,
+            2
+          ],
+          "packet": "INSERT",
+          "input": "Create Mouse",
+          "output": "Created id=43; response lost",
+          "result": "کلاینت نتیجه را نمی‌داند.",
+          "explanation": "ناموفق بودن دریافت پاسخ به معنی ناموفق بودن ذخیره نیست.",
+          "roundTrip": true,
+          "tone": "error"
+        },
+        {
+          "name": "تلاش مجدد بدون کلید یکتایی",
+          "short": "تکرار",
+          "detail": "کلاینت همان POST را دوباره می‌فرستد.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "POST",
+          "input": "POST /products {name:Mouse}",
+          "output": "Second create requested",
+          "result": "سرور ممکن است دوباره ایجاد کند.",
+          "explanation": "POST ذاتاً idempotent نیست؛ کلید idempotency قراردادی در API می‌تواند کمک کند."
+        },
+        {
+          "name": "ایجاد رکورد دوم",
+          "short": "نتیجه",
+          "detail": "در این نمونه سرور درخواست را تکراری تشخیص نمی‌دهد.",
+          "route": [
+            1,
+            2
+          ],
+          "packet": "INSERT",
+          "input": "Create Mouse again",
+          "output": "Created id=44; duplicate product",
+          "result": "دو محصول ناخواسته ساخته شدند.",
+          "explanation": "برای جلوگیری از این وضعیت باید سرور کلید یکتایی و نتیجهٔ قبلی را به‌صورت اتمیک مدیریت کند.",
+          "roundTrip": true,
+          "tone": "error"
         }
       ]
     }

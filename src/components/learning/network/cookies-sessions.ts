@@ -48,7 +48,8 @@ const lesson = {
           "packet": "POST",
           "input": "POST /login\n{credentials: demo}",
           "output": "Credentials verified",
-          "result": "سرور هویت را تأیید کرد."
+          "result": "سرور هویت را تأیید کرد.",
+          "explanation": "کاربر وارد حساب می‌شود. سرور اعتبار اطلاعات را بررسی می‌کند؛ کوکی نشست هنوز وجود ندارد."
         },
         {
           "name": "ساخت نشست",
@@ -62,7 +63,8 @@ const lesson = {
           "input": "sid=opaque-demo",
           "output": "Session user=42 stored",
           "result": "نشست سمت سرور ساخته شد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "سرور شناسهٔ تصادفی می‌سازد و user=42 را در مخزن نشست کنار آن نگه می‌دارد. این داده لازم نیست در مرورگر باشد."
         },
         {
           "name": "تنظیم Cookie",
@@ -75,7 +77,8 @@ const lesson = {
           "packet": "COOKIE",
           "input": "Set-Cookie: sid=opaque-demo; Path=/; Secure; HttpOnly; SameSite=Lax",
           "output": "Cookie stored",
-          "result": "شناسه در مرورگر ذخیره شد."
+          "result": "شناسه در مرورگر ذخیره شد.",
+          "explanation": "Set-Cookie از سرور به مرورگر می‌رسد و مرورگر فقط شناسه را نگه می‌دارد؛ Secure و HttpOnly به محدودیت‌های امنیتی کمک می‌کنند."
         },
         {
           "name": "درخواست بعدی",
@@ -88,7 +91,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /profile\nCookie: sid=opaque-demo",
           "output": "Session lookup requested",
-          "result": "مرورگر دوباره گذرواژه نمی‌فرستد."
+          "result": "مرورگر دوباره گذرواژه نمی‌فرستد.",
+          "explanation": "در درخواست /profile مرورگر شناسه را طبق قواعد کوکی می‌فرستد. گذرواژه دوباره فرستاده نمی‌شود."
         },
         {
           "name": "بازیابی نشست",
@@ -103,7 +107,8 @@ const lesson = {
           "output": "200 OK · user=42",
           "result": "نشست معتبر است.",
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "explanation": "سرور شناسه را در مخزن پیدا می‌کند و کاربر 42 را تشخیص می‌دهد؛ دسترسی همچنان باید جداگانه بررسی شود."
         }
       ]
     },
@@ -123,7 +128,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /profile\nCookie: sid=expired-demo",
           "output": "Lookup requested",
-          "result": "شناسه به سرور رسید."
+          "result": "شناسه به سرور رسید.",
+          "explanation": "مرورگر یک شناسهٔ قدیمی دارد؛ داشتن آن به معنای معتبر بودن نیست."
         },
         {
           "name": "نبود نشست معتبر",
@@ -138,7 +144,8 @@ const lesson = {
           "output": "Session expired",
           "result": "نشست معتبر پیدا نشد.",
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "explanation": "زمان انقضا در مخزن گذشته یا شناسه حذف شده است؛ برنامه نمی‌تواند کاربر را احراز هویت کند."
         },
         {
           "name": "نیاز به ورود مجدد",
@@ -152,9 +159,11 @@ const lesson = {
           "input": "HTTP/1.1 401 Unauthorized\nSet-Cookie: sid=; Max-Age=0; Path=/",
           "output": "401 Unauthorized",
           "result": "کاربر باید دوباره وارد شود.",
-          "tone": "error"
+          "tone": "error",
+          "explanation": "401 در این API یعنی اعتبار لازم موجود نیست؛ کوکی پاک می‌شود و ورود مجدد لازم است."
         }
-      ]
+      ],
+      "edgeCase": "شناسه در مرورگر وجود دارد اما نشست منقضی شده."
     },
     {
       "id": "logout",
@@ -172,7 +181,8 @@ const lesson = {
           "packet": "POST",
           "input": "POST /logout\nCookie: sid=opaque-demo",
           "output": "Logout requested",
-          "result": "سرور درخواست خروج را گرفت."
+          "result": "سرور درخواست خروج را گرفت.",
+          "explanation": "کاربر خروج را انتخاب می‌کند؛ سرور باید درخواست خروج را به نشست معتبر مرتبط کند."
         },
         {
           "name": "ابطال سمت سرور",
@@ -186,7 +196,8 @@ const lesson = {
           "input": "DELETE session opaque-demo",
           "output": "Session revoked",
           "result": "نشست دیگر معتبر نیست.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "حذف سمت سرور جلوی استفادهٔ مجدد از نسخهٔ کپی‌شدهٔ شناسه را می‌گیرد."
         },
         {
           "name": "پاک کردن Cookie",
@@ -200,7 +211,62 @@ const lesson = {
           "input": "Set-Cookie: sid=; Max-Age=0; Path=/",
           "output": "Session revoked; cookie cleared",
           "result": "خروج انجام شد.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "مرورگر با Max-Age=0 کوکی را حذف می‌کند. فقط پاک کردن کوکی بدون ابطال نشست کافی نیست."
+        }
+      ],
+      "edgeCase": "ابطال نشست و پاک شدن کوکی."
+    },
+    {
+      "id": "stolen-revoked",
+      "label": "استفاده از شناسه پس از ابطال",
+      "example": "Cookie: sid=revoked-demo",
+      "edgeCase": "نسخهٔ دیگری از کوکی پس از خروج هنوز وجود دارد.",
+      "steps": [
+        {
+          "name": "ارسال شناسهٔ قدیمی",
+          "short": "درخواست",
+          "detail": "یک کلاینت نمونه نسخه‌ای از شناسهٔ قبلی را می‌فرستد.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "GET",
+          "input": "GET /profile\nCookie: sid=revoked-demo",
+          "output": "Session lookup",
+          "result": "شناسه به سرور رسید.",
+          "explanation": "صرف وجود مقدار کوکی به معنی مجوز دسترسی نیست."
+        },
+        {
+          "name": "بررسی ابطال",
+          "short": "نشست",
+          "detail": "مخزن سرور شناسهٔ ابطال‌شده را معتبر نمی‌داند.",
+          "route": [
+            1,
+            2
+          ],
+          "packet": "CHECK",
+          "input": "sid=revoked-demo",
+          "output": "Session revoked",
+          "result": "نشست رد می‌شود.",
+          "explanation": "ابطال سمت سرور جلوی استفادهٔ مجدد از شناسه را می‌گیرد.",
+          "roundTrip": true,
+          "tone": "error"
+        },
+        {
+          "name": "رد دسترسی",
+          "short": "پاسخ",
+          "detail": "API پاسخ 401 می‌دهد.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "401",
+          "input": "HTTP/1.1 401 Unauthorized",
+          "output": "401 Unauthorized",
+          "result": "دادهٔ خصوصی ارسال نشد.",
+          "explanation": "کوکی‌های نشست باید محرمانه بمانند؛ ابطال و انقضای سمت سرور هم ضروری‌اند.",
+          "tone": "error"
         }
       ]
     }

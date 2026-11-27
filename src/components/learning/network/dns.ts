@@ -66,7 +66,8 @@ const lesson = {
           "packet": "A?",
           "input": "QNAME=www.shop.example\nQTYPE=A",
           "output": "Cache MISS",
-          "result": "حل‌کننده پاسخ ذخیره‌شده ندارد."
+          "result": "حل‌کننده پاسخ ذخیره‌شده ندارد.",
+          "explanation": "مثل وقتی آدرس یک فروشگاه را از دفتر راهنما می‌خواهیم، مرورگر ابتدا نام www.shop.example را می‌دهد، نه /products/42. حل‌کننده در کش چیزی ندارد."
         },
         {
           "name": "پرسش از ریشه",
@@ -80,7 +81,8 @@ const lesson = {
           "input": "QNAME=www.shop.example",
           "output": "Referral: .example",
           "result": "سرور پسوند پیدا می‌شود.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "ریشه در نقش راهنما می‌گوید برای پسوند example باید سراغ کدام مرجع برویم؛ خود IP فروشگاه هنوز معلوم نیست."
         },
         {
           "name": "پرسش از سرور پسوند",
@@ -94,7 +96,8 @@ const lesson = {
           "input": "QNAME=www.shop.example",
           "output": "NS ns.shop.example",
           "result": "سرور معتبر شناخته شد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "سرور پسوند نام مسئول shop.example را معرفی می‌کند. حل‌کننده اکنون می‌داند از کجا پاسخ دقیق بگیرد."
         },
         {
           "name": "دریافت رکورد معتبر",
@@ -108,7 +111,8 @@ const lesson = {
           "input": "QTYPE=A",
           "output": "A 192.0.2.10\nTTL 300",
           "result": "نشانی IP دریافت شد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "رکورد A برابر 192.0.2.10 است. TTL=300 اجازه می‌دهد این نتیجه تا ۳۰۰ ثانیه کش شود."
         },
         {
           "name": "بازگشت IP به مرورگر",
@@ -122,7 +126,8 @@ const lesson = {
           "input": "A 192.0.2.10",
           "output": "192.0.2.10",
           "result": "مرورگر می‌تواند اتصال را شروع کند.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "پاسخ به همان مرورگری می‌رسد که سؤال را پرسیده بود. حالا مرورگر IP مقصد را دارد و می‌تواند TCP را آغاز کند."
         }
       ]
     },
@@ -142,7 +147,8 @@ const lesson = {
           "packet": "A?",
           "input": "QNAME=www.shop.example",
           "output": "Cache HIT",
-          "result": "رکورد در کش موجود است."
+          "result": "رکورد در کش موجود است.",
+          "explanation": "این بار سؤال همان سؤال قبلی است. حل‌کننده به‌جای رفتن سراغ چند سرور، رکورد موجود را پیدا می‌کند."
         },
         {
           "name": "بررسی TTL",
@@ -154,7 +160,8 @@ const lesson = {
           "packet": "TTL",
           "input": "TTL remaining: 180",
           "output": "Valid cached answer",
-          "result": "نیازی به پرسش از ریشه نیست."
+          "result": "نیازی به پرسش از ریشه نیست.",
+          "explanation": "۱۸۰ ثانیه از اعتبار کش باقی مانده؛ بنابراین پاسخ قدیمی هنوز معتبر است. اگر TTL صفر شود باید دوباره حل نام کنیم."
         },
         {
           "name": "پاسخ مستقیم",
@@ -168,9 +175,11 @@ const lesson = {
           "input": "Cached A record",
           "output": "192.0.2.10",
           "result": "حل نام با رفت‌وبرگشت کمتر تمام شد.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "این پاسخ همان IP را دارد، اما فقط یک رفت‌وبرگشت میان کلاینت و حل‌کننده لازم بوده است."
         }
-      ]
+      ],
+      "edgeCase": "رکورد معتبر در کش؛ مسیر کوتاه‌تر."
     },
     {
       "id": "missing",
@@ -188,7 +197,8 @@ const lesson = {
           "packet": "A?",
           "input": "QNAME=missing.shop.example",
           "output": "Cache MISS",
-          "result": "حل‌کننده باید از مرجع بپرسد."
+          "result": "حل‌کننده باید از مرجع بپرسد.",
+          "explanation": "اگر کاربر نام اشتباهی وارد کند، حل‌کننده هنوز باید از مرجع معتبر دربارهٔ همان نام بپرسد."
         },
         {
           "name": "پاسخ منفی سرور معتبر",
@@ -203,7 +213,8 @@ const lesson = {
           "output": "RCODE=NXDOMAIN",
           "result": "نام موجود نیست.",
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "explanation": "NXDOMAIN یعنی خود نام وجود ندارد؛ با NOERROR همراه پاسخ خالی (رکورد نوع A موجود نیست) فرق دارد."
         },
         {
           "name": "اعلام خطا",
@@ -217,7 +228,61 @@ const lesson = {
           "input": "RCODE=3",
           "output": "NXDOMAIN",
           "result": "مرورگر IP دریافت نکرد.",
-          "tone": "error"
+          "tone": "error",
+          "explanation": "بدون IP مقصد، مرحلهٔ اتصال HTTP شروع نمی‌شود. برنامه باید خطای حل نام را نمایش دهد."
+        }
+      ],
+      "edgeCase": "نام ناموجود و پاسخ منفی NXDOMAIN."
+    },
+    {
+      "id": "expired",
+      "label": "انقضای TTL و تغییر IP",
+      "example": "TTL=0 → new A record",
+      "edgeCase": "رکورد کش منقضی شده و نشانی سرور تغییر کرده است.",
+      "steps": [
+        {
+          "name": "رکورد منقضی شده",
+          "short": "کش",
+          "detail": "حل‌کننده رکورد قدیمی را دیگر معتبر نمی‌داند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "TTL",
+          "input": "A 192.0.2.10\nTTL=0",
+          "output": "Cache expired",
+          "result": "باید رکورد تازه دریافت شود.",
+          "explanation": "اگر آدرس فروشگاه عوض شود، نباید کش منقضی‌شده را به‌عنوان پاسخ معتبر استفاده کرد."
+        },
+        {
+          "name": "پرسش دوباره از مرجع",
+          "short": "مرجع",
+          "detail": "مسیر سرور معتبر در کش موجود است و حل‌کننده رکورد جدید را می‌گیرد.",
+          "route": [
+            1,
+            4
+          ],
+          "packet": "A?",
+          "input": "QNAME=www.shop.example",
+          "output": "A 192.0.2.11 TTL=300",
+          "result": "IP جدید پیدا شد.",
+          "explanation": "مرجع معتبر اکنون .11 را برمی‌گرداند؛ نیازی نیست حتماً از ریشه شروع کنیم.",
+          "roundTrip": true
+        },
+        {
+          "name": "تحویل نشانی تازه",
+          "short": "پاسخ",
+          "detail": "کلاینت IP جدید را دریافت می‌کند.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "IP",
+          "input": "A 192.0.2.11",
+          "output": "192.0.2.11",
+          "result": "کش با پاسخ جدید به‌روز شد.",
+          "explanation": "اتصال تازه باید به IP جدید برود؛ اتصال قبلی لزوماً خودکار جابه‌جا نمی‌شود.",
+          "tone": "success"
         }
       ]
     }

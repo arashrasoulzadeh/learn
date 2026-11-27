@@ -56,7 +56,8 @@ const lesson = {
           "packet": "TCP",
           "input": "src=192.0.2.20:51514\ndst=198.51.100.10:443",
           "output": "Destination selected",
-          "result": "آدرس مقصد مشخص شد."
+          "result": "آدرس مقصد مشخص شد.",
+          "explanation": "IP مانند آدرس ساختمان و پورت مانند شمارهٔ واحد است. کلاینت نمونه از پورت موقت 51514 به پورت 443 مقصد می‌رود."
         },
         {
           "name": "عبور از مسیریاب",
@@ -69,7 +70,8 @@ const lesson = {
           "packet": "IP",
           "input": "dst IP=198.51.100.10",
           "output": "Next hop selected",
-          "result": "بسته به مسیر مناسب می‌رود."
+          "result": "بسته به مسیر مناسب می‌رود.",
+          "explanation": "مسیریاب مانند چهارراه عمل می‌کند: با دیدن IP مقصد تصمیم می‌گیرد بسته را به کدام گام بعد بفرستد، نه اینکه کدام API اجرا شود."
         },
         {
           "name": "رسیدن به میزبان",
@@ -82,7 +84,8 @@ const lesson = {
           "packet": "TCP",
           "input": "protocol=TCP\ndst port=443",
           "output": "TCP demultiplexing",
-          "result": "TCP مقصد پورت را بررسی می‌کند."
+          "result": "TCP مقصد پورت را بررسی می‌کند.",
+          "explanation": "پس از رسیدن به میزبان، پروتکل TCP و پورت 443 تعیین می‌کنند کدام سوکت باید پیام را دریافت کند."
         },
         {
           "name": "تحویل به سرویس",
@@ -96,7 +99,8 @@ const lesson = {
           "input": "TCP dst=443",
           "output": "LISTEN :443",
           "result": "سرویس HTTPS در دسترس است.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "برنامه روی 443 گوش می‌دهد. همان IP می‌تواند هم‌زمان سرویس دیگری مثل 8080 هم داشته باشد."
         }
       ]
     },
@@ -116,7 +120,8 @@ const lesson = {
           "packet": "8080",
           "input": "TCP SYN dst=8080",
           "output": "Packet forwarded",
-          "result": "مسیریاب IP را بررسی کرد."
+          "result": "مسیریاب IP را بررسی کرد.",
+          "explanation": "این بار آدرس ساختمان درست است اما شمارهٔ واحد 8080 انتخاب شده است."
         },
         {
           "name": "بررسی پورت مقصد",
@@ -129,7 +134,8 @@ const lesson = {
           "packet": "SYN",
           "input": "dst port=8080",
           "output": "No TCP listener",
-          "result": "پورت باز نیست."
+          "result": "پورت باز نیست.",
+          "explanation": "در میزبان مقصد هیچ برنامه‌ای روی 8080 گوش نمی‌دهد؛ بنابراین بسته به برنامه تحویل نمی‌شود."
         },
         {
           "name": "رد اتصال TCP",
@@ -144,6 +150,58 @@ const lesson = {
           "input": "TCP RST, ACK",
           "output": "Connection refused",
           "result": "دسترسی به IP با دسترسی به سرویس یکی نیست.",
+          "tone": "error",
+          "explanation": "RST به کلاینت خبر می‌دهد اتصال پذیرفته نشده است. اگر فایروال بی‌صدا بسته را حذف کند، به‌جای رد فوری، timeout می‌بینیم."
+        }
+      ],
+      "edgeCase": "میزبان در دسترس است ولی برنامه روی پورت مقصد گوش نمی‌دهد."
+    },
+    {
+      "id": "filtered",
+      "label": "فایروال با حذف بی‌صدا",
+      "example": "TCP SYN → DROP",
+      "edgeCase": "فایروال بسته را حذف می‌کند و پاسخ RST نمی‌رسد.",
+      "steps": [
+        {
+          "name": "ارسال SYN",
+          "short": "درخواست",
+          "detail": "کلاینت برای پورت 443 درخواست اتصال می‌فرستد.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "SYN",
+          "input": "dst=198.51.100.10:443",
+          "output": "Firewall checks packet",
+          "result": "بسته به نقطهٔ فیلتر رسید.",
+          "explanation": "در این مثال فایروال در مسیر مسیریاب قرار دارد."
+        },
+        {
+          "name": "حذف بی‌صدا",
+          "short": "افت",
+          "detail": "قانون فایروال بسته را بدون پاسخ حذف می‌کند.",
+          "route": [
+            1
+          ],
+          "packet": "DROP",
+          "input": "Rule: DROP TCP :443",
+          "output": "No response",
+          "result": "پیام به میزبان مقصد نرسید.",
+          "explanation": "برخلاف پورت بسته که ممکن است RST دهد، اینجا هیچ پاسخ فوری وجود ندارد.",
+          "tone": "error"
+        },
+        {
+          "name": "پایان مهلت اتصال",
+          "short": "خطا",
+          "detail": "بعد از تلاش‌های مجدد و پایان مهلت، برنامه خطای timeout می‌بیند.",
+          "route": [
+            0
+          ],
+          "packet": "TIME",
+          "input": "No SYN-ACK after retries",
+          "output": "Connection timeout",
+          "result": "علت دقیق از timeout به‌تنهایی معلوم نیست.",
+          "explanation": "timeout می‌تواند فیلتر، خرابی مسیر یا مشکل دیگری باشد؛ با Connection refused فرق دارد.",
           "tone": "error"
         }
       ]

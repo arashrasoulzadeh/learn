@@ -48,7 +48,8 @@ const lesson = {
           "packet": "POST",
           "input": "POST /upload HTTP/1.1\nExpect: 100-continue",
           "output": "Headers received",
-          "result": "سرور می‌تواند پذیرش اولیه را اعلام کند."
+          "result": "سرور می‌تواند پذیرش اولیه را اعلام کند.",
+          "explanation": "برای یک فایل بزرگ، کلاینت اول سرآیندها را می‌فرستد تا در صورت رد شدن درخواست، حجم زیادی بی‌جهت ارسال نکند."
         },
         {
           "name": "پاسخ اطلاعاتی",
@@ -61,7 +62,8 @@ const lesson = {
           "packet": "100",
           "input": "HTTP/1.1 100 Continue",
           "output": "Send request body",
-          "result": "کلاینت هنوز منتظر پاسخ نهایی است."
+          "result": "کلاینت هنوز منتظر پاسخ نهایی است.",
+          "explanation": "100 یعنی فعلاً می‌توان بدنه را فرستاد؛ هنوز نتیجهٔ نهایی آپلود مشخص نیست."
         },
         {
           "name": "ارسال بدنه و پاسخ نهایی",
@@ -76,9 +78,11 @@ const lesson = {
           "output": "200 OK",
           "result": "پاسخ نهایی از پاسخ اطلاعاتی جداست.",
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "explanation": "پس از ارسال بدنه و پردازش، 200 نتیجهٔ نهایی است. این دو پاسخ معنای متفاوتی دارند."
         }
-      ]
+      ],
+      "edgeCase": "پاسخ میانی 100 پیش از پاسخ نهایی."
     },
     {
       "id": "ok",
@@ -96,7 +100,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /products/42",
           "output": "Request accepted",
-          "result": "درخواست به سرور رسید."
+          "result": "درخواست به سرور رسید.",
+          "explanation": "درخواست خواندن محصول 42 نمونه‌ای از عملیات عادی است."
         },
         {
           "name": "پردازش موفق",
@@ -110,7 +115,8 @@ const lesson = {
           "input": "id=42",
           "output": "Product found",
           "result": "منبع موجود است.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "سرور داخلی رکورد محصول را پیدا می‌کند؛ حالا سرور وب می‌تواند پاسخ مناسب بسازد."
         },
         {
           "name": "پاسخ ۲۰۰",
@@ -124,7 +130,8 @@ const lesson = {
           "input": "HTTP/1.1 200 OK",
           "output": "200 OK",
           "result": "درخواست موفق است.",
-          "tone": "success"
+          "tone": "success",
+          "explanation": "200 یعنی عملیات طبق معنای GET موفق بوده است؛ محتوا می‌تواند JSON محصول باشد."
         }
       ]
     },
@@ -144,7 +151,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /old",
           "output": "Old resource URL",
-          "result": "سرور آدرس جدید را می‌شناسد."
+          "result": "سرور آدرس جدید را می‌شناسد.",
+          "explanation": "فرض کنید مسیر /old بعد از تغییر سایت دیگر آدرس اصلی نباشد."
         },
         {
           "name": "بازگشت Location",
@@ -157,7 +165,8 @@ const lesson = {
           "packet": "301",
           "input": "HTTP/1.1 301 Moved Permanently\nLocation: /new",
           "output": "Redirect to /new",
-          "result": "این پاسخ مسیر جدید را معرفی می‌کند."
+          "result": "این پاسخ مسیر جدید را معرفی می‌کند.",
+          "explanation": "سرور با Location: /new نشانی جدید را معرفی می‌کند. 301 یعنی انتقال دائمی."
         },
         {
           "name": "دنبال کردن تغییر مسیر",
@@ -172,9 +181,11 @@ const lesson = {
           "output": "200 OK after redirect",
           "result": "درخواست دوم به مقصد جدید رسید.",
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "explanation": "مرورگر درخواست تازه‌ای به /new می‌فرستد؛ 200 حاصل درخواست دوم است، نه تغییر وضعیت پاسخ 301."
         }
-      ]
+      ],
+      "edgeCase": "دریافت 301 و ایجاد درخواست تازه."
     },
     {
       "id": "missing",
@@ -192,7 +203,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /products/999",
           "output": "Request received",
-          "result": "درخواست از نظر قالب معتبر است."
+          "result": "درخواست از نظر قالب معتبر است.",
+          "explanation": "URL محصول 999 قالب درستی دارد اما چنین محصولی در فروشگاه وجود ندارد."
         },
         {
           "name": "بررسی وجود منبع",
@@ -206,7 +218,8 @@ const lesson = {
           "input": "id=999",
           "output": "No matching resource",
           "result": "منبع پیدا نشد.",
-          "roundTrip": true
+          "roundTrip": true,
+          "explanation": "جست‌وجو در سرویس داخلی نتیجه ندارد. این با قطع شبکه یا خرابی سرور فرق می‌کند."
         },
         {
           "name": "پاسخ خطای درخواست",
@@ -220,9 +233,11 @@ const lesson = {
           "input": "HTTP/1.1 404 Not Found",
           "output": "404 Not Found",
           "result": "کلاینت باید وضعیت را مدیریت کند.",
-          "tone": "error"
+          "tone": "error",
+          "explanation": "404 یک پاسخ واقعی HTTP است؛ رابط کاربری می‌تواند پیام «محصول پیدا نشد» بدهد."
         }
-      ]
+      ],
+      "edgeCase": "منبع ناموجود."
     },
     {
       "id": "server-error",
@@ -240,7 +255,8 @@ const lesson = {
           "packet": "GET",
           "input": "GET /products/42",
           "output": "Request accepted",
-          "result": "درخواست به سرور رسید."
+          "result": "درخواست به سرور رسید.",
+          "explanation": "درخواست محصول 42 معتبر است؛ خطا هنوز معلوم نیست."
         },
         {
           "name": "خرابی پیش‌بینی‌نشده",
@@ -255,7 +271,8 @@ const lesson = {
           "output": "Unexpected exception",
           "result": "سرور نتوانست عملیات را انجام دهد.",
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "explanation": "مثلاً پایگاه داده هنگام خواندن رکورد exception می‌دهد. کلاینت علت داخلی را نباید مستقیماً دریافت کند."
         },
         {
           "name": "پاسخ خطای سرور",
@@ -269,7 +286,62 @@ const lesson = {
           "input": "HTTP/1.1 500 Internal Server Error",
           "output": "500 Internal Server Error",
           "result": "درخواست ناموفق است.",
+          "tone": "error",
+          "explanation": "500 خطای داخلی نامنتظره را نشان می‌دهد؛ جزئیات فنی در لاگ سرور ثبت می‌شوند، نه پاسخ عمومی."
+        }
+      ],
+      "edgeCase": "خرابی داخلی هنگام پردازش."
+    },
+    {
+      "id": "limited",
+      "label": "۴۲۹ · محدودیت نرخ",
+      "example": "429 Too Many Requests",
+      "edgeCase": "تعداد درخواست‌ها بیش از ظرفیت مجاز کاربر است.",
+      "steps": [
+        {
+          "name": "درخواست‌های پیاپی",
+          "short": "درخواست",
+          "detail": "کلاینت چند بار پشت سر هم endpoint را فراخوانی می‌کند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "GET",
+          "input": "GET /products",
+          "output": "Rate limit reached",
+          "result": "سهمیهٔ درخواست تمام شده.",
+          "explanation": "سرور ممکن است به ازای کاربر یا کلید API محدودیت تعیین کند."
+        },
+        {
+          "name": "پاسخ محدودیت",
+          "short": "۴۲۹",
+          "detail": "سرور کد 429 و در این نمونه Retry-After را می‌فرستد.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "429",
+          "input": "HTTP/1.1 429 Too Many Requests\nRetry-After: 30",
+          "output": "Retry after 30 seconds",
+          "result": "درخواست موقتاً رد شده.",
+          "explanation": "کلاینت نباید حلقهٔ retry سریع بسازد؛ باید زمان انتظار را رعایت کند.",
           "tone": "error"
+        },
+        {
+          "name": "انتظار و تلاش بعدی",
+          "short": "نتیجه",
+          "detail": "پس از ۳۰ ثانیه در این نمونه سهمیه دوباره در دسترس است.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "GET",
+          "input": "Retry after wait",
+          "output": "200 OK after wait",
+          "result": "تلاش مجدد با فاصله موفق شد.",
+          "explanation": "Retry-After راهنماست؛ موفقیت بعدی تضمین‌شده نیست.",
+          "roundTrip": true,
+          "tone": "success"
         }
       ]
     }
