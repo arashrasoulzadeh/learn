@@ -43,7 +43,7 @@ for(const [,component] of lessons){
  if(!labFile.includes('export function '+component+'('))failures.push(component+': missing export');
 }
 for(const token of [
- 'GET /api/orders','Physical capacity first','Primary →','CPU 96%','/ready 503',
+ 'GET /api/orders','Physical capacity first','Replication Log','lag growing +4/s','CPU 96%','/ready 503',
  '10.0.0.12:443','POOL FULL','OLD WRITER FENCED','route=app1'
 ]){
  if(!labFile.includes(token))failures.push('ServerLabs.tsx missing concrete teaching token: '+token);
