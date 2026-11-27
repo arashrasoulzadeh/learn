@@ -37,6 +37,10 @@ for(const lesson of curriculum){
         await expect(lab.locator('.request-counter')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR')+' از '+count.toLocaleString('fa-IR'));
         await expect(lab.locator('.request-stage h2')).not.toBeEmpty();
         await expect(lab.locator('.stage-explanation p')).not.toBeEmpty();
+        const state=lab.locator('.protocol-state[data-protocol="'+lesson.slug+'"]');
+        await expect(state.locator('.state-cell')).toHaveCount(3);
+        await expect(state.locator('.state-step')).toHaveText('مرحلهٔ '+(i+1).toLocaleString('fa-IR'));
+        for(const value of await state.locator('.state-value').all())await expect(value).not.toBeEmpty();
         await expect(lab.locator('.stage-route')).toBeVisible();
         const lines=diagram.locator('[data-visible-flow]');
         for(const line of await lines.all()){
@@ -98,3 +102,29 @@ test('level-one picker lists all ten lessons in order and navigates to DNS',asyn
   await page.locator('#lesson-picker summary').click();
   await expect(links.nth(1)).toHaveAttribute('aria-current','page');
 });
+
+
+const tailoredCases=[
+  ['dns','expired',2,'192.0.2.11'],
+  ['ip-port','filtered',2,'TIMEOUT'],
+  ['tcp','duplicate',2,'Duplicate discarded'],
+  ['udp','duplicate',1,'×2'],
+  ['tls-https','expired',1,'Expired'],
+  ['http-methods','retry-post',3,'44 · Mouse'],
+  ['http-status-codes','limited',1,'429'],
+  ['cookies-sessions','logout',1,'Revoked'],
+  ['websocket','disconnect',2,'OPEN']
+] as const;
+for(const [slug,scenario,stage,expected] of tailoredCases){
+  test(slug+' — tailored protocol state reflects the selected edge case',async({page})=>{
+    await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+    await page.goto('/learn/concepts/networking/'+slug+'/',{waitUntil:'domcontentloaded'});
+    const lab=page.locator('[data-lesson="'+slug+'"]');
+    await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+    await lab.getByLabel('سناریو').selectOption(scenario);
+    await lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button').nth(stage).click();
+    await expect(lab.locator('.protocol-state')).toContainText(expected);
+    await lab.locator('.protocol-state').scrollIntoViewIfNeeded();
+    await page.screenshot({path:'test-results/networking/'+slug+'-state.png',animations:'disabled'});
+  });
+}

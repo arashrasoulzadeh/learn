@@ -14,7 +14,7 @@ function NodeIcon({icon}:{icon:string}){
 }
 
 export function DiagramNode({node,active,accent,children}:{node:FlowNode;active:boolean;accent:string;children?:ReactNode}){
-  return <g data-node={node.icon} transform={'translate('+node.x+' '+node.y+')'} data-active={active} style={{color:active?accent:'var(--muted)'}}>{active&&<rect x="-65" y="-48" width="130" height="96" rx="20" fill={accent} opacity=".09"/>}<rect x="-59" y="-42" width="118" height="84" rx="15" fill={active?'var(--panel2)':'var(--bg)'} stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -12)">{children??<NodeIcon icon={node.icon}/>}</g><text y="23" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="14" direction="rtl" fontWeight="600">{node.label}</text><text y="62" textAnchor="middle" fill="var(--muted)" fontSize="12" direction="rtl">{node.sub}</text></g>;
+  return <g data-node={node.icon} transform={'translate('+node.x+' '+node.y+')'} data-active={active} style={{color:active?accent:'var(--muted)'}}>{active&&<rect x="-65" y="-48" width="130" height="96" rx="20" fill={accent} opacity=".09"/>}<rect x="-59" y="-42" width="118" height="84" rx="15" fill={active?'var(--panel2)':'var(--bg)'} stroke={active?accent:'var(--line)'} strokeWidth={active?2:1.2}/><g transform="translate(0 -21)">{children??<NodeIcon icon={node.icon}/>}</g><text y="12" textAnchor="middle" fill={active?accent:'var(--ink)'} fontSize="14" direction="rtl" fontWeight="600">{node.label}</text><text y="30" textAnchor="middle" fill="var(--muted)" fontSize="10.5" direction="rtl">{node.sub}</text></g>;
 }
 type Point={x:number;y:number};
 function point(p:Point){return Number(p.x.toFixed(2))+' '+Number(p.y.toFixed(2));}
@@ -29,7 +29,7 @@ function laneSegment(a:FlowNode,b:FlowNode,offset=0){
 }
 function lane(route:readonly FlowNode[],offset:number){return route.slice(1).map((b,i)=>laneSegment(route[i],b,offset));}
 function motionTrack(segments:ReturnType<typeof lane>){
-  return segments.map((s,i)=>(i?'L ':'M ')+point(s.from)+' L '+point(s.to)).join(' ');
+  return segments.map(s=>'M '+point(s.from)+' L '+point(s.to)).join(' ');
 }
 export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,packetLabel,finalRoute}:{route:readonly FlowNode[];playing:boolean;speed:number;accent:string;animationKey:string;returnRoute?:readonly FlowNode[];packetLabel?:string;finalRoute?:readonly FlowNode[]}){
   if(route.length<2)return null;
@@ -40,7 +40,7 @@ export function FlowPacket({route,playing,speed,accent,animationKey,returnRoute,
   const track=motionTrack(segments);
   const duration=(final.length?5.4:backward.length?4.8:3.2)/speed;
   const first=forward[0],vertical=Math.abs(first.from.y-first.to.y)>Math.abs(first.from.x-first.to.x);
-  const labelX=first.mid.x+(vertical?35:0),labelY=first.mid.y-(vertical?0:24);
+  const labelX=first.mid.x+(vertical?(first.mid.x>180?-39:39):0),labelY=first.mid.y-(vertical?0:24);
   return <g>
     <path data-flow-path d={centerTrack(route)} fill="none" stroke="none"/>
     {[...forward.map(s=>({s,color:accent,kind:'forward'})),...backward.map(s=>({s,color:'var(--blue)',kind:'return'}))].map(({s,color,kind},i)=><g key={i} data-lane={kind}>

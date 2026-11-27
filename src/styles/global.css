@@ -193,3 +193,30 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .flow-diagram [data-active]{transition:color .25s ease}
 .flow-diagram [data-active] rect{transition:fill .25s ease,stroke .25s ease}
 @media(prefers-reduced-motion:reduce){.request-packet-motion{display:none!important}.flow-diagram [data-active],.flow-diagram [data-active] rect{transition:none!important}}
+
+/* Hand-tailored protocol state inspectors; keep wire values LTR. */
+.protocol-state{background:var(--panel);border:1px solid var(--line);border-radius:var(--lab-radius);padding:13px 15px;min-width:0;flex:none}
+.protocol-state>header{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:600;margin-bottom:10px}
+.state-step{color:var(--muted);font-size:11px;font-weight:400;white-space:nowrap}
+.state-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.state-cell{display:flex;flex-direction:column;gap:6px;min-width:0;padding:9px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.state-label{font-size:11px;color:var(--muted);line-height:1.6}
+.state-value{font:600 11px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;min-width:0;color:var(--ink);text-align:left;unicode-bidi:isolate}
+.protocol-state[data-tone=error] .state-cell:last-child .state-value{color:var(--danger)}
+.protocol-state[data-tone=success] .state-cell:last-child .state-value{color:var(--accent)}
+.protocol-state>p{color:var(--muted);font-size:12px;line-height:1.9;margin:10px 0 0}
+.state-token-list,.state-byte-strip,.state-family-list{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.state-token-list>span,.state-byte-strip>span,.state-family-list>span{padding:2px 5px;border:1px solid var(--line);border-radius:5px;font-size:10px;color:var(--muted)}
+.state-token-list>span,.state-byte-strip>span[data-received=true],.state-family-list>span[data-current=true]{border-color:var(--accent);color:var(--accent);background:#79e3c113}
+.state-token-list>span[data-repeat=true]{border-color:var(--danger);color:var(--danger);background:#ff989818}
+.state-record-list{display:grid}
+.state-byte-strip>b{font-weight:500;font-size:10px;color:var(--accent)}
+.state-family-list{margin-top:5px}
+.protocol-state[data-protocol=http-status-codes] .state-cell:first-child{grid-column:span 3}
+.protocol-state[data-protocol=http-status-codes] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+.protocol-state[data-protocol=http-status-codes] .state-cell:first-child{grid-column:1/-1}
+.protocol-state[data-protocol=cookies-sessions] .state-cells,.protocol-state[data-protocol=http-methods] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+.protocol-state[data-protocol=cookies-sessions] .state-cell:last-child,.protocol-state[data-protocol=http-methods] .state-cell:last-child{grid-column:1/-1}
+.protocol-state[data-protocol=tcp] .state-cells,.protocol-state[data-protocol=dns] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+.protocol-state[data-protocol=tcp] .state-cell:first-child,.protocol-state[data-protocol=dns] .state-cell:first-child{grid-column:1/-1}
+@media(max-width:600px){.protocol-state{padding:12px}.state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}.state-cell:last-child{grid-column:1/-1}}

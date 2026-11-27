@@ -202,3 +202,21 @@ test('HTTP edge case menu selects conflict and shows a concrete explanation',asy
   await page.keyboard.press('Escape');
   await expect(lab.getByRole('dialog')).not.toBeVisible();
 });
+
+
+test('HTTP tailored state follows connection and response lifecycle',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  const state=lab.locator('.protocol-state');
+  await expect(state).toContainText('Not sent');
+  const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
+  await steps.nth(2).click();
+  await expect(state).toContainText('TCP established');
+  await steps.nth(4).click();
+  await expect(state).toContainText('At edge proxy');
+  await steps.nth(7).click();
+  await expect(state).toContainText('200 OK');
+  await expect(state).toHaveAttribute('data-tone','success');
+});

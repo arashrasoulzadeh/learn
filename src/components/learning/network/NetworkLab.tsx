@@ -4,6 +4,7 @@ import {FlowDiagram,type FlowNode} from '../FlowDiagram';
 import {ProtocolExchange} from '../RequestDetails';
 import LearningExtras from '../LearningExtras';
 import EdgeCases from '../EdgeCases';
+import ProtocolState from '../ProtocolState';
 import type {NetworkLesson} from './types';
 
 export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
@@ -14,7 +15,7 @@ export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
   const selectScenario=(id:string)=>{setScenarioId(id);jump(0);};
   const stage=scenario.steps[step]??scenario.steps[0];
   const count=lesson.actors.length;
-  const nodes:FlowNode[]=lesson.actors.map((actor,i)=>({...actor,x:lesson.slug==='dns'?[700,475,260,235,260][i]:700-i*610/(count-1),y:lesson.slug==='dns'?[145,145,48,145,242][i]:175}));
+  const nodes:FlowNode[]=lesson.actors.map((actor,i)=>({...actor,x:lesson.slug==='dns'?[700,475,200,200,200][i]:700-i*610/(count-1),y:lesson.slug==='dns'?[145,145,44,145,246][i]:175}));
   const positions=lesson.slug==='dns'?[{x:265,y:60},{x:265,y:205},{x:95,y:60},{x:95,y:205},{x:95,y:350}]:lesson.actors.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}));
   const compactLayout={width:360,height:Math.ceil(count/2)*145+47,positions};
   const route=stage.route.map(i=>nodes[i]);
@@ -28,6 +29,7 @@ export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
       graphFooter={<ProtocolExchange phase={stage.short} result={stage.result} example={stage.packet||scenario.example}/>}
       detail={<>
         <LabStage name={stage.name} label={stage.short} explanation={stage.explanation} route={(stage.roundTrip?[...stage.route,...stage.route.slice(0,-1).reverse()]:stage.route).map(i=>lesson.actors[i].label)} result={stage.result} next={scenario.steps[step+1]?.name}>{stage.detail}</LabStage>
+        <ProtocolState kind={lesson.slug} title={lesson.visual.title} labels={lesson.visual.labels} values={stage.state} context={lesson.visual.context} step={step} tone={stage.tone}/>
         <LabMessage title="دادهٔ ورودی / پیام" content={stage.input||undefined} waiting="هنوز پیامی ارسال نشده است."/>
         <LabMessage title="نتیجهٔ مرحله" content={stage.output||undefined} waiting="در انتظار نتیجه…" tone={stage.tone}/>
         <LabNote>{lesson.description}</LabNote>
