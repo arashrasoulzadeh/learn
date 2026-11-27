@@ -158,3 +158,16 @@ test('compact HTTP diagram reflows instead of shrinking desktop labels',async({p
   await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 295 220 L 500 220 L 700 220');
   await page.screenshot({path:'test-results/http-final-desktop.png',animations:'disabled'});
 });
+
+
+test('HTTP lesson knowledge check and references',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  await lab.locator('.network-extra summary').filter({hasText:'سنجش یادگیری'}).click();
+  await lab.locator('.quiz-option').nth(1).click();
+  await expect(lab.getByRole('status')).toContainText('درست است');
+  await lab.locator('.network-extra summary').filter({hasText:'منابع بیشتر'}).click();
+  await expect(lab.locator('.network-extra a')).toHaveCount(2);
+});
