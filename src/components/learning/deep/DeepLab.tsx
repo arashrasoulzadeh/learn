@@ -6,6 +6,7 @@ import {faNumber} from '../LabUI';
 function TracePlayer({lesson}:{lesson:DeepLesson}){
  const [mode,setMode]=useState(0),[step,setStep]=useState(0),[playing,setPlaying]=useState(false),[speed,setSpeed]=useState(1);
  const current=lesson.cases[mode],count=current.events.length,done=step===count;
+ const compare=lesson.cases.map(c=>snapshot(c,c.events.length));
  const previous=snapshot(current,Math.max(0,step-1)),state=snapshot(current,step);
  const event=step?current.events[step-1]:undefined;
  const progress=step/count*100;
@@ -20,8 +21,8 @@ function TracePlayer({lesson}:{lesson:DeepLesson}){
   return <button type="button" className="deep-event-row" key={i} data-active={active} data-revealed={visible} data-tone={row.tone??'neutral'} onClick={()=>move(i+1)} aria-current={active?'step':undefined} aria-label={'رویداد '+faNumber(i+1)+'، '+row.name}>
    <span className="deep-tick">{row.at}</span>
    <span className="deep-lane-row" style={{gridTemplateColumns:'repeat('+lesson.lanes.length+', minmax(0, 1fr))'}}>
-    {lesson.lanes.map((_,j)=><i key={j} className="deep-lane-line"/>)}
-    {visible&&<span className={'deep-signal'+(from===to?' deep-local':'')} data-direction={direction} style={{gridColumn:(lo+1)+' / '+(hi+2)}}><i/><span>{row.wire}</span></span>}
+    {lesson.lanes.map((_,j)=><i key={j} className="deep-lane-line" style={{gridColumn:j+1}}/>)}
+    {visible&&<span className={'deep-signal'+(from===to?' deep-local':'')} data-direction={direction} style={{gridColumn:(lo+1)+' / '+(hi+2)}}><i/><span key={active?'active-'+step:'event-'+i}>{row.wire}</span></span>}
     {!visible&&<span className="deep-unrevealed" style={{gridColumn:(from+1)+' / '+(from+2)}}>···</span>}
    </span>
    <span className="deep-event-name">{visible?row.name:'رویداد '+faNumber(i+1)}</span>
@@ -50,7 +51,7 @@ function TracePlayer({lesson}:{lesson:DeepLesson}){
     <h4>وضعیت پس از رویداد</h4>
     <div className="deep-state">{Object.entries(lesson.fields).map(([key,label])=><div className="deep-state-cell" key={key} data-changed={step>0&&state[key]!==previous[key]}><span>{label}</span><div dir="ltr">{step>0&&state[key]!==previous[key]&&<del>{String(previous[key])}</del>}<strong data-value={key}>{String(state[key])}</strong></div></div>)}</div>
     <div className="deep-current" aria-live="polite"><h4>{event?event.name:'پیش‌بینی کنید'}</h4><p>{event?event.why:'یکی از راهبردها را انتخاب کنید. پیش از پخش نتیجه را حدس بزنید؛ سپس با رویداد بعد تغییر وضعیت را دنبال کنید.'}</p>{event&&<code dir="ltr">{event.wire}</code>}</div>
-    {done&&<div className="deep-verdict" role="status"><h4>نتیجهٔ آزمایش</h4><p>{current.verdict}</p><p>راهبرد دیگر را اجرا و وضعیت نهایی را مقایسه کنید.</p></div>}
+    {done&&<div className="deep-verdict" role="status"><h4>نتیجهٔ آزمایش</h4><p>{current.verdict}</p><p>راهبرد دیگر را اجرا و وضعیت نهایی را مقایسه کنید.</p><details className="deep-comparison"><summary>مقایسهٔ خروجی نهایی دو راهبرد</summary><div className="deep-compare-table">{Object.entries(lesson.fields).filter(([key])=>compare.some(s=>s[key]!==compare[0][key])).map(([key,label])=><div key={key}><b>{label}</b>{lesson.cases.map((c,i)=><span key={c.id}><small>{c.label}</small><strong dir="ltr">{String(compare[i][key])}</strong></span>)}</div>)}</div></details></div>}
    </section>
   </div>
   <div className="deep-technical"><section><h4>نمونهٔ کد یا قرارداد</h4><pre dir="ltr">{lesson.code}</pre></section><section><h4>در محیط واقعی چه بررسی کنیم؟</h4><p>{lesson.diagnose}</p><h4>محدودیت و تصمیم مهندسی</h4><p>{lesson.tradeoff}</p>{lesson.sources.map(s=><a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a>)}</section></div>

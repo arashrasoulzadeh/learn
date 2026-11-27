@@ -33,7 +33,7 @@ export default function NetworkLab({lesson}:{lesson:NetworkLesson}){
       stepKey={scenario.id+'-'+step}
       detail={<>
         <LearningGoal goal={lesson.teaching.goal}/>
-        <LabStage visual={<ProtocolState kind={lesson.slug} title={lesson.visual.title} labels={lesson.visual.labels} values={stage.state} context={lesson.visual.context} step={step} tone={stage.tone}/>} name={stage.name} label={stage.short} explanation={stage.explanation} route={(stage.roundTrip?[...stage.route,...stage.route.slice(0,-1).reverse()]:stage.route).map(i=>lesson.actors[i].label)} result={stage.result} next={scenario.steps[step+1]?.name}>{stage.detail}</LabStage>
+        <LabStage visual={<ProtocolState kind={lesson.slug} title={lesson.visual.title} labels={lesson.visual.labels} values={stage.state} previousValues={step>0?scenario.steps[step-1]?.state:undefined} context={lesson.visual.context} step={step} tone={stage.tone}/>} name={stage.name} label={stage.short} explanation={stage.explanation} route={(stage.roundTrip?[...stage.route,...stage.route.slice(0,-1).reverse()]:stage.route).map(i=>lesson.actors[i].label)} result={stage.result} next={scenario.steps[step+1]?.name}>{stage.detail}</LabStage>
         
         <LabMessage title="دادهٔ ورودی / پیام" content={stage.input||undefined} waiting="هنوز پیامی ارسال نشده است."/>
         <LabMessage title="نتیجهٔ مرحله" content={stage.output||undefined} waiting="در انتظار نتیجه…" tone={stage.tone}/>

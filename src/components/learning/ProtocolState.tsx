@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react';
 import {faNumber} from './LabUI';
-type Props={kind:string;title:string;labels:readonly string[];values:readonly string[];context:string;step:number;tone?:'success'|'error'};
+type Props={kind:string;title:string;labels:readonly string[];values:readonly string[];context:string;step:number;previousValues?:readonly string[];tone?:'success'|'error'};
 function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   let items:ReactNode=null;
   if(kind==='sharding'&&index>0&&/\d+ requests/.test(value)){
@@ -45,10 +45,10 @@ function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   }
   return <div className="state-value" dir="ltr">{items??<span>{value}</span>}</div>;
 }
-export default function ProtocolState({kind,title,labels,values,context,step,tone}:Props){
+export default function ProtocolState({kind,title,labels,values,context,step,tone,previousValues}:Props){
   return <section className="protocol-state" data-protocol={kind} aria-label={title} data-tone={tone??'neutral'}>
     <header><span>{title} <small className="state-snapshot">پس از مرحله</small></span><span className="state-step">مرحلهٔ {faNumber(step+1)}</span></header>
-    <div className="state-cells">{labels.map((label,i)=><div className="state-cell" key={label}><span className="state-label">{label}</span><StateValue kind={kind} index={i} value={values[i]??'—'}/></div>)}</div>
+    <div className="state-cells">{labels.map((label,i)=><div className="state-cell" key={label} data-state-changed={previousValues!==undefined&&previousValues[i]!==values[i]}><span className="state-label">{label}{previousValues!==undefined&&previousValues[i]!==values[i]&&<i className="state-delta-dot" title="مقدار این مرحله تغییر کرده است"/>}</span><StateValue kind={kind} index={i} value={values[i]??'—'}/></div>)}</div>
     <p>{context}</p>
   </section>;
 }
