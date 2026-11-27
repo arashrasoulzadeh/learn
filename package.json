@@ -11,7 +11,8 @@
     "check": "astro check",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "new:concept": "node scripts/new-concept.mjs"
+    "new:concept": "node scripts/new-concept.mjs",
+    "check:server": "node scripts/check-server-lessons.mjs"
   },
   "dependencies": {
     "astro": "^5.16.16",
