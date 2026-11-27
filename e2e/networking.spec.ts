@@ -25,6 +25,9 @@ for(const lesson of curriculum){
     await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
     const diagram=lab.locator('.flow-diagram');
     await expect(diagram).toHaveAttribute('data-layout','wide');
+    const stateCard=lab.locator('.request-stage > .protocol-state');
+    await expect(stateCard).toBeVisible();
+    expect(await stateCard.evaluate(el=>{const box=el.getBoundingClientRect();const panel=el.closest('.request-detail')!.getBoundingClientRect();return box.top>=panel.top-1&&box.bottom<=panel.bottom+1;})).toBe(true);
     const controls=lab.getByLabel('سناریو');
     await expect(controls.locator('option')).toHaveCount(lesson.cases.length);
     const steps=lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button');
@@ -82,6 +85,10 @@ for(const lesson of curriculum){
     await expect(lab.getByRole('status')).toContainText('درست نیست');
     await options.nth(lesson.correct).click();
     await expect(lab.getByRole('status')).toContainText('درست است');
+    await lab.locator('.network-extra summary').filter({hasText:'تمرین عملی خارج از شبیه‌سازی'}).click();
+    await expect(lab.locator('.field-exercise p').first()).not.toBeEmpty();
+    await expect(lab.locator('.field-exercise small')).not.toBeEmpty();
+    await lab.locator('.network-extra summary').filter({hasText:'تمرین عملی خارج از شبیه‌سازی'}).click();
     await lab.locator('.network-extra summary').filter({hasText:'منابع بیشتر'}).click();
     expect(await lab.locator('.network-extra a').count()).toBeGreaterThanOrEqual(2);
     await lab.getByRole('button',{name:'بستن پنجره'}).click();
@@ -142,13 +149,41 @@ for(const lesson of curriculum){
     await expect(lab.locator('.practice-check')).toHaveCount(0);
     await steps.last().click();
     const practice=lab.locator('.practice-check');
+    await lab.getByRole('link',{name:/حل تمرین کاربردی/}).click();
+    await expect(practice).toBeFocused();
     const answer=practiceAnswers[lesson.slug];
     await practice.locator('.practice-option').nth((answer+1)%3).click();
     await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+    await expect(practice.locator('.practice-next')).toHaveCount(0);
     await practice.locator('.practice-option').nth(answer).click();
     await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
-    await expect(practice.locator('.practice-feedback p')).not.toBeEmpty();
+    await expect(practice.locator('.practice-feedback p').first()).not.toBeEmpty();
+    const index=curriculum.findIndex(item=>item.slug===lesson.slug);
+    if(index<curriculum.length-1)await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/networking/'+curriculum[index+1].slug+'/');
+    else await expect(practice.locator('.practice-feedback')).toContainText('آخرین درس سطح اول');
     await lab.getByRole('button',{name:'از ابتدا',exact:true}).click();
     await expect(practice).toHaveCount(0);
   });
 }
+
+
+test('a manually selected last TCP stage can play, stop, and replay from the beginning only after finishing',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.goto('/learn/concepts/networking/tcp/',{waitUntil:'domcontentloaded'});
+  const lab=page.locator('[data-lesson="tcp"]');
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  await page.clock.install();
+  const steps=lab.getByRole('navigation',{name:'مراحل درس'}).getByRole('button');
+  await steps.last().click();
+  await lab.getByRole('button',{name:'پخش',exact:true}).click();
+  await expect(steps.last()).toHaveAttribute('aria-current','step');
+  await expect(lab.locator('animateMotion')).toHaveAttribute('repeatCount','1');
+  await lab.getByRole('button',{name:'توقف',exact:true}).click();
+  await expect(steps.last()).toHaveAttribute('aria-current','step');
+  await lab.getByRole('button',{name:'پخش',exact:true}).click();
+  await page.clock.fastForward(7000);
+  await expect(lab.getByRole('button',{name:'پخش مجدد',exact:true})).toBeVisible();
+  await lab.getByRole('button',{name:'پخش مجدد',exact:true}).click();
+  await expect(steps.first()).toHaveAttribute('aria-current','step');
+  await lab.getByRole('button',{name:'توقف',exact:true}).click();
+});

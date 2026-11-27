@@ -61,7 +61,7 @@ export default function RequestLab(){
   const [scenario,setScenario]=useState<Scenario>('get');
   const selectScenario=(id:string)=>{setScenario(id as Scenario);jump(0);};
   const s=scenarios[scenario],stage=stages[step];
-  const route=stage.from===stage.to?[]:step===7?[nodes[stage.from],nodes[2],nodes[stage.to]]:[nodes[stage.from],nodes[stage.to]];
+  const route=stage.from===stage.to?[nodes[stage.from]]:step===7?[nodes[stage.from],nodes[2],nodes[stage.to]]:[nodes[stage.from],nodes[stage.to]];
   const returnRoute=[1,2,3,6].includes(step)?[...route].reverse():undefined;
   const packetLabel=step===1?'DNS':step===2?'TCP':step===3?'TLS':step===4?s.method:step===5?'HTTP':step===6?'DB':step===7?s.status.split(' ')[0]:undefined;
   const responseVisible=step>=7;

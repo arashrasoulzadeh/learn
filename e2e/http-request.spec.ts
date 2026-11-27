@@ -228,10 +228,15 @@ test('HTTP applied practice distinguishes a server response from network failure
   const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
   await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
   await expect(lab.locator('.lesson-goal p')).not.toBeEmpty();
+  await expect(lab.locator('.request-stage > .protocol-state')).toBeVisible();
   await lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button').last().click();
+  await lab.getByRole('link',{name:/حل تمرین کاربردی/}).click();
   const practice=lab.locator('.practice-check');
   await practice.locator('.practice-option').nth(0).click();
   await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
   await practice.locator('.practice-option').nth(1).click();
   await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
+  await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/networking/dns/');
+  await practice.locator('.practice-next').click();
+  await expect(page).toHaveURL(/\/networking\/dns\/$/);
 });

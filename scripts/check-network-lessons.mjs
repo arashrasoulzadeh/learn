@@ -1,9 +1,16 @@
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
+import {fieldExercises} from '../src/components/learning/network/fieldExercises.ts';
 const slugs=['http-request','dns','ip-port','tcp','udp','tls-https','http-methods','http-status-codes','cookies-sessions','websocket'];
 const root='src/content/concepts/networking';
 const files=readdirSync(root).filter(name=>name.endsWith('.mdx')&&/^learningPath: web-basics$/m.test(readFileSync(root+'/'+name,'utf8')));
 assert.equal(files.length,10,'Exactly ten published level-one lessons');
+assert.equal(Object.keys(fieldExercises).length,slugs.length,'Hands-on exercises for all ten lessons');
+for(let i=0;i<slugs.length;i++){
+  const exercise=fieldExercises[slugs[i]];
+  assert.ok(exercise?.task&&exercise.observe&&exercise.limit,slugs[i]+' missing real-world observation');
+  assert.equal(exercise.next?.slug,slugs[i+1],slugs[i]+' broken lesson progression');
+}
 let scenarios=0,steps=0;
 for(let i=0;i<slugs.length;i++){
   const slug=slugs[i],mdx=readFileSync(root+'/'+slug+'.mdx','utf8');
