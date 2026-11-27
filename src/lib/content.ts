@@ -1,4 +1,4 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render as renderContentEntry, type CollectionEntry } from 'astro:content';
 export const url = (path = '') => import.meta.env.BASE_URL.replace(/\/$/, '') + '/' + path.replace(/^\//, '');
 export const lessonUrl = (id: string) => url('concepts/' + id + '/');
 export async function catalog() {
@@ -14,3 +14,8 @@ export async function catalog() {
   return { categories, concepts };
 }
 export type Lesson = CollectionEntry<'concepts'>;
+
+// Keep content rendering outside Astro's generated page component scope.
+export async function renderLesson(lesson: Lesson) {
+  return await renderContentEntry(lesson);
+}

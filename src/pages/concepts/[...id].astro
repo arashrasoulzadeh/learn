@@ -1,19 +1,20 @@
 ---
-import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { catalog, lessonUrl, url, type Lesson } from '../../lib/content';
+import { catalog, lessonUrl, url, renderLesson, type Lesson } from '../../lib/content';
 export async function getStaticPaths() {
   const {concepts}=await catalog();
   return concepts.map(lesson=>({params:{id:lesson.id},props:{lesson}}));
 }
 const {lesson}=Astro.props as {lesson:Lesson};
 const {categories,concepts}=await catalog();
-const {Content,headings}=await render(lesson);
+const {Content,headings}=await renderLesson(lesson);
 const category=categories.find(c=>c.id===lesson.data.category.id)!;
 const related=lesson.data.related.map(r=>concepts.find(c=>c.id===r.id)).filter((x):x is Lesson=>!!x);
 const prerequisites=lesson.data.prerequisites.map(r=>concepts.find(c=>c.id===r.id)).filter((x):x is Lesson=>!!x);
 const siblings=concepts.filter(c=>c.data.category.id===category.id);
-const index=siblings.findIndex(c=>c.id===lesson.id);
+const lessonIndex=siblings.findIndex(c=>c.id===lesson.id);
+const previousLesson=lessonIndex>0?siblings[lessonIndex-1]:undefined;
+const nextLesson=lessonIndex<siblings.length-1?siblings[lessonIndex+1]:undefined;
 ---
 <Base title={lesson.data.title} description={lesson.data.description}>
   <div class="breadcrumbs"><a href={url('catalog/')}>Explore</a> / <a href={url('catalog/#'+category.id)}>{category.data.title}</a></div>
@@ -25,7 +26,7 @@ const index=siblings.findIndex(c=>c.id===lesson.id);
       <div class="prose"><Content /></div>
       <div class="completion" data-pagefind-ignore><button class="primary" id="complete" data-id={lesson.id}>Mark as complete</button><span id="completion-status" role="status"></span></div>
       {related.length>0&&<section><h2>Related concepts</h2>{related.map(l=><p><a href={lessonUrl(l.id)}>{l.data.title} →</a></p>)}</section>}
-      <nav class="lesson-pagination" aria-label="Adjacent lessons">{index>0&&<a href={lessonUrl(siblings[index-1].id)}>← {siblings[index-1].data.title}</a>}{index<siblings.length-1&&<a href={lessonUrl(siblings[index+1].id)}>{siblings[index+1].data.title} →</a>}</nav>
+      <nav class="lesson-pagination" aria-label="Adjacent lessons">{previousLesson&&<a href={lessonUrl(previousLesson.id)}>← {previousLesson.data.title}</a>}{nextLesson&&<a href={lessonUrl(nextLesson.id)}>{nextLesson.data.title} →</a>}</nav>
     </article>
     <aside class="toc"><p class="eyebrow">ON THIS PAGE</p>{headings.filter(h=>h.depth===2).map(h=><a href={'#'+h.slug}>{h.text}</a>)}</aside>
   </div>
