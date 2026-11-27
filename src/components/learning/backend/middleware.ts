@@ -90,7 +90,7 @@ const lesson = {
       "steps": [
         {
           "name": "ورود و ثبت آغاز",
-          "short": "Log in",
+          "short": "ثبت شروع",
           "detail": "logger آغاز درخواست را ثبت می‌کند و next را await می‌کند.",
           "route": [
             0,
@@ -109,7 +109,7 @@ const lesson = {
         },
         {
           "name": "عبور از کنترل ورود",
-          "short": "Auth",
+          "short": "کنترل هویت",
           "detail": "در این نمونه اعتبار نشست تأیید می‌شود و next فراخوانی می‌شود.",
           "route": [
             1,
@@ -128,7 +128,7 @@ const lesson = {
         },
         {
           "name": "اجرای منطق برنامه",
-          "short": "Handle",
+          "short": "اجرای تابع",
           "detail": "handler دادهٔ نمونه را می‌سازد.",
           "route": [
             2,
@@ -147,7 +147,7 @@ const lesson = {
         },
         {
           "name": "بازگشت و ثبت پایان",
-          "short": "Log out",
+          "short": "ثبت پایان",
           "detail": "کنترل به لایه‌های بیرونی می‌رسد و logger پایان را ثبت می‌کند.",
           "route": [
             3,
@@ -167,7 +167,8 @@ const lesson = {
           ],
           "tone": "success"
         }
-      ]
+      ],
+      "prediction": "در مدل onion، ثبت پایان logger قبل از handler است یا پس از آن؟"
     },
     {
       "id": "denied",
@@ -176,7 +177,7 @@ const lesson = {
       "steps": [
         {
           "name": "شروع زنجیره",
-          "short": "Log",
+          "short": "ثبت شروع",
           "detail": "logger درخواست را ثبت می‌کند.",
           "route": [
             0,
@@ -195,7 +196,7 @@ const lesson = {
         },
         {
           "name": "رد پیش از handler",
-          "short": "Stop",
+          "short": "توقف زنجیره",
           "detail": "اعتبار نشست موجود نیست؛ auth پاسخ را تنظیم می‌کند و next را صدا نمی‌زند.",
           "route": [
             1,
@@ -215,7 +216,7 @@ const lesson = {
         },
         {
           "name": "بازگشت پاسخ",
-          "short": "401",
+          "short": "بازگشت خطا",
           "detail": "logger پس از بازگشت عادی next پایان را ثبت می‌کند.",
           "route": [
             2,
@@ -235,7 +236,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "درخواست فاقد اعتبار پیش از منطق کسب‌وکار رد می‌شود."
+      "edgeCase": "درخواست فاقد اعتبار پیش از منطق کسب‌وکار رد می‌شود.",
+      "prediction": "اگر auth، next را فراخوانی نکند، آیا handler و کد بعد از next در logger هر دو اجرا می‌شوند؟"
     },
     {
       "id": "exception",
@@ -244,7 +246,7 @@ const lesson = {
       "steps": [
         {
           "name": "ورود به لایهٔ بیرونی",
-          "short": "Try",
+          "short": "مرز خطا",
           "detail": "logger با مرز مدیریت خطا next را صدا می‌زند.",
           "route": [
             0,
@@ -263,7 +265,7 @@ const lesson = {
         },
         {
           "name": "عبور از احراز هویت",
-          "short": "Next",
+          "short": "عبور هویت",
           "detail": "اعتبار ورودی صحیح است.",
           "route": [
             1,
@@ -282,7 +284,7 @@ const lesson = {
         },
         {
           "name": "پرتاب خطا",
-          "short": "Throw",
+          "short": "پرتاب خطا",
           "detail": "handler خطای غیرمنتظره می‌دهد.",
           "route": [
             2,
@@ -302,7 +304,7 @@ const lesson = {
         },
         {
           "name": "گرفتن خطا و پاسخ عمومی",
-          "short": "500",
+          "short": "پاسخ عمومی",
           "detail": "لایهٔ بیرونی خطا را می‌گیرد و در finally پایان را ثبت می‌کند.",
           "route": [
             3,
@@ -323,7 +325,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "خطای پایین‌دست باید در مرز مناسب مدیریت شود."
+      "edgeCase": "خطای پایین‌دست باید در مرز مناسب مدیریت شود.",
+      "prediction": "اگر handler پیش از ارسال پاسخ استثنا بدهد، چه لایه‌ای می‌تواند آن را به ۵۰۰ تبدیل کند؟"
     }
   ],
   "pitfall": "next را در چارچوب‌های مختلف یکسان فرض نکنید. دوبار فراخواندن next یا فراموش کردن await در onion pipeline می‌تواند ترتیب را خراب کند.",

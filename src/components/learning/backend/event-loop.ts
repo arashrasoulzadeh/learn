@@ -39,7 +39,7 @@ const lesson = {
       "Microtasks",
       "Tasks"
     ],
-    "context": "مدل مرورگر: پس از پایان task جاری و در نقاط checkpoint، microtaskها تخلیه می‌شوند؛ سپس task بعدی ممکن است اجرا شود. Node.js فازهای متفاوت دارد."
+    "context": "مدل مرورگر برای یک agent: بعد از پایان task جاری و در نقاط checkpoint، microtaskها تخلیه می‌شوند؛ سپس task آمادهٔ دیگری انتخاب می‌شود. چند منبع task ممکن است وجود داشته باشد. Node.js مدل دقیق دیگری دارد."
   },
   "teaching": {
     "goal": "ترتیب چاپ در کد synchronous، Promise.then و setTimeout را پیش‌بینی کنید.",
@@ -81,7 +81,7 @@ const lesson = {
       "steps": [
         {
           "name": "اجرای اسکریپت",
-          "short": "Sync",
+          "short": "ثبت تایمر",
           "detail": "اسکریپت A را چاپ و تایمر را ثبت می‌کند.",
           "route": [
             0,
@@ -100,7 +100,7 @@ const lesson = {
         },
         {
           "name": "ثبت Promise و پایان اسکریپت",
-          "short": "Enqueue",
+          "short": "ثبت Promise",
           "detail": "واکـنش Promise آماده در microtask قرار می‌گیرد و D چاپ می‌شود.",
           "route": [
             0,
@@ -119,7 +119,7 @@ const lesson = {
         },
         {
           "name": "تخلیه microtask",
-          "short": "Microtask",
+          "short": "اجرای Promise",
           "detail": "در checkpoint، C اجرا می‌شود.",
           "route": [
             1,
@@ -138,7 +138,7 @@ const lesson = {
         },
         {
           "name": "اجرای task تایمر",
-          "short": "Task",
+          "short": "اجرای تایمر",
           "detail": "زمانی که تایمر آماده و task انتخاب شود، B اجرا می‌شود.",
           "route": [
             2,
@@ -156,7 +156,8 @@ const lesson = {
           ],
           "tone": "success"
         }
-      ]
+      ],
+      "prediction": "A و D همگام‌اند، B تایمر است و C واکنش Promise؛ ترتیب چاپ چیست؟"
     },
     {
       "id": "blocking",
@@ -165,7 +166,7 @@ const lesson = {
       "steps": [
         {
           "name": "ثبت تایمر",
-          "short": "Schedule",
+          "short": "ثبت تایمر",
           "detail": "تایمر برای اجرای بعدی ثبت شده است.",
           "route": [
             0,
@@ -184,7 +185,7 @@ const lesson = {
         },
         {
           "name": "مشغول بودن پشته",
-          "short": "Block",
+          "short": "اشغال پشته",
           "detail": "حلقهٔ محاسباتی طولانی thread اصلی را اشغال می‌کند.",
           "route": [
             0
@@ -203,7 +204,7 @@ const lesson = {
         },
         {
           "name": "آزاد شدن پشته",
-          "short": "Run",
+          "short": "اجرای تایمر",
           "detail": "بعد از پایان کار جاری، callback می‌تواند در task بعدی اجرا شود.",
           "route": [
             2,
@@ -222,7 +223,8 @@ const lesson = {
           "tone": "success"
         }
       ],
-      "edgeCase": "کار همگام طولانی مانع پاسخ‌گویی thread اصلی می‌شود."
+      "edgeCase": "کار همگام طولانی مانع پاسخ‌گویی thread اصلی می‌شود.",
+      "prediction": "آیا تایمر صفر میلی‌ثانیه در میانهٔ حلقهٔ CPU اجرا می‌شود؟"
     },
     {
       "id": "microtasks",
@@ -231,7 +233,7 @@ const lesson = {
       "steps": [
         {
           "name": "آماده شدن دو صف",
-          "short": "Queue",
+          "short": "آماده‌سازی صف",
           "detail": "یک microtask و یک task تایمر آماده هستند.",
           "route": [
             0,
@@ -250,7 +252,7 @@ const lesson = {
         },
         {
           "name": "افزودن کار تازه",
-          "short": "Chain",
+          "short": "اجرای کار ۱",
           "detail": "job1 هنگام اجرا job2 را ثبت می‌کند.",
           "route": [
             1,
@@ -270,7 +272,7 @@ const lesson = {
         },
         {
           "name": "اجرای microtask تازه",
-          "short": "Job 2",
+          "short": "اجرای کار ۲",
           "detail": "پیش از انتخاب task تایمر، job2 از صف microtask اجرا می‌شود.",
           "route": [
             1,
@@ -289,7 +291,7 @@ const lesson = {
         },
         {
           "name": "اجرای task تایمر",
-          "short": "Drain",
+          "short": "اجرای تایمر",
           "detail": "پس از پایان checkpoint، task تایمر در صورت آماده بودن انتخاب می‌شود.",
           "route": [
             2,
@@ -308,7 +310,8 @@ const lesson = {
           "tone": "success"
         }
       ],
-      "edgeCase": "microtaskهای بازگشتی می‌توانند taskهای دیگر را عقب بیندازند."
+      "edgeCase": "microtaskهای بازگشتی می‌توانند taskهای دیگر را عقب بیندازند.",
+      "prediction": "اگر یک microtask، microtask تازه بسازد، آیا تایمر بین آن‌ها اجرا می‌شود؟"
     }
   ],
   "pitfall": "Event Loop مرورگر را با مراحل دقیق libuv در Node.js یکی نگیرید. رندر مرورگر نیز در فرصت‌های مناسب انجام می‌شود، نه بعد از هر callback.",

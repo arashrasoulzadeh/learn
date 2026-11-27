@@ -63,6 +63,10 @@ const lesson = {
       [
         "Base64url",
         "کدگذاری بایت‌ها برای URL، نه رمزنگاری."
+      ],
+      [
+        "JWE",
+        "قالب رمزنگاری‌شده؛ با JWS امضاشده متفاوت است."
       ]
     ],
     "practice": {
@@ -85,26 +89,26 @@ const lesson = {
       "steps": [
         {
           "name": "دریافت توکن",
-          "short": "Bearer",
-          "detail": "کلاینت توکن نمونه را در سرآیند Authorization ارسال می‌کند.",
+          "short": "دریافت توکن",
+          "detail": "کلاینت یک JWT امضاشده در قالب compact JWS را در Authorization ارسال می‌کند. این قالب سه قسمت جداشده با نقطه دارد: header، payload و signature/MAC.",
           "route": [
             0,
             1
           ],
           "packet": "JWT",
-          "input": "Authorization: Bearer [redacted]",
+          "input": "Authorization: Bearer [redacted]\nCompact JWS: header.payload.signature\nDecoded header: {\"alg\":\"RS256\",\"typ\":\"JWT\"}\nDecoded payload: {\"sub\":\"42\",\"aud\":\"orders\"}\nIllustrative signature: [not a real signature]",
           "output": "Token received",
           "result": "هنوز اعتبار توکن ثابت نشده.",
-          "explanation": "توکن bearer باید فقط در کانال امن ارسال و از log حذف شود.",
+          "explanation": "header الگوریتم ادعایی، payload مجموعهٔ claims و قسمت سوم امضا یا MAC است. دو قسمت اول با Base64url کدگذاری می‌شوند و خواندنشان آسان است؛ بخش سوم یکپارچگی و اصالت را نسبت به کلید بررسی‌شده ممکن می‌کند. داده‌های این درس ساختگی هستند.",
           "state": [
-            "3 JWS segments",
+            "header | payload | signature",
             "Unchecked",
             "Pending"
           ]
         },
         {
           "name": "بررسی امضا",
-          "short": "Verify",
+          "short": "بررسی امضا",
           "detail": "API الگوریتم مجاز و کلید معتبر را از پیکربندی قابل اعتماد انتخاب و امضا را بررسی می‌کند.",
           "route": [
             1,
@@ -124,7 +128,7 @@ const lesson = {
         },
         {
           "name": "بررسی ادعاها",
-          "short": "Claims",
+          "short": "بررسی ادعاها",
           "detail": "API زمان، issuer و audience مورد انتظار را بررسی می‌کند.",
           "route": [
             1
@@ -142,7 +146,7 @@ const lesson = {
         },
         {
           "name": "تصمیم مجوز و پاسخ",
-          "short": "200",
+          "short": "کنترل مجوز",
           "detail": "درخواست نمونه scope و مالکیت لازم را دارد، بنابراین API پاسخ مجاز می‌دهد.",
           "route": [
             1,
@@ -160,7 +164,8 @@ const lesson = {
           ],
           "tone": "success"
         }
-      ]
+      ],
+      "prediction": "بعد از بررسی موفق امضا، آیا API می‌تواند بدون بررسی claims پاسخ بدهد؟"
     },
     {
       "id": "expired",
@@ -169,7 +174,7 @@ const lesson = {
       "steps": [
         {
           "name": "دریافت و بررسی امضا",
-          "short": "Verify",
+          "short": "بررسی امضا",
           "detail": "توکن قدیمی به API می‌رسد و در این نمونه امضایش معتبر است.",
           "route": [
             0,
@@ -188,7 +193,7 @@ const lesson = {
         },
         {
           "name": "رد بر اساس exp",
-          "short": "Expiry",
+          "short": "بررسی زمان",
           "detail": "زمان فعلی پس از exp است و از مهلت ارفاقی نمونه گذشته.",
           "route": [
             1
@@ -207,7 +212,7 @@ const lesson = {
         },
         {
           "name": "پاسخ نامعتبر بودن توکن",
-          "short": "401",
+          "short": "رد توکن",
           "detail": "API پاسخ 401 همراه چالش Bearer می‌فرستد.",
           "route": [
             1,
@@ -226,7 +231,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "امضا معتبر است اما زمان استفاده گذشته است."
+      "edgeCase": "امضا معتبر است اما زمان استفاده گذشته است.",
+      "prediction": "اگر امضا درست ولی exp گذشته باشد، آیا توکن پذیرفته می‌شود؟"
     },
     {
       "id": "tampered",
@@ -235,7 +241,7 @@ const lesson = {
       "steps": [
         {
           "name": "دریافت ادعای تغییر یافته",
-          "short": "Decode",
+          "short": "خواندن ادعا",
           "detail": "API توکن نمونه با payload تغییر یافته را دریافت می‌کند.",
           "route": [
             0,
@@ -254,7 +260,7 @@ const lesson = {
         },
         {
           "name": "بررسی امضای ناموفق",
-          "short": "Verify",
+          "short": "بررسی امضا",
           "detail": "تغییر payload باعث عدم تطابق امضا با ورودی امضاشده می‌شود.",
           "route": [
             1,
@@ -275,7 +281,7 @@ const lesson = {
         },
         {
           "name": "رد درخواست",
-          "short": "401",
+          "short": "رد توکن",
           "detail": "سرور بدون اعتماد به role ادعاشده درخواست را رد می‌کند.",
           "route": [
             1,
@@ -294,7 +300,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "کدگشایی موفق payload به معنی صحت امضا نیست."
+      "edgeCase": "کدگشایی موفق payload به معنی صحت امضا نیست.",
+      "prediction": "آیا decode کردن payload تغییر یافته، اعتبار توکن را ثابت می‌کند؟"
     },
     {
       "id": "audience",
@@ -303,7 +310,7 @@ const lesson = {
       "steps": [
         {
           "name": "دریافت توکن اصیل",
-          "short": "Verify",
+          "short": "بررسی امضا",
           "detail": "توکن نمونه امضای معتبر و زمان معتبر دارد.",
           "route": [
             0,
@@ -322,7 +329,7 @@ const lesson = {
         },
         {
           "name": "عدم تطابق مخاطب",
-          "short": "Audience",
+          "short": "کنترل مخاطب",
           "detail": "API سفارش انتظار aud=orders دارد.",
           "route": [
             1
@@ -341,7 +348,7 @@ const lesson = {
         },
         {
           "name": "رد توکن",
-          "short": "401",
+          "short": "رد توکن",
           "detail": "API چالش مناسب و عدم پذیرش توکن را اعلام می‌کند.",
           "route": [
             1,
@@ -360,7 +367,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "توکن اصیل ولی با مخاطب نامعتبر."
+      "edgeCase": "توکن اصیل ولی با مخاطب نامعتبر.",
+      "prediction": "آیا توکن معتبر سرویس پرداخت برای سرویس سفارش هم قابل قبول است؟"
     }
   ],
   "pitfall": "JWT امضاشده محرمانه نیست؛ decode با verify فرق دارد. امضا، issuer، audience، exp، nbf در صورت وجود و سیاست الگوریتم و کلید را بررسی کنید. لغو فوری توکن ممکن است نیاز به state سمت سرور داشته باشد.",
@@ -387,6 +395,10 @@ const lesson = {
     {
       "label": "RFC 6750 — Bearer Token Usage",
       "url": "https://www.rfc-editor.org/rfc/rfc6750.html"
+    },
+    {
+      "label": "RFC 7515 — JWS compact serialization",
+      "url": "https://www.rfc-editor.org/rfc/rfc7515.html"
     }
   ],
   "field": {

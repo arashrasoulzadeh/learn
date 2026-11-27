@@ -81,7 +81,7 @@ const lesson = {
       "steps": [
         {
           "name": "ورود به تابع",
-          "short": "Push",
+          "short": "ورود تابع",
           "detail": "فراخوانی make یک فریم فعال می‌سازد.",
           "route": [
             0,
@@ -100,7 +100,7 @@ const lesson = {
         },
         {
           "name": "ساخت شیء",
-          "short": "تخصیص",
+          "short": "ساخت شیء",
           "detail": "در مدل، شیء در heap ساخته می‌شود و متغیر محلی به آن ارجاع می‌دهد.",
           "route": [
             1,
@@ -119,7 +119,7 @@ const lesson = {
         },
         {
           "name": "بازگشت ارجاع",
-          "short": "Return",
+          "short": "بازگشت",
           "detail": "ارجاع به caller می‌رسد و فریم make پایان می‌یابد.",
           "route": [
             1,
@@ -137,7 +137,8 @@ const lesson = {
           ],
           "tone": "success"
         }
-      ]
+      ],
+      "prediction": "بعد از return آیا شیء ساخته‌شده هنوز از caller قابل دسترس است؟"
     },
     {
       "id": "alias",
@@ -146,7 +147,7 @@ const lesson = {
       "steps": [
         {
           "name": "ساخت ارجاع اول",
-          "short": "ارجاع",
+          "short": "ساخت شیء",
           "detail": "x به شیء شمارهٔ ۱ اشاره می‌کند.",
           "route": [
             1,
@@ -165,7 +166,7 @@ const lesson = {
         },
         {
           "name": "کپی ارجاع",
-          "short": "Alias",
+          "short": "کپی ارجاع",
           "detail": "y نیز به همان شیء اشاره می‌کند.",
           "route": [
             1
@@ -183,7 +184,7 @@ const lesson = {
         },
         {
           "name": "تغییر از طریق y",
-          "short": "تغییر",
+          "short": "تغییر ویژگی",
           "detail": "y.n تغییر می‌کند؛ x نیز همان شیء را مشاهده می‌کند.",
           "route": [
             1,
@@ -202,7 +203,8 @@ const lesson = {
           "tone": "success"
         }
       ],
-      "edgeCase": "کپی ارجاع با کپی شیء اشتباه می‌شود."
+      "edgeCase": "کپی ارجاع با کپی شیء اشتباه می‌شود.",
+      "prediction": "اگر y همان شیء x باشد، تغییر y.n چه اثری بر x.n دارد؟"
     },
     {
       "id": "retained",
@@ -211,7 +213,7 @@ const lesson = {
       "steps": [
         {
           "name": "ساخت داده و نگهداری در cache",
-          "short": "نگهداری",
+          "short": "ذخیره در کش",
           "detail": "یک آرایهٔ زنده شیء را نگه می‌دارد.",
           "route": [
             1,
@@ -230,7 +232,7 @@ const lesson = {
         },
         {
           "name": "پایان تابع",
-          "short": "Pop",
+          "short": "پایان تابع",
           "detail": "فریم work حذف می‌شود، اما cache از caller قابل دسترس است.",
           "route": [
             1
@@ -249,7 +251,7 @@ const lesson = {
         },
         {
           "name": "حذف آخرین ارجاع",
-          "short": "Unreachable",
+          "short": "حذف ارجاع",
           "detail": "در این نمونه cache پاک می‌شود و ارجاع دیگری باقی نمی‌ماند.",
           "route": [
             1,
@@ -268,7 +270,73 @@ const lesson = {
           "tone": "success"
         }
       ],
-      "edgeCase": "رشد حافظه به علت نگهداری ارجاع‌های غیرضروری."
+      "edgeCase": "رشد حافظه به علت نگهداری ارجاع‌های غیرضروری.",
+      "prediction": "آیا پایان تابع برای آزاد شدن شیئی که cache نگه داشته کافی است؟"
+    },
+    {
+      "id": "recursion",
+      "label": "فراخوانی بازگشتی بدون شرط پایان",
+      "example": "function recurse() { recurse() }",
+      "prediction": "اگر هر فراخوانی بدون رسیدن به شرط پایان، فراخوانی دیگری ایجاد کند، چه منبعی پر می‌شود؟",
+      "edgeCase": "بازگشت بدون شرط پایان می‌تواند محدودیت پشتهٔ اجرا را تمام کند.",
+      "steps": [
+        {
+          "name": "اولین فراخوانی بازگشتی",
+          "short": "ساخت فریم",
+          "detail": "تابع recurse شروع می‌شود و یک فراخوانی جدید از خودش ایجاد می‌کند.",
+          "route": [
+            0,
+            1
+          ],
+          "packet": "CALL",
+          "input": "function recurse(){ recurse() }",
+          "output": "caller → recurse",
+          "result": "اولین فریم فعال است.",
+          "explanation": "فراخوانی هنوز پایان نیافته و فریم آن باید اطلاعات ادامهٔ اجرا را نگه دارد.",
+          "state": [
+            "caller | recurse",
+            "—",
+            "—"
+          ]
+        },
+        {
+          "name": "رشد پشته بدون بازگشت",
+          "short": "رشد پشته",
+          "detail": "در این مدل هر فراخوانی فریم تازه‌ای می‌سازد و هیچ فراخوانی به حالت return نمی‌رسد.",
+          "route": [
+            1
+          ],
+          "packet": "PUSH",
+          "input": "recurse(); recurse(); … (nested calls)",
+          "output": "Stack depth grows",
+          "result": "فریم‌های فعال انباشته می‌شوند.",
+          "explanation": "پشته ظرفیت محدود دارد. شمار دقیق فریم‌ها به runtime و بهینه‌سازی‌ها بستگی دارد؛ این نمایش اندازهٔ واقعی را اندازه نمی‌گیرد.",
+          "state": [
+            "caller | recurse#1 | recurse#2 | recurse#3",
+            "—",
+            "—"
+          ]
+        },
+        {
+          "name": "رسیدن به حد فراخوانی",
+          "short": "خطای پشته",
+          "detail": "در runtime رایج JavaScript بدون حذف فریم‌های tail call، بازگشت نامحدود به خطای محدودیت پشته می‌رسد.",
+          "route": [
+            1
+          ],
+          "packet": "ERROR",
+          "input": "Maximum call stack size exceeded (typical JS)",
+          "output": "RangeError (runtime dependent)",
+          "result": "شرط پایان یا الگوریتم مناسب لازم است.",
+          "explanation": "در بعضی موتورهای JavaScript پیام یا نوع خطا متفاوت است. برای الگوریتم بازگشتی، شرط پایان و عمق قابل کنترل طراحی کنید؛ نمونهٔ نامحدود را اجرا نکنید.",
+          "state": [
+            "Stack limit reached",
+            "—",
+            "—"
+          ],
+          "tone": "error"
+        }
+      ]
     }
   ],
   "pitfall": "Stack و Heap را مکان فیزیکی قطعی برای همهٔ متغیرها ندانید. اندازهٔ پشته محدود است و GC فوری یا تضمین‌کنندهٔ کاهش RSS نیست.",
@@ -291,6 +359,10 @@ const lesson = {
     {
       "label": "MDN — JavaScript execution model",
       "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model"
+    },
+    {
+      "label": "MDN — Too much recursion",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Too_much_recursion"
     }
   ],
   "field": {

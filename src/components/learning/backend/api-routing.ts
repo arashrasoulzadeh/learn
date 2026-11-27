@@ -62,7 +62,7 @@ const lesson = {
       ]
     ],
     "practice": {
-      "question": "مسیر /products/:id فقط GET را پشتیبانی می‌کند. درخواست DELETE /products/42 به همین منبع در API نمونه چه پاسخی می‌گیرد؟",
+      "question": "مسیر /products/:id از GET و HEAD پشتیبانی می‌کند. درخواست DELETE /products/42 به همین منبع در API نمونه چه پاسخی می‌گیرد؟",
       "options": [
         "405 همراه Allow",
         "200 همیشه",
@@ -81,7 +81,7 @@ const lesson = {
       "steps": [
         {
           "name": "جداسازی اجزای درخواست",
-          "short": "Parse",
+          "short": "تجزیه URL",
           "detail": "مسیریاب متد و path را از query جدا می‌کند.",
           "route": [
             0,
@@ -100,7 +100,7 @@ const lesson = {
         },
         {
           "name": "تطابق مسیر پارامتری",
-          "short": "Match",
+          "short": "تطابق مسیر",
           "detail": "قاعدهٔ GET /products/:id پیدا می‌شود و id استخراج می‌شود.",
           "route": [
             1
@@ -118,7 +118,7 @@ const lesson = {
         },
         {
           "name": "اجرای Handler",
-          "short": "Handle",
+          "short": "اجرای تابع",
           "detail": "تابع دادهٔ محصول نمونه را می‌خواند و پاسخ را می‌سازد.",
           "route": [
             1,
@@ -137,7 +137,7 @@ const lesson = {
         },
         {
           "name": "تحویل پاسخ",
-          "short": "Response",
+          "short": "ارسال پاسخ",
           "detail": "پاسخ 200 به کلاینت برمی‌گردد.",
           "route": [
             2,
@@ -156,7 +156,8 @@ const lesson = {
           ],
           "tone": "success"
         }
-      ]
+      ],
+      "prediction": "در /products/42?lang=fa کدام بخش برای تطابق مسیر و استخراج id استفاده می‌شود؟"
     },
     {
       "id": "not-found",
@@ -165,7 +166,7 @@ const lesson = {
       "steps": [
         {
           "name": "جست‌وجوی مسیر",
-          "short": "Match",
+          "short": "جست‌وجوی مسیر",
           "detail": "مسیر /unknown در جدول این API جست‌وجو می‌شود.",
           "route": [
             0,
@@ -184,7 +185,7 @@ const lesson = {
         },
         {
           "name": "پاسخ پیش‌فرض",
-          "short": "404",
+          "short": "رد مسیر",
           "detail": "مسیریاب بدون فراخوانی handler محصول پاسخ 404 می‌دهد.",
           "route": [
             1,
@@ -203,7 +204,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "هیچ مسیر متناظری تعریف نشده است."
+      "edgeCase": "هیچ مسیر متناظری تعریف نشده است.",
+      "prediction": "اگر هیچ مسیر تطبیق پیدا نکند، آیا handler محصول اجرا می‌شود؟"
     },
     {
       "id": "wrong-method",
@@ -212,7 +214,7 @@ const lesson = {
       "steps": [
         {
           "name": "تطابق path",
-          "short": "Path",
+          "short": "تطابق مسیر",
           "detail": "مسیر پارامتری شناخته می‌شود.",
           "route": [
             0,
@@ -222,7 +224,7 @@ const lesson = {
           "input": "DELETE /products/42",
           "output": "Path exists",
           "result": "مسیریاب متدها را بررسی می‌کند.",
-          "explanation": "در این مثال جدول فقط GET را دارد.",
+          "explanation": "در این مثال جدول برای مسیر محصول GET و HEAD دارد؛ DELETE ثبت نشده است.",
           "state": [
             "DELETE /products/42",
             "/products/:id",
@@ -231,7 +233,7 @@ const lesson = {
         },
         {
           "name": "بررسی متد",
-          "short": "Method",
+          "short": "بررسی متد",
           "detail": "DELETE برای این مسیر ثبت نشده است.",
           "route": [
             1
@@ -249,7 +251,7 @@ const lesson = {
         },
         {
           "name": "ارسال 405",
-          "short": "405",
+          "short": "ارسال ۴۰۵",
           "detail": "سرور متدهای مجاز را همراه پاسخ اعلام می‌کند.",
           "route": [
             1,
@@ -268,7 +270,8 @@ const lesson = {
           "tone": "error"
         }
       ],
-      "edgeCase": "تطابق مسیر بدون تطابق متد."
+      "edgeCase": "تطابق مسیر بدون تطابق متد.",
+      "prediction": "اگر path وجود داشته ولی DELETE ثبت نشده باشد، کد پاسخ چیست؟"
     }
   ],
   "pitfall": "Routing احراز هویت یا اعتبارسنجی نیست. ترتیب routeها و نحوهٔ normalize کردن path به پیاده‌سازی وابسته است.",

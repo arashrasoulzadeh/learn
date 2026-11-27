@@ -81,7 +81,7 @@ const lesson = {
       "steps": [
         {
           "name": "شروع تابع",
-          "short": "Start",
+          "short": "شروع تابع",
           "detail": "تابع async قبل از نخستین await به شکل عادی اجرا می‌شود.",
           "route": [
             0
@@ -99,7 +99,7 @@ const lesson = {
         },
         {
           "name": "رسیدن به await",
-          "short": "Suspend",
+          "short": "انتظار",
           "detail": "ادامهٔ تابع به تعیین نتیجه وابسته می‌شود.",
           "route": [
             0,
@@ -109,7 +109,7 @@ const lesson = {
           "input": "const data=await p",
           "output": "caller continues",
           "result": "تابع موقتاً متوقف شد.",
-          "explanation": "در این مدل I/O واقعاً ناهمگام است؛ await خودش یک CPU thread جدید نمی‌سازد.",
+          "explanation": "فراخواننده پس از دریافت Promise می‌تواند ادامه بدهد؛ اجرای continuation فقط بعد از تعیین نتیجه و فرصت اجرای job صورت می‌گیرد. await به تنهایی thread تازه یا موازی‌سازی محاسبه ایجاد نمی‌کند.",
           "state": [
             "Suspended",
             "pending",
@@ -118,7 +118,7 @@ const lesson = {
         },
         {
           "name": "تکمیل عملیات",
-          "short": "Resolve",
+          "short": "آماده شدن",
           "detail": "محیط نتیجه را به Promise می‌رساند و ادامهٔ تابع برای اجرا آماده می‌شود.",
           "route": [
             2,
@@ -137,7 +137,7 @@ const lesson = {
         },
         {
           "name": "ادامهٔ تابع",
-          "short": "Resume",
+          "short": "ادامه تابع",
           "detail": "ادامهٔ async پس از فرصت اجرای job/microtask انجام می‌شود.",
           "route": [
             1,
@@ -155,7 +155,8 @@ const lesson = {
           ],
           "tone": "success"
         }
-      ]
+      ],
+      "prediction": "آیا کد فراخواننده هنگام انتظار Promise می‌تواند ادامه پیدا کند؟"
     },
     {
       "id": "reject",
@@ -164,7 +165,7 @@ const lesson = {
       "steps": [
         {
           "name": "انتظار نتیجه",
-          "short": "Await",
+          "short": "انتظار",
           "detail": "تابع درون try منتظر Promise است.",
           "route": [
             0,
@@ -183,7 +184,7 @@ const lesson = {
         },
         {
           "name": "شکست I/O",
-          "short": "Reject",
+          "short": "شکست عملیات",
           "detail": "عملیات نمونه با خطا تمام می‌شود.",
           "route": [
             2,
@@ -203,7 +204,7 @@ const lesson = {
         },
         {
           "name": "مدیریت خطا",
-          "short": "Catch",
+          "short": "گرفتن خطا",
           "detail": "ادامهٔ تابع در شاخهٔ catch اجرا می‌شود.",
           "route": [
             1,
@@ -222,7 +223,8 @@ const lesson = {
           "tone": "success"
         }
       ],
-      "edgeCase": "Promise رد شده و مسیر خطا باید به‌درستی مدیریت شود."
+      "edgeCase": "Promise رد شده و مسیر خطا باید به‌درستی مدیریت شود.",
+      "prediction": "وقتی Promise رد شود، کدام قسمت تابع بعد از await اجرا می‌شود؟"
     },
     {
       "id": "parallel-io",
@@ -231,7 +233,7 @@ const lesson = {
       "steps": [
         {
           "name": "آغاز هر دو عملیات",
-          "short": "Start",
+          "short": "شروع هر دو",
           "detail": "دو تابع مستقل پیش از await فراخوانی می‌شوند؛ سپس تابع بر Promise.all آن‌ها منتظر می‌ماند.",
           "route": [
             0,
@@ -250,7 +252,7 @@ const lesson = {
         },
         {
           "name": "پایان A",
-          "short": "A done",
+          "short": "پایان A",
           "detail": "A تکمیل می‌شود اما B هنوز منتظر است.",
           "route": [
             2,
@@ -269,7 +271,7 @@ const lesson = {
         },
         {
           "name": "پایان B و ادامه",
-          "short": "Resume",
+          "short": "پایان B",
           "detail": "هر دو نتیجه آماده‌اند و Promise ترکیبی fulfilled می‌شود.",
           "route": [
             1,
@@ -288,7 +290,8 @@ const lesson = {
           "tone": "success"
         }
       ],
-      "edgeCase": "انتظار متوالی برای عملیات مستقل می‌تواند زمان بیهوده ایجاد کند."
+      "edgeCase": "انتظار متوالی برای عملیات مستقل می‌تواند زمان بیهوده ایجاد کند.",
+      "prediction": "آیا پس از پایان A، Promise.all می‌تواند قبل از B نتیجه بدهد؟"
     }
   ],
   "pitfall": "async و await کار CPU-bound را خودکار به thread دیگر نمی‌برند. برای cancellation و timeout سازوکار جدا لازم است.",
