@@ -14,8 +14,9 @@
     "new:concept": "node scripts/new-concept.mjs",
     "check:server": "node scripts/check-server-lessons.mjs",
     "test:e2e": "playwright test",
-    "verify": "npm run check:server && npm run check:network && npm run check && npm run build && npm run test:e2e",
-    "check:network": "node --experimental-strip-types scripts/check-network-lessons.mjs"
+    "verify": "npm run check:server && npm run check:network && npm run check:backend && npm run check && npm run build && npm run test:e2e",
+    "check:network": "node --experimental-strip-types scripts/check-network-lessons.mjs",
+    "check:backend": "node --experimental-strip-types scripts/check-backend-lessons.mjs"
   },
   "dependencies": {
     "astro": "^5.16.16",

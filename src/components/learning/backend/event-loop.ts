@@ -269,15 +269,34 @@ const lesson = {
           "tone": "error"
         },
         {
-          "name": "تخلیه صف و تایمر",
+          "name": "اجرای microtask تازه",
+          "short": "Job 2",
+          "detail": "پیش از انتخاب task تایمر، job2 از صف microtask اجرا می‌شود.",
+          "route": [
+            1,
+            0
+          ],
+          "packet": "JOB2",
+          "input": "run job2",
+          "output": "job1 job2",
+          "result": "صف microtask اکنون خالی است.",
+          "explanation": "job2 در همان checkpoint اجرا می‌شود؛ تایمر تا پایان تخلیهٔ صف منتظر می‌ماند.",
+          "state": [
+            "job1 job2",
+            "—",
+            "timer"
+          ]
+        },
+        {
+          "name": "اجرای task تایمر",
           "short": "Drain",
-          "detail": "job2 پایان می‌یابد و بعد task تایمر فرصت پیدا می‌کند.",
+          "detail": "پس از پایان checkpoint، task تایمر در صورت آماده بودن انتخاب می‌شود.",
           "route": [
             2,
             0
           ],
           "packet": "TASK",
-          "input": "job2; then timer",
+          "input": "run timer",
           "output": "job1 job2 timer",
           "result": "تایمر بعد از تخلیه اجرا شد.",
           "explanation": "برای کار حجیم، زمان‌بندی منصفانه و yield مناسب اهمیت دارد.",

@@ -15,8 +15,8 @@ export default function BackendLab({lesson}:{lesson:BackendLesson}){
  const {step,playing,speed,jump,pause}=playback;
  const stage=scenario.steps[step]??scenario.steps[0];
  const select=(value:string)=>{setId(value);jump(0);};
- const nodes:FlowNode[]=lesson.actors.map((a,i)=>({...a,x:700-i*610/(lesson.actors.length-1),y:175}));
- const compactLayout={width:360,height:Math.ceil(nodes.length/2)*145+47,positions:nodes.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}))};
+ const nodes:FlowNode[]=lesson.actors.map((a,i)=>({...a,x:lesson.slug==='event-loop'?[650,285,285][i]:700-i*610/(lesson.actors.length-1),y:lesson.slug==='event-loop'?[175,95,250][i]:175}));
+ const compactLayout={width:360,height:Math.ceil(nodes.length/2)*145+47,positions:lesson.slug==='event-loop'?[{x:265,y:132},{x:95,y:60},{x:95,y:205}]:nodes.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}))};
  const route=stage.route.map(i=>nodes[i]);
  const accent=stage.tone==='error'?'var(--danger)':'var(--accent)';
  return <div className="network-lab backend-lab" data-lesson={lesson.slug} data-model={lesson.model}>

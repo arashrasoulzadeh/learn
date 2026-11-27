@@ -24,3 +24,6 @@ For each level-one lab, keep notes, references and knowledge checks in the share
 
 ## Final educational review standard
 Keep the concrete state snapshot beside the stage's first explanation; distinguish snapshots from on-wire animation. Each lesson needs a learning goal, normal and edge scenarios, a transfer exercise with corrective feedback, and an optional bounded real-world observation (local-only for write or failure tests). Keep the next lesson link tied to a correct applied-practice response; this is guidance, not a mastery certificate. Review CI screenshots on desktop and phone rather than relying solely on green tests. Use accurate RFC references and explicit simplifications for illustrative protocol messages. Never claim real-world exercises were executed unless they actually were.
+
+## Level two
+Publish the ten `backend-basics` lessons in order 11–20 under software-engineering. BackendLab shares level-one controls, dialog, state inspector and applied practice. Use local, illustrative code and explicit runtime/framework assumptions. For access-control examples validate server-side identity, operation and resource permissions; JWT demonstrations must not use real credentials. Run check:backend and per-lesson browser tests before main.

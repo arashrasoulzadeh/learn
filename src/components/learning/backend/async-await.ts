@@ -232,18 +232,18 @@ const lesson = {
         {
           "name": "آغاز هر دو عملیات",
           "short": "Start",
-          "detail": "دو تابع مستقل قبل از await فراخوانی می‌شوند.",
+          "detail": "دو تابع مستقل پیش از await فراخوانی می‌شوند؛ سپس تابع بر Promise.all آن‌ها منتظر می‌ماند.",
           "route": [
             0,
             1
           ],
           "packet": "START",
-          "input": "const a=loadA(); const b=loadB()",
+          "input": "const a=loadA(); const b=loadB(); await Promise.all([a,b])",
           "output": "A pending; B pending",
           "result": "هر دو عملیات آغاز شده‌اند.",
           "explanation": "هم‌پوشانی I/O به معنای اجرای موازی JS روی همان thread نیست.",
           "state": [
-            "Running",
+            "Suspended",
             "A pending | B pending",
             "I/O active"
           ]

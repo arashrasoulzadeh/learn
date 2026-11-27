@@ -270,3 +270,21 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .backend-lab .state-value{font-size:12px}
 .backend-lab .request-message pre{white-space:pre-wrap;overflow-wrap:anywhere}
 .backend-lab .protocol-state .state-cell{min-height:56px}
+
+/* Concept-specific backend memory, scheduling and access state. */
+.backend-counter{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.backend-counter>b{font:700 23px/1 ui-monospace,monospace;color:var(--accent)}
+.backend-counter>small{font-size:10px;color:var(--muted)}
+.backend-stack{display:grid;gap:3px}
+.backend-stack>span{display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:4px;padding:3px 5px}
+.backend-stack>span[data-top=true]{border-color:var(--accent);color:var(--accent)}
+.backend-stack small{font-size:9px}
+.backend-queue>span{border-color:var(--line);color:var(--ink);background:var(--bg)}
+.backend-queue>span[data-state=error]{color:var(--danger);border-color:var(--danger)}
+.backend-queue>span[data-state=success]{color:var(--accent);border-color:var(--accent)}
+.backend-decision{display:inline-block;padding:3px 6px;border-radius:5px;border:1px solid var(--line)}
+.backend-decision[data-decision=allow]{color:var(--accent);border-color:var(--accent)}
+.backend-decision[data-decision=deny]{color:var(--danger);border-color:var(--danger)}
+.backend-resource{display:grid;gap:3px}.backend-resource>span{border-bottom:1px solid var(--line);padding-bottom:3px}
+.backend-lab[data-model=memory] .state-cells,.backend-lab[data-model=queue] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+.backend-lab[data-model=memory] .state-cell:first-child,.backend-lab[data-model=queue] .state-cell:first-child{grid-column:1/-1}
