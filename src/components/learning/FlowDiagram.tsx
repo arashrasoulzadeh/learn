@@ -43,7 +43,13 @@ function flightPlan(route:readonly FlowNode[],returnRoute:readonly FlowNode[]|un
  add(route,'forward',returnRoute?.length?6:0,packetLabel);
  if(returnRoute?.length)add(returnRoute,'return',6,'Reply');
  if(finalRoute?.length)add(finalRoute,'final',-15,'Confirm');
- if(drop&&result.length)result[result.length-1].drop=true;
+ if(drop&&result.length){
+  // Stop a lost packet on the link, not at the destination actor.
+  const lost=result[result.length-1];
+  lost.drop=true;
+  lost.to={...lost.mid};
+  lost.mid={x:(lost.from.x+lost.to.x)/2,y:(lost.from.y+lost.to.y)/2};
+ }
  return result;
 }
 // Each hop is its own flight. No visible jump through the centre of a node,
@@ -95,7 +101,7 @@ function FlowPacket({route,plan,active,accent}:{route:readonly FlowNode[];plan:F
    return <g key={i} data-lane={s.kind} data-flight={i} data-current-flight={highlight}>
     <path d={'M '+point(s.from)+' L '+point(s.to)} stroke={color} strokeWidth={highlight?13:7} opacity={highlight?".22":".09"} fill="none" strokeLinecap="round"/>
     <path data-visible-flow d={'M '+point(s.from)+' L '+point(s.to)} fill="none" stroke={color} strokeWidth={highlight?3.5:2.5} strokeLinecap="round" strokeDasharray={s.kind==='return'?'5 3':s.kind==='final'?'2 3':undefined}/>
-    <path data-flow-arrow={s.kind} d="M -8 -4.5 L 0 0 L -8 4.5" transform={'translate('+point(s.to)+') rotate('+s.angle+')'} fill="none" stroke={color} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>
+    {!s.drop&&<path data-flow-arrow={s.kind} d="M -8 -4.5 L 0 0 L -8 4.5" transform={'translate('+point(s.to)+') rotate('+s.angle+')'} fill="none" stroke={color} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"/>}
     <g transform={'translate('+point({x:cx,y:cy})+')'}><circle r="9" fill="var(--bg)" stroke={color}/><text textAnchor="middle" y="3.5" fill={color} fontSize="10" fontWeight="700">{i+1}</text></g>
     {s.drop&&<g data-packet-drop="true" transform={'translate('+point(s.to)+')'}><circle r="10" fill="var(--bg)" stroke="var(--danger)" strokeWidth="2"/><path d="M-4 -4 L4 4 M-4 4 L4 -4" stroke="var(--danger)" strokeWidth="2.5" strokeLinecap="round"/></g>}
    </g>;

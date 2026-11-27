@@ -178,6 +178,12 @@ test('HTTP lesson knowledge check and references',async({page})=>{
   await lab.getByRole('button',{name:'نکته‌ها و منابع',exact:true}).click();
   await expect(lab.getByRole('dialog',{name:'مرور و تکمیل یادگیری'})).toBeVisible();
   await lab.locator('.network-extra summary').filter({hasText:'سنجش یادگیری'}).click();
+  for(const wrong of [0,1,2].filter(i=>i!==1)){
+    await lab.locator('.quiz-option').nth(wrong).click();
+    await expect(lab.getByRole('status')).toContainText('درست نیست');
+    await expect(lab.getByRole('status').locator('p')).not.toBeEmpty();
+    await expect(lab.locator('.quiz-option').nth(wrong)).toHaveAttribute('aria-pressed','true');
+  }
   await lab.locator('.quiz-option').nth(1).click();
   await expect(lab.getByRole('status')).toContainText('درست است');
   await lab.locator('.network-extra summary').filter({hasText:'منابع بیشتر'}).click();
@@ -240,8 +246,12 @@ test('HTTP applied practice distinguishes a server response from network failure
   await lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button').last().click();
   await lab.getByRole('link',{name:/حل تمرین کاربردی/}).click();
   const practice=lab.locator('.practice-check');
-  await practice.locator('.practice-option').nth(0).click();
-  await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+  for(const wrong of [0,1,2].filter(i=>i!==1)){
+    await practice.locator('.practice-option').nth(wrong).click();
+    await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+    await expect(practice.locator('.practice-feedback p')).not.toBeEmpty();
+    await expect(practice.locator('.practice-next')).toHaveCount(0);
+  }
   await practice.locator('.practice-option').nth(1).click();
   await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
   await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/networking/dns/');

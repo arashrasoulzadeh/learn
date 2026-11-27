@@ -314,6 +314,12 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
   const dialog=lab.getByRole('dialog',{name:'مرور و تکمیل یادگیری'});
   await expect(dialog).toBeVisible();
   await dialog.getByText('سنجش یادگیری',{exact:true}).first().click();
+  for(const wrong of [0,1,2].filter(i=>i!==quizAnswer)){
+    await dialog.locator('.quiz-option').nth(wrong).click();
+    await expect(dialog.getByRole('status')).toContainText('درست نیست');
+    await expect(dialog.getByRole('status').locator('p')).not.toBeEmpty();
+    await expect(dialog.locator('.quiz-option').nth(wrong)).toHaveAttribute('aria-pressed','true');
+  }
   await dialog.locator('.quiz-option').nth(quizAnswer).click();
   await expect(dialog.getByRole('status')).toContainText('درست است');
   await dialog.locator('.network-extra summary').filter({hasText:'تمرین عملی خارج از شبیه‌سازی'}).click();
@@ -325,8 +331,12 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
   await lab.getByRole('link',{name:/حل تمرین کاربردی/}).click();
   const practice=lab.locator('.practice-check');
   await expect(practice).toBeFocused();
-  await practice.locator('.practice-option').nth((practiceAnswer+1)%3).click();
-  await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+  for(const wrong of [0,1,2].filter(i=>i!==practiceAnswer)){
+    await practice.locator('.practice-option').nth(wrong).click();
+    await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+    await expect(practice.locator('.practice-feedback p')).not.toBeEmpty();
+    await expect(practice.locator('.practice-next')).toHaveCount(0);
+  }
   await practice.locator('.practice-option').nth(practiceAnswer).click();
   await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
   const index=lessons.findIndex(l=>l[0]===slug);

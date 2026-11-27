@@ -87,8 +87,12 @@ for(const lesson of curriculum){
     await lab.locator('.network-extra summary').filter({hasText:'سنجش یادگیری'}).click();
     const options=lab.locator('.quiz-option');
     await expect(options).toHaveCount(3);
-    await options.nth((lesson.correct+1)%3).click();
-    await expect(lab.getByRole('status')).toContainText('درست نیست');
+    for(const wrong of [0,1,2].filter(i=>i!==lesson.correct)){
+      await lab.locator('.quiz-option').nth(wrong).click();
+      await expect(lab.getByRole('status')).toContainText('درست نیست');
+      await expect(lab.getByRole('status').locator('p')).not.toBeEmpty();
+      await expect(lab.locator('.quiz-option').nth(wrong)).toHaveAttribute('aria-pressed','true');
+    }
     await options.nth(lesson.correct).click();
     await expect(lab.getByRole('status')).toContainText('درست است');
     await lab.locator('.network-extra summary').filter({hasText:'تمرین عملی خارج از شبیه‌سازی'}).click();
@@ -158,9 +162,12 @@ for(const lesson of curriculum){
     await lab.getByRole('link',{name:/حل تمرین کاربردی/}).click();
     await expect(practice).toBeFocused();
     const answer=practiceAnswers[lesson.slug];
-    await practice.locator('.practice-option').nth((answer+1)%3).click();
-    await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
-    await expect(practice.locator('.practice-next')).toHaveCount(0);
+    for(const wrong of [0,1,2].filter(i=>i!==answer)){
+      await practice.locator('.practice-option').nth(wrong).click();
+      await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','false');
+      await expect(practice.locator('.practice-feedback p')).not.toBeEmpty();
+      await expect(practice.locator('.practice-next')).toHaveCount(0);
+    }
     await practice.locator('.practice-option').nth(answer).click();
     await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
     await expect(practice.locator('.practice-feedback p').first()).not.toBeEmpty();
