@@ -88,7 +88,7 @@ const lesson = {
           "input": "Set-Cookie: sid=opaque-demo; Path=/; Secure; HttpOnly; SameSite=Lax",
           "output": "Cookie stored",
           "result": "شناسه در مرورگر ذخیره شد.",
-          "explanation": "Set-Cookie از سرور به مرورگر می‌رسد و مرورگر فقط شناسه را نگه می‌دارد؛ Secure و HttpOnly به محدودیت‌های امنیتی کمک می‌کنند.",
+          "explanation": "Set-Cookie شناسه را به مرورگر می‌دهد. Secure ارسال روی کانال امن را محدود می‌کند، HttpOnly خواندن توسط اسکریپت را محدود می‌کند و SameSite قواعد ارسال میان‌سایتی را تغییر می‌دهد؛ هیچ‌کدام به تنهایی جلوی همهٔ CSRF یا XSS را نمی‌گیرد.",
           "state": [
             "sid=opaque-demo",
             "user=42 · valid",
@@ -361,7 +361,7 @@ const lesson = {
       ]
     }
   ],
-  "pitfall": "Cookie همان Session نیست. HttpOnly دسترسی اسکریپت به Cookie را محدود می‌کند، Secure ارسال را به ارتباط امن محدود می‌کند و SameSite بخشی از حفاظت CSRF است؛ هیچ‌کدام جایگزین کنترل امنیت سمت سرور نیست.",
+  "pitfall": "Cookie همان Session نیست. HttpOnly دسترسی اسکریپت به Cookie را محدود می‌کند، Secure ارسال را به ارتباط امن محدود می‌کند و SameSite بخشی از حفاظت CSRF است؛ هیچ‌کدام جایگزین کنترل امنیت سمت سرور نیست. نمونه‌های 401 در این آزمایش خلاصهٔ پیام‌اند؛ پاسخ HTTP کامل 401 باید چالش WWW-Authenticate مناسب داشته باشد. برنامه‌های مبتنی بر فرم می‌توانند راهکار ورود دیگری انتخاب کنند.",
   "takeaway": "شناسهٔ نشست را محرمانه و تصادفی نگه دارید و اعتبار و ابطال را سمت سرور بررسی کنید.",
   "quiz": {
     "question": "اگر Cookie وجود داشته باشد ولی نشست سرور منقضی شده باشد، چه می‌شود؟",
@@ -381,6 +381,10 @@ const lesson = {
     {
       "label": "OWASP — مدیریت نشست",
       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html"
+    },
+    {
+      "label": "RFC 9110 — 401 و WWW-Authenticate",
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html"
     }
   ],
   "visual": {

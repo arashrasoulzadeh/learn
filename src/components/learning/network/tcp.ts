@@ -54,7 +54,7 @@ const lesson = {
           "state": [
             "SYN seq=100",
             "101",
-            "SYN-SENT"
+            "SYN-SENT · awaiting SYN-ACK"
           ]
         },
         {
@@ -74,7 +74,7 @@ const lesson = {
           "state": [
             "SYN-ACK seq=500 ack=101",
             "101",
-            "SYN-ACK received"
+            "SYN-ACK received · ACK pending"
           ]
         },
         {
@@ -90,7 +90,7 @@ const lesson = {
           "input": "ACK seq=101 ack=501",
           "output": "ESTABLISHED",
           "result": "اتصال برقرار شد.",
-          "explanation": "ACK با ack=501 به سرور خبر می‌دهد SYN آن هم دریافت شده؛ حالا دو سمت می‌توانند جریان بایت ردوبدل کنند.",
+          "explanation": "ACK با ack=501 به سرور خبر می‌دهد SYN آن هم دریافت شده است. SYN از هر طرف یک شمارهٔ توالی مصرف می‌کند؛ با تکمیل دست‌دهی، شمارهٔ نخستین بایت کلاینت 101 است.",
           "state": [
             "ACK seq=101 ack=501",
             "101",
@@ -391,6 +391,10 @@ const lesson = {
       [
         "RTO",
         "مهلت ارسال مجدد در صورت نرسیدن تأیید."
+      ],
+      [
+        "Byte stream",
+        "جریان مرتب بایت‌ها؛ TCP مرز پیام‌های برنامه را حفظ نمی‌کند."
       ]
     ]
   }
