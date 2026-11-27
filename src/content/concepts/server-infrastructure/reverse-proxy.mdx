@@ -1,0 +1,96 @@
+---
+title: "Reverse Proxy"
+description: "Trace one real HTTP request through TLS termination, Host/Path inspection, route matching, upstream forwarding and a 502 failure."
+category: server-infrastructure
+difficulty: beginner
+estimatedMinutes: 15
+order: 3
+tags: [reverse-proxy, http, tls, routing, nginx]
+---
+import { ReverseProxyLab } from '@/components/learning/ServerLabs';
+import Quiz from '@/components/learning/Quiz';
+import Callout from '@/components/learning/Callout.astro';
+
+## The problem
+
+A browser calls `https://api.example.com/api/orders`. The client should not need to know whether Orders currently runs on port 8080, three containers, or a different internal host tomorrow.
+
+A Reverse Proxy creates a stable public edge. It receives the public connection, applies edge-level policy and forwards the request to the selected internal upstream.
+
+## Mental model
+
+Follow one concrete request:
+
+```http
+GET /api/orders HTTP/1.1
+Host: api.example.com
+Accept: application/json
+```
+
+A simple route table might be:
+
+```text
+/api/*  → API :8080
+/app/*  → Web :3000
+```
+
+The proxy can terminate TLS and inspect the Host and Path needed for routing. The API still owns order validation, pricing and persistence.
+
+<Callout title="Edge policy, not domain ownership">
+  TLS termination, routing, coarse access policy and timeouts are natural edge concerns. Order pricing or inventory rules belong to the service that owns those concepts.
+</Callout>
+
+## Interactive lab
+
+Do not read this as a static architecture diagram. Step through the **same request** and watch exactly what information becomes available and what decision follows.
+
+<ReverseProxyLab client:visible />
+
+## Practical example
+
+A minimal NGINX-style configuration can express the same idea:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name api.example.com;
+
+    location /api/ {
+        proxy_pass http://api:8080;
+    }
+
+    location /app/ {
+        proxy_pass http://web:3000;
+    }
+}
+```
+
+This snippet is illustrative. Production configuration also needs appropriate headers, timeout policy, TLS configuration, logging and upstream health strategy.
+
+If `/api/orders` matches the API route but the proxy cannot establish the upstream connection, the proxy can return **502 Bad Gateway**. That is different from the API successfully receiving the request and intentionally returning a 4xx or 5xx application response.
+
+## Failure modes and trade-offs
+
+- **Wrong route rule.** A valid request reaches the wrong upstream or no upstream.
+- **Bad timeout policy.** Too short causes false failures; too long ties up edge resources.
+- **Unhealthy upstreams remain eligible.** The proxy keeps forwarding to targets that cannot serve.
+- **The edge becomes a bottleneck.** TLS, buffering and routing consume real resources.
+- **Business logic drifts into the proxy.** Ownership becomes difficult to test and evolve.
+
+Useful signals: edge P99, upstream connection failures, upstream response status distribution, healthy upstream count and route-level request volume.
+
+## Check your understanding
+
+<Quiz client:visible question="For GET /api/orders, what information does a path-based Reverse Proxy need to choose the API route?" options={['The HTTP path, and sometimes Host','The database password','The final order price','The browser screen size']} correct={0} explanation="Routing decisions commonly use HTTP metadata such as Host and Path. Domain calculations belong to the upstream service." />
+
+<Quiz client:visible question="The /api route matches, but the proxy cannot connect to API :8080. Which failure is a typical edge result?" options={['502 Bad Gateway','201 Created','304 Not Modified','DNS MX response']} correct={0} explanation="502 commonly indicates the proxy received the client request but could not obtain a valid response from its upstream." />
+
+## Takeaway
+
+A Reverse Proxy is a **public boundary plus an upstream-selection decision**. Trace the concrete request: receive → terminate TLS → inspect metadata → match rule → forward → relay response. Keep business behavior behind that boundary.
+
+## References
+
+- [NGINX: Proxying HTTP Traffic](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/)
+- [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
+- [MDN: 502 Bad Gateway](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/502)
