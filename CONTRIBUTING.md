@@ -20,3 +20,6 @@ Run npm install, npm run check and npm run build. Preview under /learn/. Check k
 
 ## Presentation
 The learning screen is immersive and uses all available viewport space. Keep the published MDX focused on the educational experience itself; extended source notes may live under docs/lessons. The root route starts with networking/http-request, while every lesson retains its own stable URL.
+
+## Language
+All published explanations, controls, captions, and accessible labels must be Persian. Use RTL for prose and LTR for code and HTTP wire examples. Use Persian digits for UI counters and leave protocol values unchanged.
