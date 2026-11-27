@@ -132,3 +132,28 @@ test('HTTP lesson exposes live address, stage result and status without breaking
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
   await page.screenshot({path:'test-results/http-response-mobile.png',animations:'disabled',fullPage:true});
 });
+
+
+test('compact HTTP diagram reflows instead of shrinking desktop labels',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  const graph=lab.locator('.flow-diagram');
+  await expect(graph).toHaveAttribute('data-layout','compact');
+  await expect(graph).toHaveAttribute('viewBox','0 0 360 482');
+  await expect(graph.locator('[data-node=browser]')).toHaveAttribute('transform','translate(265 60)');
+  await expect(graph.locator('[data-node=db]')).toHaveAttribute('transform','translate(95 350)');
+  const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
+  await steps.nth(4).click();
+  await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 265 60 L 265 205');
+  await steps.nth(7).click();
+  await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 95 205 L 265 205 L 265 60');
+  expect((await graph.boundingBox())!.height).toBeGreaterThan(300);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
+  await page.screenshot({path:'test-results/http-final-mobile.png',animations:'disabled',fullPage:true});
+  await page.setViewportSize({width:1440,height:900});
+  await expect(graph).toHaveAttribute('data-layout','wide');
+  await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 295 220 L 500 220 L 700 220');
+  await page.screenshot({path:'test-results/http-final-desktop.png',animations:'disabled'});
+});

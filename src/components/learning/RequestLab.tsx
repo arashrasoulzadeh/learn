@@ -29,6 +29,9 @@ const scenarios = {
 };
 type Scenario = keyof typeof scenarios;
 const edges:FlowEdge[]=[[0,1],[0,2],[2,3],[3,4]];
+const compactLayout={width:360,height:482,positions:[
+  {x:265,y:60},{x:95,y:60},{x:265,y:205},{x:95,y:205},{x:95,y:350}
+]};
 const stageNotes=[
   {phase:'آماده‌سازی',result:'آدرس و متد مشخص شده‌اند.',example:'https://shop.example/api/products/42'},
   {phase:'آماده‌سازی',result:'نشانی سرور پیدا شده است.',example:'shop.example → 192.0.2.10'},
@@ -64,7 +67,7 @@ export default function RequestLab(){
     graphFooter={<ProtocolExchange phase={stageNotes[step].phase} result={step===6&&scenario==='error'?'عملیات داده ناموفق بود.':stageNotes[step].result} example={example}/>}
     
     toolbar={<LabToolbar playback={playback} count={stages.length}><LabSelect label="سناریو" value={scenario} options={scenarioOptions} onChange={v=>{setScenario(v as Scenario);jump(0);}}/></LabToolbar>}
-    graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={step+'-'+scenario+'-'+speed} label={stage.name} caption={stage.label} captionDirection={step===2?'ltr':'rtl'} returnRoute={returnRoute} packetLabel={packetLabel}/>}
-    detail={<><LabStage name={stage.name} label={stage.short}>{detail}</LabStage><LabMessage title="درخواست" content={step>=4?request:undefined} waiting="هنوز درخواست HTTP ارسال نشده است." tag={step>=4?s.method:undefined}/><LabMessage title="پاسخ" content={responseVisible?response:undefined} waiting="هنوز پاسخی از سرور دریافت نشده است." tag={responseVisible?s.status.slice(0,3):undefined} tone={responseVisible?outcome:undefined}/><LabNote>این شبیه‌سازی یک اتصال جدید HTTPS بر بستر TCP را با HTTP/1.1 نشان می‌دهد. اتصال‌ها می‌توانند دوباره استفاده شوند و HTTP/3 از QUIC استفاده می‌کند. هیچ درخواست واقعی به شبکه ارسال نمی‌شود.</LabNote></>}
+    graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={step+'-'+scenario+'-'+speed} label={stage.name} caption={stage.label} captionDirection={step===2?'ltr':'rtl'} returnRoute={returnRoute} packetLabel={packetLabel} compactLayout={compactLayout}/>}
+    detail={<><LabStage name={stage.name} label={stage.short}>{detail}</LabStage><LabMessage title="درخواست" content={step>=4?request:undefined} waiting="هنوز درخواست HTTP ارسال نشده است." tag={step>=4?s.method:undefined}/><LabMessage title="پاسخ" content={responseVisible?response:undefined} waiting="هنوز پاسخی از سرور دریافت نشده است." tag={responseVisible?s.status.slice(0,3):undefined} tone={responseVisible?outcome:undefined}/><LabNote>شبیه‌سازی یک اتصال جدید HTTPS با HTTP/1.1 و TCP؛ بدون ارسال درخواست واقعی. در عمل اتصال‌ها قابل استفادهٔ مجدد هستند و HTTP/3 از QUIC استفاده می‌کند.</LabNote></>}
     timeline={<LabTimeline steps={stages} step={step} onChange={jump} label="مراحل درخواست"/>}/>;
 }
