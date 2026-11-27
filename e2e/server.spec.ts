@@ -18,7 +18,7 @@ const lessonUrl=(slug:string)=>'/learn/concepts/server-infrastructure/'+slug+'/'
 test.describe('Server & Infrastructure product audit',()=>{
  test('all ten lessons are discoverable from the catalog',async({page})=>{
   await page.goto('/learn/catalog/');
-  await expect(page.getByText('Server & Infrastructure',{exact:true}).first()).toBeVisible();
+  await expect(page.getByRole('heading',{name:/Server & Infrastructure/}).first()).toBeVisible();
   for(const [,title] of lessons)await expect(page.getByRole('link',{name:new RegExp(title)}).first()).toBeVisible();
  });
 
@@ -31,6 +31,7 @@ test.describe('Server & Infrastructure product audit',()=>{
    await expect(page.getByRole('heading',{level:1,name:title})).toBeVisible();
    const lab=page.locator('.server-lab');
    await expect(lab).toBeVisible();
+   await expect(lab).toHaveAttribute('data-hydrated','true');
    await expect(lab.locator('svg.server-lab-graph')).toBeVisible();
    const steps=lab.locator('.step-button');
    await expect(steps).toHaveCount(stepCount);
