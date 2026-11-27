@@ -99,7 +99,11 @@ const lesson = {
             "sep=30",
             "10 | 20",
             "30 | 35 | 40"
-          ]
+          ],
+          "flightLabels": [
+            "compare 35 ≥ 30"
+          ],
+          "diagnostic": "separator فقط مسیر فرزند را تعیین می‌کند؛ ساختار B+ tree لزوماً دودویی نیست."
         },
         {
           "name": "ورود به برگ راست",
@@ -118,7 +122,11 @@ const lesson = {
             "seek 35",
             "10 | 20",
             "30 | 35 ✓ | 40"
-          ]
+          ],
+          "flightLabels": [
+            "seek 35"
+          ],
+          "diagnostic": "در برگ مرتب کلید و locator را پیدا کنید؛ صفحات خوانده‌شده معیار هزینه‌اند."
         },
         {
           "name": "بازگشت اشاره‌گر",
@@ -138,7 +146,11 @@ const lesson = {
             "10 | 20",
             "30 | 35 | 40"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return pointer"
+          ],
+          "diagnostic": "فقط مسیر مربوط پیموده شد؛ ارتفاع متوازن رشد آهسته دارد."
         }
       ]
     },
@@ -165,7 +177,11 @@ const lesson = {
             "sep=30",
             "10 | 20 ✓",
             "30 | 35 | 40"
-          ]
+          ],
+          "flightLabels": [
+            "seek lower 20"
+          ],
+          "diagnostic": "ابتدا lower bound یافت می‌شود؛ شرط inclusive/exclusive را جدا در نظر بگیرید."
         },
         {
           "name": "حرکت به برگ بعد",
@@ -184,7 +200,11 @@ const lesson = {
             "Range 20…35",
             "20",
             "30 ✓ | 35 ✓ | 40"
-          ]
+          ],
+          "flightLabels": [
+            "next leaf"
+          ],
+          "diagnostic": "پیوند برگ‌ها اجازه پیمایش بازه را می‌دهد؛ با 40 از upper bound عبور می‌کنیم."
         },
         {
           "name": "خروجی مرتب",
@@ -204,7 +224,11 @@ const lesson = {
             "10 | 20",
             "30 | 35 | 40"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return 20,30,35"
+          ],
+          "diagnostic": "در SQL ORDER BY را برای ترتیب تضمینی مشخص کنید؛ scan index الزاماً ترتیب خروجی نهایی نیست."
         }
       ]
     },
@@ -230,7 +254,11 @@ const lesson = {
             "FULL 10 | 20 | 30",
             "—",
             "—"
-          ]
+          ],
+          "flightLabels": [
+            "capacity 3/3"
+          ],
+          "diagnostic": "در سناریوی خاص root خودش leaf است؛ ظرفیت فرضی سه کلید دارد."
         },
         {
           "name": "تقسیم کلیدها",
@@ -244,12 +272,16 @@ const lesson = {
           "input": "insert 25; split [10,20,25,30]",
           "output": "left=[10,20]; right=[25,30]",
           "result": "دو برگ جدید ساخته شدند.",
-          "explanation": "این یک snapshot مفهومی از split است، نه پروتکل crash-safe موتور.",
+          "explanation": "این یک snapshot مفهومی از split است، نه پروتکل crash-safe موتور. در این گام ساخت هر دو برگ یک عملیات مدل‌شده است؛ فلش به برگ چپ آغاز تقسیم را نشان می‌دهد.",
           "state": [
             "Root being built",
             "10 | 20",
             "25 | 30"
-          ]
+          ],
+          "flightLabels": [
+            "split keys"
+          ],
+          "diagnostic": "کلید 25 اضافه و چهار کلید در دو برگ تقسیم می‌شوند؛ این نمایش snapshot مفهومی است."
         },
         {
           "name": "نصب ریشهٔ راهنما",
@@ -269,7 +301,11 @@ const lesson = {
             "10 | 20",
             "25 | 30"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "install separator"
+          ],
+          "diagnostic": "ریشه separator=25 مسیر ≥25 را به راست هدایت می‌کند؛ تغییر parent ممکن است هزینه چند صفحه داشته باشد."
         }
       ],
       "edgeCase": "درج در صفحهٔ پر باعث split و هزینهٔ اضافی می‌شود."

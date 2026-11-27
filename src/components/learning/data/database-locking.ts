@@ -96,7 +96,11 @@ const lesson = {
             "X→A",
             "Holding X",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "LOCK X"
+          ],
+          "diagnostic": "SELECT FOR UPDATE قفل ردیف مرتبط را تا پایان تراکنش نگه می‌دارد؛ خواندن MVCC عادی الزاماً منتظر نمی‌ماند."
         },
         {
           "name": "درخواست ناسازگار",
@@ -115,7 +119,11 @@ const lesson = {
             "X→A | WAIT B→A",
             "Holding X",
             "Waiting"
-          ]
+          ],
+          "flightLabels": [
+            "WAIT X"
+          ],
+          "diagnostic": "یال B→A یک انتظار است؛ از pg_blocking_pids برای تشخیص blocker در محیط آزمایشی استفاده کنید."
         },
         {
           "name": "آزادسازی و واگذاری",
@@ -136,7 +144,12 @@ const lesson = {
             "Done",
             "Holding X"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "release X",
+            "grant X"
+          ],
+          "diagnostic": "پس از COMMIT قفل آزاد می‌شود و B می‌تواند پیشرفت کند؛ شرایط تغییر را دوباره بررسی کند."
         }
       ]
     },
@@ -162,7 +175,11 @@ const lesson = {
             "X→A | Y→B",
             "Holding X",
             "Holding Y"
-          ]
+          ],
+          "flightLabels": [
+            "lock X,Y"
+          ],
+          "diagnostic": "A و B هر یک مالک یک منبع‌اند؛ هنوز یال انتظار نداریم."
         },
         {
           "name": "A منتظر B",
@@ -181,7 +198,11 @@ const lesson = {
             "WAIT A→B",
             "Waiting Y",
             "Holding Y"
-          ]
+          ],
+          "flightLabels": [
+            "A waits Y"
+          ],
+          "diagnostic": "A→B یک وابستگی یک‌طرفه است؛ هنوز B می‌تواند پیشرفت کند."
         },
         {
           "name": "B منتظر A",
@@ -201,7 +222,11 @@ const lesson = {
             "Waiting Y",
             "Waiting X"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "B waits X"
+          ],
+          "diagnostic": "A→B→A چرخه است؛ detector ممکن است یکی را abort کند، انتخاب قربانی قطعی نیست."
         },
         {
           "name": "شکستن چرخه",
@@ -221,7 +246,11 @@ const lesson = {
             "Can proceed",
             "ROLLBACK"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "abort B"
+          ],
+          "diagnostic": "SQLSTATE 40P01 نشان deadlock است؛ rollback و retry محدود کل تراکنش و اثرهای جانبی لازم‌اند."
         }
       ],
       "edgeCase": "چرخهٔ انتظار با abort یک تراکنش شکسته می‌شود."
@@ -249,7 +278,11 @@ const lesson = {
             "X→A",
             "Holding X",
             "Ready"
-          ]
+          ],
+          "flightLabels": [
+            "lock X"
+          ],
+          "diagnostic": "ترتیب سراسری برای منابع مرتبط تعیین کنید؛ همه مسیرهای نوشتن باید از آن پیروی کنند."
         },
         {
           "name": "B منتظر X",
@@ -268,7 +301,11 @@ const lesson = {
             "WAIT B→A",
             "Holding X",
             "Waiting X"
-          ]
+          ],
+          "flightLabels": [
+            "wait X"
+          ],
+          "diagnostic": "B هنوز Y را نگرفته؛ بنابراین چرخه همین مثال ایجاد نمی‌شود."
         },
         {
           "name": "A کامل و B ادامه",
@@ -289,7 +326,12 @@ const lesson = {
             "Done",
             "Done"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "release",
+            "proceed"
+          ],
+          "diagnostic": "ترتیب ثابت خطر deadlock این الگو را کاهش می‌دهد؛ timeout و سایر چرخه‌ها هنوز ممکن‌اند."
         }
       ],
       "edgeCase": "ترتیب قفل‌گیری، چرخهٔ نمونه را حذف می‌کند."

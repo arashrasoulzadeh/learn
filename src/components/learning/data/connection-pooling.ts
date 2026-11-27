@@ -96,7 +96,11 @@ const lesson = {
             "R1 ready",
             "FREE C1 | FREE C2",
             "2 open"
-          ]
+          ],
+          "flightLabels": [
+            "open slots"
+          ],
+          "diagnostic": "تعداد اتصال باز و busy متفاوت‌اند؛ مجموع poolهای instanceها را در بودجه DB حساب کنید."
         },
         {
           "name": "اجاره C1",
@@ -117,12 +121,19 @@ const lesson = {
             "C1→R1 | FREE C2",
             "1 busy"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "acquire",
+            "query",
+            "result",
+            "return to caller"
+          ],
+          "diagnostic": "تراکنش چند statement باید روی همان connection lease بماند؛ query completion لزوماً release نیست."
         },
         {
           "name": "بازگشت و استفادهٔ مجدد",
           "short": "بازگشت",
-          "detail": "پس از پایان و پاک‌سازی وضعیت لازم، C1 به pool برمی‌گردد.",
+          "detail": "پس از پایان query و پاک‌سازی وضعیت لازم، مالک C1 آن را به pool برمی‌گرداند. این release عمل driver/pool است و از سمت DB به‌صورت پیام مستقلی ارسال نمی‌شود.",
           "route": [
             2,
             1
@@ -137,7 +148,11 @@ const lesson = {
             "FREE C1 | FREE C2",
             "2 open"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "query done / release"
+          ],
+          "diagnostic": "اتصال آزاد در pool باز می‌ماند؛ rollback/reset وضعیت شکست‌خورده پیش از reuse لازم است."
         }
       ]
     },
@@ -163,7 +178,11 @@ const lesson = {
             "R1 | R2",
             "C1→R1 | C2→R2",
             "2 busy"
-          ]
+          ],
+          "flightLabels": [
+            "C1,C2 busy"
+          ],
+          "diagnostic": "pool full ممکن است با DB سالم رخ دهد؛ total/idle/waiting را جدا اندازه بگیرید."
         },
         {
           "name": "درخواست سوم",
@@ -182,7 +201,11 @@ const lesson = {
             "R1 | R2 | WAIT R3",
             "FULL",
             "2 busy"
-          ]
+          ],
+          "flightLabels": [
+            "queue R3"
+          ],
+          "diagnostic": "acquire timeout و صف محدود از انتظار نامحدود جلوگیری می‌کنند؛ SLA را در نظر بگیرید."
         },
         {
           "name": "واگذاری به منتظر",
@@ -203,7 +226,12 @@ const lesson = {
             "C1→R3 | C2→R2",
             "2 busy"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "release C1",
+            "grant R3"
+          ],
+          "diagnostic": "slot آزاد به درخواست منتظر واگذار می‌شود؛ ترتیب و fairness به پیاده‌سازی pool وابسته‌اند."
         }
       ],
       "edgeCase": "صف کنترل‌شده به‌جای افزایش نامحدود اتصال."
@@ -233,7 +261,12 @@ const lesson = {
             "C1→R1 | FREE C2",
             "C1 leased"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "acquire",
+            "query error"
+          ],
+          "diagnostic": "exception در query مالکیت connection را خودکار برنمی‌گرداند؛ finally لازم است."
         },
         {
           "name": "بازگشت فراموش‌شده",
@@ -252,7 +285,11 @@ const lesson = {
             "C1 leaked | C2→R2",
             "FULL"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "leaked C1"
+          ],
+          "diagnostic": "نشت حتی با DB سالم ظرفیت مؤثر را کم می‌کند؛ duration lease و تعداد idle را بررسی کنید."
         },
         {
           "name": "مهلت انتظار و اصلاح",
@@ -272,7 +309,11 @@ const lesson = {
             "FULL",
             "DB may be healthy"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "acquire timeout"
+          ],
+          "diagnostic": "timeout درخواست سوم علامت pool exhaustion است، نه دلیل قطعی خرابی DB؛ cleanup تراکنش را تضمین کنید."
         }
       ],
       "edgeCase": "فراموشی release می‌تواند حتی با DB سالم pool را اشباع کند."

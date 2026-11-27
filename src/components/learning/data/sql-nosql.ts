@@ -95,7 +95,11 @@ const lesson = {
             "Read order 42",
             "customers: 7,Sara | orders: 42,7",
             "FK valid"
-          ]
+          ],
+          "flightLabels": [
+            "create schema"
+          ],
+          "diagnostic": "قید PRIMARY KEY و FOREIGN KEY را در DDL ببینید؛ شناسهٔ رابطه به نام جاری وابسته نیست."
         },
         {
           "name": "درخواست ترکیب",
@@ -116,7 +120,14 @@ const lesson = {
             "orders.customer_id → customers.id",
             "42,Sara"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "query",
+            "JOIN plan",
+            "rows",
+            "result"
+          ],
+          "diagnostic": "EXPLAIN مسیر join را نشان می‌دهد؛ FK الزاماً روی ستون ارجاع‌دهنده ایندکس نمی‌سازد."
         },
         {
           "name": "تغییر نام و خواندن تازه",
@@ -137,7 +148,12 @@ const lesson = {
             "42,Sam"
           ],
           "tone": "success",
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "UPDATE",
+            "joined row"
+          ],
+          "diagnostic": "نام جاری از مرجع خوانده می‌شود؛ snapshot تاریخی سفارش را جدا طراحی کنید."
         }
       ]
     },
@@ -164,7 +180,11 @@ const lesson = {
             "Create order",
             "order42 | items:[A×2]",
             "Stored"
-          ]
+          ],
+          "flightLabels": [
+            "insert document"
+          ],
+          "diagnostic": "آیتم‌های محدود و وابسته به aggregate می‌توانند embedded باشند؛ رشد نامحدود سند را بررسی کنید."
         },
         {
           "name": "خواندن یک سند",
@@ -186,7 +206,14 @@ const lesson = {
             "Document found"
           ],
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "findOne",
+            "lookup",
+            "document",
+            "result"
+          ],
+          "diagnostic": "یک سند نتیجهٔ نمایش را دارد؛ تعداد I/O واقعی به ایندکس و اندازه سند وابسته است."
         },
         {
           "name": "تغییر یک آیتم",
@@ -207,7 +234,12 @@ const lesson = {
             "qty=3"
           ],
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "update item",
+            "saved"
+          ],
+          "diagnostic": "در MongoDB تغییر یک سند اتمیک است؛ برای چند سند تضمین جدا لازم است."
         }
       ]
     },
@@ -234,7 +266,11 @@ const lesson = {
             "Insert 43",
             "customers: 7 | orders: 42,7",
             "Pending"
-          ]
+          ],
+          "flightLabels": [
+            "INSERT order"
+          ],
+          "diagnostic": "شناسه مشتری را به عنوان داده غیرقابل اعتماد بررسی کنید؛ قید DB پشتوانه یکپارچگی است."
         },
         {
           "name": "اعمال قید",
@@ -255,7 +291,12 @@ const lesson = {
             "CONFLICT FK"
           ],
           "tone": "error",
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "FK check",
+            "violation"
+          ],
+          "diagnostic": "DB درج ارجاع به مشتری ناموجود را رد می‌کند؛ transaction error را طبق driver مدیریت کنید."
         },
         {
           "name": "پاسخ برنامه",
@@ -275,7 +316,11 @@ const lesson = {
             "orders: 42,7",
             "No order 43"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "reject"
+          ],
+          "diagnostic": "خطای داخلی قید را به خطای قرارداد API تبدیل کنید و داده نامعتبر ثبت نکنید."
         }
       ],
       "edgeCase": "ثبت ارجاع نامعتبر باید با قید یا سیاست صریح جلوگیری شود."

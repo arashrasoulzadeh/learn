@@ -90,12 +90,16 @@ const lesson = {
           "input": "commit price=45 at 102",
           "output": "Primary=102",
           "result": "نوشتن در primary ثبت شد.",
-          "explanation": "در مدل async تأیید منتظر replay replicaها نیست.",
+          "explanation": "در مدل async تأیید منتظر replay replicaها نیست. در این مدل ACK بعد از دوام محلی فرض می‌شود؛ گزینه‌های synchronous_commit و synchronous standby سیاست را تغییر می‌دهند.",
           "state": [
             "102 · 45",
             "101 · 50",
             "101 · 50"
-          ]
+          ],
+          "flightLabels": [
+            "COMMIT WAL 102"
+          ],
+          "diagnostic": "در async replication، ACK primary لزوماً منتظر دریافت/flush/replay standby نیست."
         },
         {
           "name": "ارسال و replay A",
@@ -114,7 +118,11 @@ const lesson = {
             "102 · 45",
             "102 · 45",
             "101 · 50"
-          ]
+          ],
+          "flightLabels": [
+            "send + replay 102"
+          ],
+          "diagnostic": "receive، durable flush و replay سه وضعیت جدا هستند؛ در این snapshot A تا replay پیش رفته."
         },
         {
           "name": "رسیدن B",
@@ -134,7 +142,11 @@ const lesson = {
             "SYNC 102 · 45",
             "SYNC 102 · 45"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "send + replay 102"
+          ],
+          "diagnostic": "B نیز اکنون همگام است؛ همگامی لحظه‌ای با نبود lag در آینده یکی نیست."
         }
       ]
     },
@@ -160,7 +172,11 @@ const lesson = {
             "102 · 45",
             "LAG 101 · 50",
             "101 · 50"
-          ]
+          ],
+          "flightLabels": [
+            "local commit"
+          ],
+          "diagnostic": "نوشتن در primary پایدار فرض شده؛ replica هنوز offset 101 دارد."
         },
         {
           "name": "خواندن از A",
@@ -179,7 +195,11 @@ const lesson = {
             "LAG 101 · 50",
             "101 · 50"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "read replica A"
+          ],
+          "diagnostic": "SELECT تازه روی A مقدار 50 را می‌بیند؛ read-after-write شکسته است."
         },
         {
           "name": "سیاست خواندن سازگارتر",
@@ -198,7 +218,11 @@ const lesson = {
             "LAG 101 · 50",
             "101 · 50"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "read primary"
+          ],
+          "diagnostic": "هدایت خواندن پس از نوشتن به primary یا انتظار replay نسخه لازم tradeoff latency دارد."
         }
       ],
       "edgeCase": "replica عقب‌مانده ممکن است پاسخ کهنه دهد."
@@ -225,7 +249,11 @@ const lesson = {
             "102 · 45",
             "101 · 50",
             "101 · 50"
-          ]
+          ],
+          "flightLabels": [
+            "ack commit 102"
+          ],
+          "diagnostic": "تأیید محلی async پنجرهٔ از دست رفتن نوشتن تأییدشده ایجاد می‌کند."
         },
         {
           "name": "خرابی primary",
@@ -244,7 +272,11 @@ const lesson = {
             "101 · 50",
             "101 · 50"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "primary down"
+          ],
+          "diagnostic": "در مدل primary و لاگ قابل بازیابی نیستند؛ اگر قابل بازیابی بود نتیجه فرق داشت."
         },
         {
           "name": "ارتقای replica با fencing",
@@ -263,7 +295,11 @@ const lesson = {
             "PRIMARY 101 · 50",
             "101 · 50"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "fence + promote"
+          ],
+          "diagnostic": "فقط بعد از fencing نویسندهٔ قدیمی promote کنید؛ 102 در هیچ replica موجود نیست و از دست رفته است."
         }
       ],
       "edgeCase": "در failover غیرهمگام ممکن است نوشتن تأییدشده از دست برود."

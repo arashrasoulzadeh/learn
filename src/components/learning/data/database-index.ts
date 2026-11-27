@@ -99,7 +99,11 @@ const lesson = {
             "sku=D",
             "No sku index",
             "A | B | C | D | E"
-          ]
+          ],
+          "flightLabels": [
+            "plan SELECT"
+          ],
+          "diagnostic": "بدون ایندکس مناسب planner ممکن است Seq Scan انتخاب کند؛ EXPLAIN برای مشاهده plan است."
         },
         {
           "name": "اسکن ردیف‌ها",
@@ -118,7 +122,11 @@ const lesson = {
             "Scan",
             "—",
             "5 examined | D matched"
-          ]
+          ],
+          "flightLabels": [
+            "scan 5 rows"
+          ],
+          "diagnostic": "شرط روی هر ردیف نمونه بررسی می‌شود؛ page reads و row count یکی نیستند."
         },
         {
           "name": "تحویل ردیف",
@@ -138,7 +146,11 @@ const lesson = {
             "—",
             "D"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return D"
+          ],
+          "diagnostic": "نتیجه منطقی باید با query ایندکس‌شده برابر باشد؛ ترتیب بدون ORDER BY تضمین نیست."
         }
       ]
     },
@@ -165,7 +177,11 @@ const lesson = {
             "Build",
             "A→r1 | B→r2 | C→r3 | D→r4 | E→r5",
             "5 rows"
-          ]
+          ],
+          "flightLabels": [
+            "build index"
+          ],
+          "diagnostic": "ساخت ایندکس کلید و locator رکورد را نگه می‌دارد؛ build زمان و فضای اضافی می‌خواهد."
         },
         {
           "name": "جست‌وجوی کلید",
@@ -184,7 +200,11 @@ const lesson = {
             "sku=D",
             "D→r4",
             "Not fetched yet"
-          ]
+          ],
+          "flightLabels": [
+            "seek D"
+          ],
+          "diagnostic": "مقدار کلید D به اشاره‌گر r4 می‌رسد؛ هزینه پیمایش صفحه‌ها از مدل ساده حذف شده."
         },
         {
           "name": "دریافت ردیف",
@@ -205,7 +225,12 @@ const lesson = {
             "D→r4",
             "1 row fetched"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "fetch r4",
+            "row D"
+          ],
+          "diagnostic": "واکشی heap row جدا از پیمایش ایندکس است؛ index-only scan فقط تحت شرایط مشخص کافی است."
         }
       ]
     },
@@ -232,7 +257,11 @@ const lesson = {
             "INSERT F",
             "A…E",
             "r6: F"
-          ]
+          ],
+          "flightLabels": [
+            "INSERT F"
+          ],
+          "diagnostic": "ردیف و index maintenance در عملیات تراکنشی هماهنگ‌اند؛ snapshot میانی عمومی نیست."
         },
         {
           "name": "نگهداری ایندکس",
@@ -251,7 +280,11 @@ const lesson = {
             "Write",
             "F→r6",
             "r6: F"
-          ]
+          ],
+          "flightLabels": [
+            "maintain index"
+          ],
+          "diagnostic": "هر ایندکس مرتبط به نوشتن و فضای ذخیره اضافه می‌کند؛ write amplification را اندازه بگیرید."
         },
         {
           "name": "انتخاب سنجیده",
@@ -271,7 +304,11 @@ const lesson = {
             "F→r6",
             "6 rows"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "COMMIT"
+          ],
+          "diagnostic": "planner برای شرط کم‌انتخاب‌پذیر ممکن است اسکن را ترجیح دهد؛ ایندکس بیشتر همیشه بهتر نیست."
         }
       ],
       "edgeCase": "ایندکس رایگان نیست؛ در workload نوشتنی زیاد باید هزینه سنجیده شود."

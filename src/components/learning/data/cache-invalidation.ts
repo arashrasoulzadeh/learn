@@ -95,7 +95,11 @@ const lesson = {
             "Ready",
             "50 v1",
             "50 v1"
-          ]
+          ],
+          "flightLabels": [
+            "cache v1"
+          ],
+          "diagnostic": "کش و منبع اصلی دو state مستقل دارند؛ نسخه‌ها را برای debugging ثبت کنید."
         },
         {
           "name": "ثبت قیمت تازه",
@@ -115,7 +119,11 @@ const lesson = {
             "STALE 50 v1",
             "45 v2"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "COMMIT v2"
+          ],
+          "diagnostic": "DB خودکار کش مستقل را تغییر نمی‌دهد؛ شکاف consistency ایجاد شد."
         },
         {
           "name": "خواندن قدیمی",
@@ -136,7 +144,12 @@ const lesson = {
             "45 v2"
           ],
           "roundTrip": true,
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "GET",
+            "stale 50"
+          ],
+          "diagnostic": "hit بودن با fresh بودن متفاوت است؛ TTL فقط پنجرهٔ stale را محدود می‌کند."
         }
       ],
       "edgeCase": "نوشتن DB بدون هماهنگی کش باعث دادهٔ کهنه می‌شود."
@@ -164,7 +177,11 @@ const lesson = {
             "COMMIT v2",
             "50 v1",
             "45 v2"
-          ]
+          ],
+          "flightLabels": [
+            "COMMIT v2"
+          ],
+          "diagnostic": "حذف پیش از commit می‌تواند cache refill قدیمی بسازد؛ ترتیب این مدل بعد از ثبت است."
         },
         {
           "name": "حذف کلید",
@@ -184,7 +201,12 @@ const lesson = {
             "MISS",
             "45 v2"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "DEL",
+            "MISS"
+          ],
+          "diagnostic": "DEL پس از commit هم اگر fail شود نیاز به retry/outbox دارد؛ دو سیستم اتمیک نیستند."
         },
         {
           "name": "خواندن بعدی",
@@ -204,7 +226,12 @@ const lesson = {
             "MISS",
             "45 v2"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "SELECT",
+            "v2"
+          ],
+          "diagnostic": "بدون نویسنده هم‌زمان، miss مقدار تازه را از منبع می‌گیرد."
         },
         {
           "name": "ثبت کش تازه",
@@ -224,7 +251,11 @@ const lesson = {
             "45 v2",
             "45 v2"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "SET v2"
+          ],
+          "diagnostic": "نسخه‌ها در این snapshot برابرند؛ این الگو تضمین strong consistency عمومی نیست."
         }
       ]
     },
@@ -252,7 +283,12 @@ const lesson = {
             "MISS",
             "50 v1"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "SELECT",
+            "v1"
+          ],
+          "diagnostic": "خواننده داده v1 را در حافظه دارد ولی هنوز cache را پر نکرده؛ بازه race را مشخص کنید."
         },
         {
           "name": "ثبت نسخهٔ تازه",
@@ -271,7 +307,11 @@ const lesson = {
             "R holds v1 | W done",
             "MISS",
             "45 v2"
-          ]
+          ],
+          "flightLabels": [
+            "COMMIT v2"
+          ],
+          "diagnostic": "نسخه ثبت‌شده جلو رفت اما مقدار محلی خواننده عوض نشد."
         },
         {
           "name": "حذف ورودی کش",
@@ -290,7 +330,11 @@ const lesson = {
             "R holds v1",
             "MISS",
             "45 v2"
-          ]
+          ],
+          "flightLabels": [
+            "DEL"
+          ],
+          "diagnostic": "حذف ورودی فعلی جلوی SET آینده را نمی‌گیرد؛ marker نسخه‌ای ممکن است لازم باشد."
         },
         {
           "name": "نوشتن دیررس",
@@ -310,7 +354,11 @@ const lesson = {
             "STALE 50 v1",
             "45 v2"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "SET stale v1"
+          ],
+          "diagnostic": "آخرین نوشتن کش قدیمی است؛ TTL، هماهنگی نسخه یا پذیرش محدود stale را آگاهانه انتخاب کنید."
         }
       ],
       "edgeCase": "race خواندن و نوشتن بین دو ذخیره‌ساز مستقل."

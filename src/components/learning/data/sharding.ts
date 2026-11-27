@@ -95,7 +95,11 @@ const lesson = {
             "user=42 → A",
             "users 42,44",
             "users 17,19"
-          ]
+          ],
+          "flightLabels": [
+            "42 % 2 = 0"
+          ],
+          "diagnostic": "shard key از شرط query مسیر را تعیین می‌کند؛ modulo نمونه با resharding واقعی فرق دارد."
         },
         {
           "name": "درخواست فقط به A",
@@ -115,7 +119,12 @@ const lesson = {
             "2 matching",
             "Not queried"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "SELECT A",
+            "2 orders"
+          ],
+          "diagnostic": "فقط A تماس گرفته شد؛ ایندکس محلی برای هزینه خواندن همچنان مهم است."
         },
         {
           "name": "تحویل نتیجه",
@@ -134,7 +143,11 @@ const lesson = {
             "2 orders",
             "Not queried"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return result"
+          ],
+          "diagnostic": "تعداد shard تماس‌گرفته و هزینه query را جدا از توازن داده بسنجید."
         }
       ]
     },
@@ -160,7 +173,11 @@ const lesson = {
             "Scatter",
             "3 rows",
             "5 rows"
-          ]
+          ],
+          "flightLabels": [
+            "plan fan-out"
+          ],
+          "diagnostic": "بدون shard key ممکن است همه shardها لازم باشند؛ routing metadata و query plan مهم‌اند."
         },
         {
           "name": "خواندن A",
@@ -180,7 +197,12 @@ const lesson = {
             "3",
             "5"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "COUNT A",
+            "3"
+          ],
+          "diagnostic": "نتیجه جزئی A مستقل است؛ snapshot بین shardها نیاز به هماهنگی دارد."
         },
         {
           "name": "خواندن B و ترکیب",
@@ -201,7 +223,12 @@ const lesson = {
             "5"
           ],
           "roundTrip": true,
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "COUNT B",
+            "5"
+          ],
+          "diagnostic": "router در مدل جمع 3+5 را می‌دهد؛ sort/limit/join بین shardها پیچیده‌ترند."
         }
       ],
       "edgeCase": "گزارش بدون کلید مسیریابی هزینهٔ fan-out دارد."
@@ -228,7 +255,11 @@ const lesson = {
             "20 requests",
             "10 requests",
             "10 requests"
-          ]
+          ],
+          "flightLabels": [
+            "baseline load"
+          ],
+          "diagnostic": "تعداد رکورد و نرخ درخواست دو معیار مستقل‌اند؛ ابتدا توزیع هر دو را بسنجید."
         },
         {
           "name": "تمرکز بار یک کلید",
@@ -248,7 +279,11 @@ const lesson = {
             "HOT 90 requests",
             "10 requests"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "route 80 to A"
+          ],
+          "diagnostic": "همه درخواست‌های key=42 به همان shard می‌روند؛ hash یک hot key را پخش نمی‌کند."
         },
         {
           "name": "بررسی راهکار",
@@ -266,7 +301,11 @@ const lesson = {
             "Plan needed",
             "HOT 90 requests",
             "10 requests"
-          ]
+          ],
+          "flightLabels": [
+            "design mitigation"
+          ],
+          "diagnostic": "cache برای بار خواندن یا تغییر key ممکن است کمک کند؛ هزینه resharding و تراکنش بین shardها را بسنجید."
         }
       ],
       "edgeCase": "توزیع یکنواخت کلید به معنی توزیع یکنواخت درخواست نیست."

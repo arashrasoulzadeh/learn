@@ -97,7 +97,12 @@ const lesson = {
             "MISS",
             "price=50"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "GET",
+            "MISS"
+          ],
+          "diagnostic": "نبود کلید مسیر طبیعی است؛ miss را با خطای cache server اشتباه نگیرید."
         },
         {
           "name": "خواندن منبع اصلی",
@@ -117,7 +122,12 @@ const lesson = {
             "MISS",
             "price=50"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "SELECT",
+            "price 50"
+          ],
+          "diagnostic": "شمارنده DB reads یک واحد زیاد می‌شود؛ هم‌زمانی نویسنده در درس بعد بررسی می‌شود."
         },
         {
           "name": "ذخیره و پاسخ",
@@ -138,7 +148,12 @@ const lesson = {
             "price=50"
           ],
           "tone": "success",
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "SET EX 60",
+            "OK"
+          ],
+          "diagnostic": "TTL را همراه write تنظیم کنید؛ شکست cache نباید بی‌دلیل پاسخ معتبر منبع را از بین ببرد."
         }
       ]
     },
@@ -166,7 +181,12 @@ const lesson = {
             "HIT 50 | TTL=40",
             "price=50"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "GET",
+            "HIT 50"
+          ],
+          "diagnostic": "hit معتبر به معنی تازه‌ترین DB نیست؛ TTL و consistency policy را بررسی کنید."
         },
         {
           "name": "پاسخ بدون DB",
@@ -185,7 +205,11 @@ const lesson = {
             "50 | TTL=40",
             "Not queried"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "return 50"
+          ],
+          "diagnostic": "این درخواست در مدل صفر query DB دارد؛ hit rate و latency واقعی به workload وابسته‌اند."
         }
       ]
     },
@@ -211,7 +235,11 @@ const lesson = {
             "DB reads=0",
             "MISS expired",
             "price=45"
-          ]
+          ],
+          "flightLabels": [
+            "expire entry"
+          ],
+          "diagnostic": "انقضای منطقی با حذف فیزیکی فوری یکسان نیست؛ خواندن باید سیاست expiration را رعایت کند."
         },
         {
           "name": "خواندن مقدار تازه",
@@ -231,7 +259,12 @@ const lesson = {
             "MISS",
             "price=45"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "SELECT",
+            "price 45"
+          ],
+          "diagnostic": "miss پس از expiry دوباره بار DB می‌سازد؛ مقدار جاری تحت فرض نبود race خوانده شد."
         },
         {
           "name": "پر کردن دوباره",
@@ -251,7 +284,11 @@ const lesson = {
             "45 | TTL=60",
             "price=45"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "SET EX 60"
+          ],
+          "diagnostic": "کلید داغ هنگام expiry ممکن است stampede بسازد؛ coalescing و jitter TTL را بررسی کنید."
         }
       ],
       "edgeCase": "TTL منقضی باعث miss و هزینهٔ خواندن دوباره می‌شود."

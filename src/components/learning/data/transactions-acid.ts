@@ -95,7 +95,11 @@ const lesson = {
             "Open",
             "100",
             "50"
-          ]
+          ],
+          "flightLabels": [
+            "BEGIN"
+          ],
+          "diagnostic": "مرز تراکنش باید شامل بررسی کافی بودن موجودی و هر دو تغییر باشد؛ invariant مجموع را ثبت کنید."
         },
         {
           "name": "کاهش حساب A",
@@ -114,7 +118,11 @@ const lesson = {
             "Open",
             "70 (pending)",
             "50"
-          ]
+          ],
+          "flightLabels": [
+            "debit 30"
+          ],
+          "diagnostic": "A=70 درون تراکنش است، نه الزاماً وضعیت committed قابل مشاهده؛ dirty read را تفکیک کنید."
         },
         {
           "name": "افزایش حساب B",
@@ -133,7 +141,11 @@ const lesson = {
             "Open",
             "70 (pending)",
             "80 (pending)"
-          ]
+          ],
+          "flightLabels": [
+            "credit 30"
+          ],
+          "diagnostic": "B=80 و مجموع در همان تراکنش 150 است؛ consistency به منطق و قید درست وابسته است."
         },
         {
           "name": "ثبت اتمیک",
@@ -152,7 +164,11 @@ const lesson = {
             "70",
             "80"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "COMMIT"
+          ],
+          "diagnostic": "ثبت پایدار تحت تنظیمات موتور و نوع خرابی تعریف می‌شود؛ atomicity با durability متفاوت است."
         }
       ]
     },
@@ -179,7 +195,11 @@ const lesson = {
             "Open",
             "70 (pending)",
             "50"
-          ]
+          ],
+          "flightLabels": [
+            "debit pending"
+          ],
+          "diagnostic": "تغییر A هنوز uncommitted است؛ خروج موفق statement برابر با commit نیست."
         },
         {
           "name": "خطای واریز",
@@ -199,7 +219,11 @@ const lesson = {
             "70 (pending)",
             "50"
           ],
-          "tone": "error"
+          "tone": "error",
+          "flightLabels": [
+            "credit failed"
+          ],
+          "diagnostic": "در PostgreSQL بسیاری از خطاهای statement تراکنش را failed می‌کنند؛ نباید عملیات ناقص ثبت شود."
         },
         {
           "name": "بازگرداندن کل تغییر",
@@ -218,7 +242,11 @@ const lesson = {
             "100",
             "50"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "ROLLBACK"
+          ],
+          "diagnostic": "هر دو حساب به وضعیت پیشین برمی‌گردند؛ اثر خارجی مثل ارسال ایمیل rollback خودکار نمی‌شود."
         }
       ],
       "edgeCase": "خطای میانی نباید برداشت تنها را ثبت کند."
@@ -243,10 +271,14 @@ const lesson = {
           "result": "دو نما متفاوت‌اند.",
           "explanation": "فرض نمونه PostgreSQL در Read Committed است.",
           "state": [
-            "T1 open",
-            "70 (T1 only)",
+            "T1 open; committed total=150",
+            "T1: 70 · committed: 100",
             "50"
-          ]
+          ],
+          "flightLabels": [
+            "T1 UPDATE"
+          ],
+          "diagnostic": "T1 تغییر خودش را می‌بیند ولی committed A هنوز 100 است؛ نماهای تراکنش‌ها را جدا کنید."
         },
         {
           "name": "خوانندهٔ مستقل",
@@ -263,15 +295,20 @@ const lesson = {
           "explanation": "MVCC می‌تواند نسخهٔ ثبت‌شدهٔ قبلی را ارائه کند؛ قفل‌های صریح ممکن است رفتار دیگری داشته باشند.",
           "state": [
             "T1 open; T2 read",
-            "100 (T2)",
+            "T1: 70 · T2: 100",
             "50"
           ],
-          "roundTrip": true
+          "roundTrip": true,
+          "flightLabels": [
+            "T2 SELECT",
+            "committed 100"
+          ],
+          "diagnostic": "در Read Committed خواندن عادی snapshot ثبت‌شدهٔ statement را می‌بیند؛ SELECT FOR UPDATE متفاوت است."
         },
         {
           "name": "ثبت و خواندن دوباره",
           "short": "نمای تازه",
-          "detail": "T1 انتقال کامل را ثبت می‌کند؛ statement تازهٔ T2 در Read Committed نسخهٔ ثبت‌شدهٔ تازه را می‌بیند.",
+          "detail": "T1 واریز ۳۰ واحد به B را کامل و سپس هر دو تغییر را commit می‌کند. statement تازهٔ T2 در Read Committed مقدار A=70 را می‌بیند.",
           "route": [
             0
           ],
@@ -279,13 +316,17 @@ const lesson = {
           "input": "T1: credit B; COMMIT; T2: SELECT A",
           "output": "T2 sees 70",
           "result": "نمای خواندن تازه شد.",
-          "explanation": "Repeatable Read ممکن است snapshot قبلی را حفظ کند. Read Committed همهٔ anomalyها را حذف نمی‌کند.",
+          "explanation": "Repeatable Read ممکن است snapshot قبلی را حفظ کند. Read Committed همهٔ anomalyها را حذف نمی‌کند. ثبت A به تنهایی invariant مجموع را حفظ نمی‌کرد؛ در این گام واریز B نیز انجام شده است.",
           "state": [
             "COMMIT",
             "70",
             "80"
           ],
-          "tone": "success"
+          "tone": "success",
+          "flightLabels": [
+            "COMMIT + new read"
+          ],
+          "diagnostic": "statement تازه T2 پس از commit مقدار 70 را می‌بیند؛ Repeatable Read ممکن است snapshot قبلی را حفظ کند."
         }
       ],
       "edgeCase": "Isolation تعیین می‌کند خوانندهٔ هم‌زمان چه چیزی مشاهده کند."
