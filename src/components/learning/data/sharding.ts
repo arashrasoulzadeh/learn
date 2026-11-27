@@ -337,7 +337,12 @@ const lesson = {
     "task": "در Python کاربران نمونه را بر اساس زوج یا فرد بودن شناسه تقسیم کنید و سپس تعداد درخواست‌ها برای کلید داغ را بشمارید.",
     "observe": "۴۲ و ۴۴ در A، ۱۷ و ۱۹ در B قرار می‌گیرند؛ ۸۰ درخواست ۴۲ همگی A را هدف می‌گیرند.",
     "limit": "این مدل فقط modulo ثابت است؛ resharding، تراکنش بین shardها و hash واقعی را پیاده نمی‌کند.",
-    "command": "shards={0:[],1:[]}\nfor user in [42,17,44,19]: shards[user%2].append(user)\nprint(shards)\nprint('hot shard:',42%2)"
+    "command": "shards={0:[],1:[]}\nfor user in [42,17,44,19]: shards[user%2].append(user)\nprint(shards)\nprint('hot shard:',42%2)",
+    "next": {
+      "slug": "solid",
+      "label": "SOLID Principles",
+      "category": "design-patterns"
+    }
   },
   "model": "database"
 } satisfies BackendLesson;

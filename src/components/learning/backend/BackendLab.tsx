@@ -18,9 +18,10 @@ export default function BackendLab({lesson}:{lesson:BackendLesson}){
  const stage=scenario.steps[step]??scenario.steps[0];
  const select=(value:string)=>{setId(value);jump(0);};
  const actors=scenario.actors??lesson.actors,edges=scenario.edges??lesson.edges;
- const fork=['event-loop','sharding','replication','database-locking','transactions-acid','b-tree','caching','cache-invalidation','database-index'].includes(lesson.slug);
- const nodes:FlowNode[]=actors.map((a,i)=>({...a,x:fork&&actors.length===3?[650,285,285][i]:700-i*610/(actors.length-1),y:fork&&actors.length===3?[175,95,250][i]:175}));
- const compactLayout={width:360,height:Math.ceil(nodes.length/2)*145+47,positions:fork&&actors.length===3?[{x:265,y:132},{x:95,y:60},{x:95,y:205}]:nodes.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}))};
+ const fork=['event-loop','sharding','replication','database-locking','transactions-acid','b-tree','caching','cache-invalidation','database-index','observer','monolith-microservices','load-balancing','cap-theorem','raft','solid','factory'].includes(lesson.slug);
+ const diamond=lesson.slug==='distributed-lock';
+ const nodes:FlowNode[]=actors.map((a,i)=>({...a,x:diamond?[395,650,140,395][i]:fork&&actors.length===3?[650,285,285][i]:700-i*610/(actors.length-1),y:diamond?[70,175,175,280][i]:fork&&actors.length===3?[175,95,250][i]:175}));
+ const compactLayout={width:360,height:diamond?423:Math.ceil(nodes.length/2)*145+47,positions:diamond?[{x:180,y:60},{x:265,y:205},{x:95,y:205},{x:180,y:350}]:fork&&actors.length===3?[{x:265,y:132},{x:95,y:60},{x:95,y:205}]:nodes.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}))};
  const route=stage.route.map(i=>nodes[i]);
  const accent=stage.tone==='error'?'var(--danger)':'var(--accent)';
  return <div className="network-lab backend-lab" data-lesson={lesson.slug} data-model={lesson.model}>

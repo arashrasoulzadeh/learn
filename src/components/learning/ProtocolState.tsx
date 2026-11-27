@@ -3,7 +3,24 @@ import {faNumber} from './LabUI';
 type Props={kind:string;title:string;labels:readonly string[];values:readonly string[];context:string;step:number;previousValues?:readonly string[];showContext?:boolean;tone?:'success'|'error'};
 function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   let items:ReactNode=null;
-  if(kind==='dns'&&index===1&&/TTL=\d+/.test(value)){
+  if(kind==='rate-limiting'&&index===1&&/^\d+ tokens?$/.test(value)){
+    const count=Number(value.match(/^\d+/)?.[0]??0);
+    items=<span className="advanced-token-bucket"><span>{value}</span><span className="advanced-token-cells">{[0,1,2].map(n=><i key={n} data-filled={n<count}/>)}</span><small>capacity = 3</small></span>;
+  }else if(kind==='circuit-breaker'&&index===1){
+    const mode=value.startsWith('HALF_OPEN')?'HALF_OPEN':value.startsWith('OPEN')?'OPEN':'CLOSED';
+    items=<span className="advanced-breaker"><span>{value}</span><span className="advanced-breaker-modes">{['CLOSED','OPEN','HALF_OPEN'].map(m=><b key={m} data-current={m===mode} data-mode={m}>{m==='HALF_OPEN'?'HALF':m}</b>)}</span></span>;
+  }else if(kind==='raft'){
+    const log=value.match(/log=(\d+)/)?.[1],commit=value.match(/commit=(\d+)/)?.[1];
+    items=<span className="advanced-raft"><span>{value}</span>{(log||commit)&&<span className="advanced-log-badges">{log&&<b>log {log}</b>}{commit&&<b data-commit="true">commit {commit}</b>}</span>}</span>;
+  }else if(kind==='scaling'&&/\d+ (?:r\/s|cap|served|used)/.test(value)){
+    const count=Number(value.match(/(\d+) (?:r\/s|cap|served|used)/)?.[1]??0);
+    items=<span className="advanced-capacity"><span>{value}</span><span className="advanced-capacity-track"><i style={{width:Math.min(count/400*100,100)+'%'}}/></span><small>0–400 req/s (model)</small></span>;
+  }else if(kind==='load-balancing'&&index>0&&/^\d+ (?:active|requests?)$/.test(value)){
+    const count=Number(value.match(/^\d+/)?.[0]??0);
+    items=<span className="advanced-token-bucket"><span>{value}</span><span className="advanced-token-cells">{Array.from({length:Math.max(3,count)},(_,n)=><i key={n} data-filled={n<count}/>)}</span></span>;
+  }else if(kind==='distributed-lock'&&index===1){
+    items=<span className="advanced-lease" data-expired={/expired/i.test(value)}>{value}</span>;
+  }else if(kind==='dns'&&index===1&&/TTL=\d+/.test(value)){
     const ttl=Number(value.match(/TTL=(\d+)/)?.[1]??0);
     items=<span className="ttl-visual"><span>{value}</span><span className="ttl-track"><i style={{width:Math.min(ttl/300*100,100)+'%'}} data-expired={ttl===0}/></span><small>TTL / 300 s (مدل)</small></span>;
   }else if(kind==='database-locking'&&index===0&&value.includes('WAIT')){

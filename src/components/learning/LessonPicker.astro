@@ -3,7 +3,7 @@ import { catalog, lessonUrl } from '../../lib/content';
 import Popover from './Popover.astro';
 const { currentId } = Astro.props as {currentId:string};
 const { concepts } = await catalog();
-const groups = [{id:'web-basics',title:'سطح اول · مبانی وب و شبکه'},{id:'backend-basics',title:'سطح دوم · مهندسی نرم‌افزار و بک‌اند'},{id:'data-basics',title:'سطح سوم · پایگاه داده و ذخیره‌سازی'}];
+const groups = [{id:'web-basics',title:'سطح اول · مبانی وب و شبکه'},{id:'backend-basics',title:'سطح دوم · مهندسی نرم‌افزار و بک‌اند'},{id:'data-basics',title:'سطح سوم · پایگاه داده و ذخیره‌سازی'},{id:'architecture-patterns',title:'سطح چهارم · الگوهای طراحی و معماری'},{id:'advanced-system-design',title:'سطح پنجم · طراحی سیستم‌های پیشرفته'}];
 ---
 <Popover label="انتخاب درس" id="lesson-picker"><svg slot="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v15"/></svg>
   <nav aria-label="درس‌های قابل انتخاب">

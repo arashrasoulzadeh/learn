@@ -133,9 +133,11 @@ export const {lesson,deep}=author({
           "وایرینگ",
           [
             0,
+            1,
             2
           ],
           [
+            "compose use case",
             "inject fake"
           ],
           "composition: new UseCase(fake)",
