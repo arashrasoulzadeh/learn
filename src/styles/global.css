@@ -140,3 +140,23 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
   .request-step{padding-inline:9px}
   .request-step strong{font-size:11px}
 }
+
+/* Level-one labs: same visual system, compact learning cards and quizzes. */
+.network-overview{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 12px;flex:none}
+.network-overview strong{font-size:13px;font-weight:600;min-width:0}
+.network-overview code{font:12px/1.6 ui-monospace,monospace;color:var(--accent);overflow-wrap:anywhere;max-width:60%;text-align:left}
+.network-extra{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:11px 13px;font-size:13px}
+.network-extra summary{cursor:pointer;font-weight:600;color:var(--ink);padding:3px 0}
+.network-extra p{font-size:13px;color:var(--muted);line-height:1.8;margin:8px 0}
+.network-extra .lab{margin:10px 0 0;padding:10px;border:0;background:var(--bg)}
+.network-extra h3{font-size:14px;line-height:1.7;margin:8px 0}
+.network-extra a{display:block;font-size:12px;padding-block:4px;overflow-wrap:anywhere}
+.network-extra .quiz-option{font-size:13px;line-height:1.65}
+.network-extra .quiz-feedback p{margin:4px 0}
+.network-lab .request-message pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.network-lab .request-note{font-size:12px}
+.network-lab .request-canvas .flow-diagram[data-layout=compact]{aspect-ratio:auto}
+@media(max-width:600px){.network-overview{flex-wrap:wrap;gap:6px}.network-overview code{max-width:100%;width:100%}.network-extra{padding:10px}}
+
+.network-lab{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0}
+@media(min-width:1000px) and (min-height:740px){.network-lab{height:100%}}

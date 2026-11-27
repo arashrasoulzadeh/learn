@@ -48,8 +48,9 @@ test('RTL diagram and shared header controls work on desktop and phone',async({p
   expect((await picker.boundingBox())!.x).toBeLessThan((await title.boundingBox())!.x);
   await picker.click();
   const menu=header.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
-  await expect(menu.getByRole('link')).toHaveCount(1);
-  await expect(menu.getByRole('link')).toHaveAttribute('href','/learn/concepts/networking/http-request/');
+  await expect(menu.getByRole('link')).toHaveCount(10);
+  const httpLink=menu.getByRole('link',{name:/چرخهٔ یک درخواست HTTP/});
+  await expect(httpLink).toHaveAttribute('href','/learn/concepts/networking/http-request/');
   await about.click();
   await expect(menu).not.toBeVisible();
   await expect(header.getByText('توسعه‌دهنده: آرش رسول زاده',{exact:true})).toBeVisible();
@@ -69,9 +70,9 @@ test('RTL diagram and shared header controls work on desktop and phone',async({p
   await expect(graph.locator('[data-flow-path]')).toHaveAttribute('d','M 295 220 L 500 220 L 700 220');
   await page.setViewportSize({width:390,height:844});
   await picker.click();
-  await expect(menu.getByRole('link')).toBeVisible();
+  await expect(httpLink).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
-  await menu.getByRole('link').click();
+  await httpLink.click();
   await expect(page).toHaveURL(/\/concepts\/networking\/http-request\/$/);
 });
 

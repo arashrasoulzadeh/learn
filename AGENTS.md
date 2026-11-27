@@ -14,3 +14,6 @@ The homepage opens the first HTTP lesson directly. All published lessons use Les
 
 ## Shared learning components
 Use LearningHeader, LessonPicker, AboutProject and Popover for lesson chrome. Use LabUI (playback hook, controls, timeline, stage, message and screen) and FlowDiagram (nodes, edges and directional packets) for new interactive lessons. Keep lesson-specific data and logic in the lesson component. Persian diagrams should start on the right, with response paths returning to the right; protocol text remains LTR. The lesson picker is curated in LessonPicker.astro.
+
+## Curriculum
+The `web-basics` learningPath in content metadata supplies the ordered level-one picker. New protocol labs use NetworkLab plus per-lesson typed scenario data; each scenario has concrete packets, direction, result, and a distinct outcome. Include a concept-specific knowledge check, pitfalls, references, desktop/mobile browser tests, and verify all scenarios. Keep the existing HTTP lab as the reference implementation.
