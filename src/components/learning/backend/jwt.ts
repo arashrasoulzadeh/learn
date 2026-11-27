@@ -405,7 +405,12 @@ const lesson = {
     "task": "در Node.js یک payload ساختگی را به Base64url تبدیل و سپس decode کنید. این نمونه JWT کامل نیست.",
     "observe": "JSON اولیه دوباره قابل خواندن است؛ کدگذاری هیچ راز یا امضایی ایجاد نکرده است.",
     "limit": "توکن واقعی را در ابزار آنلاین یا log وارد نکنید. برای اعتبارسنجی واقعی از کتابخانهٔ استاندارد و کلید آزمایشی خودتان استفاده کنید.",
-    "command": "const payload = {sub: 'demo', aud: 'orders'};\nconst encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');\nconsole.log(encoded);\nconsole.log(Buffer.from(encoded,'base64url').toString());"
+    "command": "const payload = {sub: 'demo', aud: 'orders'};\nconst encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');\nconsole.log(encoded);\nconsole.log(Buffer.from(encoded,'base64url').toString());",
+    "next": {
+      "slug": "sql-nosql",
+      "label": "سطح سوم · SQL و NoSQL",
+      "category": "databases"
+    }
   }
 } satisfies BackendLesson;
 export default lesson;

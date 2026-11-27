@@ -10,7 +10,7 @@ const concepts = defineCollection({
     title: z.string(), description: z.string(), category: reference('categories'),
     difficulty: z.enum(['beginner','intermediate','advanced']),
     estimatedMinutes: z.number().int().positive(), order: z.number().int().default(100),
-    learningPath: z.enum(['web-basics','backend-basics']).optional(),
+    learningPath: z.enum(['web-basics','backend-basics','data-basics']).optional(),
     tags: z.array(z.string()).default([]), prerequisites: z.array(reference('concepts')).default([]),
     related: z.array(reference('concepts')).default([]), draft: z.boolean().default(false),
   })

@@ -3,7 +3,9 @@ import {faNumber} from './LabUI';
 type Props={kind:string;title:string;labels:readonly string[];values:readonly string[];context:string;step:number;tone?:'success'|'error'};
 function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   let items:ReactNode=null;
-  if(kind==='process-thread'&&index===1){
+  if(['sql-nosql','database-index','b-tree','transactions-acid','database-locking','connection-pooling','caching','cache-invalidation','replication','sharding'].includes(kind)){
+    items=<span className="data-state-items">{value.split(' | ').map((part,i)=><span key={i} data-state={/^(MISS|WAIT|BLOCKED|STALE|ROLLBACK|FULL|LAG|CONFLICT)/i.test(part)?'warn':/^(HIT|COMMIT|READY|FREE|SYNC)/i.test(part)?'ok':'neutral'}>{part}</span>)}</span>;
+  }else if(kind==='process-thread'&&index===1){
     const valueMatch=value.match(/counter=(\d+)/);
     items=<span className="backend-counter"><b>{valueMatch?.[1]??value}</b>{value.includes(';')&&<small>{value.split(';')[1].trim()}</small>}</span>;
   }else if(kind==='jwt'&&index===0&&value==='header | payload | signature'){

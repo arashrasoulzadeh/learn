@@ -297,3 +297,11 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .jwt-parts>span{border:1px solid var(--line);border-radius:5px;padding:3px 5px}
 .jwt-parts>span[data-part="0"]{color:var(--blue)}.jwt-parts>span[data-part="1"]{color:var(--accent)}.jwt-parts>span[data-part="2"]{color:var(--muted)}
 @media(max-width:600px){.backend-prediction{padding:8px 10px}.backend-prediction>p{font-size:12px}}
+
+/* Level three: visible rows, pages, cache keys, slots and replica offsets. */
+.backend-lab[data-model=database] .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}
+.backend-lab[data-model=database] .state-cell:first-child{grid-column:1/-1}
+.data-state-items{display:grid;gap:4px}
+.data-state-items>span{display:block;border:1px solid var(--line);border-radius:5px;padding:3px 6px;overflow-wrap:anywhere}
+.data-state-items>span[data-state=ok]{border-color:var(--accent);color:var(--accent)}
+.data-state-items>span[data-state=warn]{border-color:var(--danger);color:var(--danger)}

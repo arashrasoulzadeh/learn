@@ -14,8 +14,8 @@ for(let i=0;i<slugs.length;i++){
  assert.ok(l.teaching.goal&&l.teaching.terms.length>=3&&l.teaching.practice.hint);
  for(const q of [l.quiz,l.teaching.practice])assert.ok(q.question&&q.options.length===3&&new Set(q.options).size===3&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<q.options.length&&q.explanation);
  assert.ok(l.field.task&&l.field.observe&&l.field.limit);
- assert.equal(l.field.next?.slug,slugs[i+1]);
- if(l.field.next)assert.equal(l.field.next.category,'software-engineering');
+ assert.equal(l.field.next?.slug,slugs[i+1]??'sql-nosql');
+ if(l.field.next)assert.equal(l.field.next.category,i===slugs.length-1?'databases':'software-engineering');
  assert.ok(l.references.length>=2&&l.references.every(r=>r.label&&r.url.startsWith('https://')));
  assert.ok(l.actors.length>=2&&l.actors.length<=5);
  assert.ok(l.visual.title&&l.visual.context&&l.visual.labels.length===3);

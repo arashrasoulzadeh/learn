@@ -341,12 +341,12 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
   await expect(practice.locator('.practice-feedback')).toHaveAttribute('data-correct','true');
   const index=lessons.findIndex(l=>l[0]===slug);
   if(index<lessons.length-1)await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/software-engineering/'+lessons[index+1][0]+'/');
-  else await expect(practice.locator('.practice-feedback')).toContainText('آخرین درس این سطح');
+  else await expect(practice.locator('.practice-next')).toHaveAttribute('href','/learn/concepts/databases/sql-nosql/');
   await page.screenshot({path:'test-results/backend/'+slug+'-mobile.png',fullPage:true,animations:'disabled'});
   expect(errors).toEqual([]);
  });
 }
-test('curriculum lists two ordered levels and reaches process and thread from WebSocket',async({page})=>{
+test('curriculum lists three ordered levels and reaches process and thread from WebSocket',async({page})=>{
  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
  await page.goto('/learn/concepts/networking/websocket/',{waitUntil:'domcontentloaded'});
  const lab=page.locator('[data-lesson="websocket"]');
@@ -358,10 +358,10 @@ test('curriculum lists two ordered levels and reaches process and thread from We
  await expect(page).toHaveURL(/\/software-engineering\/process-thread\/$/);
  await page.locator('#lesson-picker summary').click();
  const nav=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
- await expect(nav.getByRole('link')).toHaveCount(20);
+ await expect(nav.getByRole('link')).toHaveCount(30);
  for(let i=0;i<lessons.length;i++)await expect(nav.getByRole('link').nth(i+10)).toHaveAttribute('href','/learn/concepts/software-engineering/'+lessons[i][0]+'/');
  await expect(nav.getByRole('link').nth(10)).toHaveAttribute('aria-current','page');
- await nav.getByRole('link').last().click();
+ await nav.getByRole('link').nth(19).click();
  await expect(page).toHaveURL(/\/software-engineering\/jwt\/$/);
 });
 

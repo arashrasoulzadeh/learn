@@ -27,3 +27,6 @@ Keep the concrete state snapshot beside the stage's first explanation; distingui
 
 ## Level two
 Publish the ten `backend-basics` lessons in order 11–20 under software-engineering. BackendLab shares level-one controls, dialog, state inspector and applied practice. Use local, illustrative code and explicit runtime/framework assumptions. For access-control examples validate server-side identity, operation and resource permissions; JWT demonstrations must not use real credentials. Run check:backend and per-lesson browser tests before main.
+
+## Level three
+Data lessons 21–30 use `data-basics` under databases. Reuse shared BackendLab, with database-specific state cards and explicit isolation, failure and consistency assumptions. Existing server-infrastructure lessons stay accessible; database pooling and replication focus on data semantics. Include check:data in verification and verify each scenario and next-level link.
