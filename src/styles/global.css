@@ -350,3 +350,41 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 
 .deep-comparison{font-size:12px;line-height:1.75}.deep-comparison summary{cursor:pointer;color:var(--accent);font-weight:600}.deep-compare-table{display:grid;gap:6px;margin-top:8px}.deep-compare-table>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;border-top:1px solid var(--line);padding-top:6px}.deep-compare-table b{grid-column:1/-1;color:var(--ink)}.deep-compare-table>div>span{display:grid;gap:2px;min-width:0;background:var(--panel);border-radius:5px;padding:5px}.deep-compare-table small{font-size:10px;color:var(--muted)}.deep-compare-table strong{font:11px/1.5 ui-monospace,monospace;text-align:left;overflow-wrap:anywhere}
 .state-cell[data-state-changed=true]{border-color:#79e3c177;animation:state-pulse .65s ease-out}.state-delta-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-inline-start:5px}.state-label{line-height:1.7}@keyframes state-pulse{0%{background:#79e3c12e}100%{background:var(--panel)}}@media(prefers-reduced-motion:reduce){.state-cell[data-state-changed=true]{animation:none}}
+
+/* Primary lesson workshop: give the diagram its own state inspector and keep evidence beside the explanation. */
+.request-canvas{gap:8px;overflow:auto;scrollbar-color:var(--line) transparent;min-width:0}
+.lab-canvas-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lab-canvas-title .deep-launch{flex:none}.lab-canvas-title .deep-launch-button{font-size:11px!important;min-height:32px!important}
+.backend-prediction{padding:7px 10px}.backend-prediction>span{display:inline;margin-inline-end:7px}.backend-prediction>p{display:inline;font-size:12px}
+.flight-sequence{flex:none;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--bg);min-width:0}
+.flight-sequence-head{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px}
+.flight-sequence-head b{color:var(--accent);margin-inline-start:5px;font:11px ui-monospace,monospace}
+.flight-replay{font:inherit;background:transparent;color:var(--accent);border:0;cursor:pointer;padding:3px 4px;line-height:1.55;border-radius:4px}
+.flight-replay:hover,.flight-replay:focus-visible{background:var(--panel2);outline:1px solid var(--accent)}
+.flight-steps{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.flight-chip{display:inline-flex;align-items:center;gap:5px;min-width:0;border:1px solid var(--line);background:var(--panel);padding:4px 6px;border-radius:6px;color:var(--ink);font:10.5px/1.4 ui-monospace,monospace;overflow-wrap:anywhere;transition:background .2s,border-color .2s}
+.flight-chip>small{font-size:9px;color:var(--muted);border-inline-end:1px solid var(--line);padding-inline-end:4px}
+.flight-chip[data-kind=return]{border-style:dashed;color:var(--blue)}.flight-chip[data-kind=final]{border-style:dotted}
+.flight-chip[data-past=true]{opacity:.75}.flight-chip[data-active=true]{border-color:var(--accent);background:#79e3c119;box-shadow:0 0 0 1px #79e3c144}
+.flight-chip[data-drop=true]{border-color:var(--danger);color:var(--danger)}
+.request-canvas>.protocol-state{padding:9px 10px;background:var(--bg);border-radius:10px}
+.request-canvas>.protocol-state>header{font-size:12px;margin-bottom:7px;line-height:1.5}
+.request-canvas>.protocol-state .state-cells{grid-template-columns:repeat(3,minmax(0,1fr))}
+.request-canvas>.protocol-state .state-cell{grid-column:auto;padding:6px 8px;gap:4px;min-height:50px;background:var(--panel);overflow-wrap:anywhere}
+.request-canvas>.protocol-state .state-value{font-size:12px;line-height:1.5}
+.request-canvas>.protocol-state .state-label{font-size:11px;line-height:1.55}
+.state-before{display:flex;align-items:baseline;gap:5px;font:10px/1.35 ui-monospace,monospace;color:var(--muted);overflow-wrap:anywhere;text-align:left}.state-before small{font-family:Vazirmatn,Tahoma,sans-serif;font-size:9px;direction:rtl}.state-before del{overflow-wrap:anywhere}
+.stage-evidence{display:grid;gap:8px;margin-top:12px}
+.request-detail .stage-evidence .request-message{margin:0;padding:9px 11px;background:var(--bg);border-radius:8px;border:1px solid var(--line)}
+.request-detail .stage-evidence .request-message pre{font-size:12px;line-height:1.55;margin-top:6px;max-height:150px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.stage-diagnostic{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}.stage-diagnostic h3{font-size:13px;color:var(--accent);margin:0 0 5px}.stage-diagnostic p{margin:0}
+.stage-model{margin-top:11px;border:1px solid var(--line);border-radius:7px;padding:8px;color:var(--muted);font-size:12px}.stage-model summary{cursor:pointer;font-weight:600}.stage-model p{margin:8px 0 0}
+.ttl-visual,.wait-graph{display:grid;gap:4px}.ttl-track{height:6px;background:var(--line);border-radius:5px;overflow:hidden}.ttl-track i{height:100%;display:block;background:var(--accent)}.ttl-track i[data-expired=true]{background:var(--danger)}.ttl-visual small{color:var(--muted);font-size:9px}
+.wait-graph>span{padding:3px 5px;border:1px solid var(--line);border-radius:5px}.wait-graph>span[data-wait=true]{border-color:var(--danger);color:var(--danger)}
+.socket-status,.endpoint-state,.tls-trust{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.socket-status>i{width:7px;height:7px;background:var(--muted);border-radius:50%}.socket-status[data-status=OPEN]>i{background:var(--accent)}.socket-status[data-status=CLOSED]>i,.socket-status[data-status=Unresponsive]>i{background:var(--danger)}
+.tls-trust[data-trust=valid]{color:var(--accent)}.tls-trust[data-trust=invalid]{color:var(--danger)}.endpoint-state b{color:var(--accent)}
+@media(min-width:1000px) and (min-height:740px){.request-canvas{padding:12px 14px}.request-canvas .flow-diagram{min-height:145px;height:0;flex:1 1 0;max-height:none}.request-canvas .protocol-exchange{padding:7px 10px}.request-canvas .flow-legend{font-size:10px;gap:7px}}
+@media(max-width:999px){.request-canvas{overflow:visible}.request-canvas .flow-diagram[data-layout=wide]{aspect-ratio:auto;height:auto}}
+@media(max-width:600px){.request-canvas>.protocol-state .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}.request-canvas>.protocol-state .state-cell:last-child{grid-column:1/-1}.flight-chip{font-size:10px}.flight-replay{min-height:36px}.request-canvas .flow-diagram[data-layout=compact]{aspect-ratio:auto}.lab-canvas-title{align-items:flex-start}.lab-canvas-title strong{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.flight-chip{transition:none}}

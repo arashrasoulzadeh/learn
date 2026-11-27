@@ -3,7 +3,18 @@ import {faNumber} from './LabUI';
 type Props={kind:string;title:string;labels:readonly string[];values:readonly string[];context:string;step:number;previousValues?:readonly string[];showContext?:boolean;tone?:'success'|'error'};
 function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   let items:ReactNode=null;
-  if(kind==='sharding'&&index>0&&/\d+ requests/.test(value)){
+  if(kind==='dns'&&index===1&&/TTL=\d+/.test(value)){
+    const ttl=Number(value.match(/TTL=(\d+)/)?.[1]??0);
+    items=<span className="ttl-visual"><span>{value}</span><span className="ttl-track"><i style={{width:Math.min(ttl/300*100,100)+'%'}} data-expired={ttl===0}/></span><small>TTL / 300 s (مدل)</small></span>;
+  }else if(kind==='database-locking'&&index===0&&value.includes('WAIT')){
+    items=<span className="wait-graph">{value.split(' | ').map((v,i)=><span key={i} data-wait={v.startsWith('WAIT')}>{v}</span>)}</span>;
+  }else if(kind==='websocket'&&index===0){
+    items=<span className="socket-status" data-status={value}><i/>{value}</span>;
+  }else if(kind==='tls-https'&&index===1){
+    items=<span className="tls-trust" data-trust={value==='Verified'?'valid':/Expired|Wrong|Rejected/.test(value)?'invalid':'pending'}>{value==='Verified'?'✓ ':value==='Not checked'?'· ':'× '}{value}</span>;
+  }else if(kind==='ip-port'&&index===0&&value.includes(':')){
+    const parts=value.split(':');items=<span className="endpoint-state"><span>{parts[0]}</span><b>:{parts[1]}</b></span>;
+  }else if(kind==='sharding'&&index>0&&/\d+ requests/.test(value)){
     const count=Number(value.match(/(\d+) requests/)?.[1]??0);
     items=<span className="shard-load"><span>{value}</span><span className="shard-load-track"><i style={{width:Math.min(count,100)+'%'}} data-hot={count>=80}/></span><small>0–100 requests (model)</small></span>;
   }else if(kind==='b-tree'&&index>0){
