@@ -183,7 +183,7 @@ const lesson = {
           "state": [
             "Find id=42",
             "order42 | items:[A×2]",
-            "HIT document"
+            "Document found"
           ],
           "roundTrip": true,
           "tone": "success"
@@ -286,11 +286,11 @@ const lesson = {
   "quiz": {
     "question": "کدام سازوکار نمونه از ارجاع سفارش به مشتری ناموجود جلوگیری می‌کند؟",
     "options": [
-      "Foreign key",
       "TTL",
+      "Foreign key",
       "TCP"
     ],
-    "correct": 0,
+    "correct": 1,
     "explanation": "کلید خارجی ارجاع را طبق قید تعریف‌شده بررسی می‌کند."
   },
   "references": [

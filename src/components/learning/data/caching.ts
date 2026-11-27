@@ -262,11 +262,11 @@ const lesson = {
   "quiz": {
     "question": "در cache-aside، هنگام miss معمولاً چه کسی مقدار را از DB می‌خواند و کش می‌کند؟",
     "options": [
-      "برنامه",
       "TCP",
+      "برنامه",
       "مرورگر همیشه"
     ],
-    "correct": 0,
+    "correct": 1,
     "explanation": "برنامه مدیریت miss و پر کردن کش را انجام می‌دهد."
   },
   "references": [

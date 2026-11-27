@@ -106,7 +106,7 @@ const lesson = {
             1
           ],
           "packet": "QUERY",
-          "input": "SELECT orders WHERE user_id=42",
+          "input": "SELECT * FROM orders WHERE user_id=42;",
           "output": "2 orders",
           "result": "B خوانده نشد.",
           "explanation": "ایندکس محلی در هر shard هنوز مهم است.",
@@ -277,11 +277,11 @@ const lesson = {
   "quiz": {
     "question": "تفاوت اصلی shard با replica در این مدل چیست؟",
     "options": [
-      "shard بخش متفاوت داده دارد؛ replica کپی دارد",
       "هر دو همیشه کپی کامل‌اند",
+      "shard بخش متفاوت داده دارد؛ replica کپی دارد",
       "shard فقط cache است"
     ],
-    "correct": 0,
+    "correct": 1,
     "explanation": "sharding داده را تقسیم می‌کند؛ replication داده را تکثیر می‌کند."
   },
   "references": [

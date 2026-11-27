@@ -16,7 +16,7 @@ export default function BackendLab({lesson}:{lesson:BackendLesson}){
  const stage=scenario.steps[step]??scenario.steps[0];
  const select=(value:string)=>{setId(value);jump(0);};
  const actors=scenario.actors??lesson.actors,edges=scenario.edges??lesson.edges;
- const fork=lesson.slug==='event-loop'||lesson.slug==='sharding'||lesson.slug==='replication'||lesson.slug==='database-locking'||lesson.slug==='transactions-acid';
+ const fork=['event-loop','sharding','replication','database-locking','transactions-acid','b-tree','caching','cache-invalidation','database-index'].includes(lesson.slug);
  const nodes:FlowNode[]=actors.map((a,i)=>({...a,x:fork&&actors.length===3?[650,285,285][i]:700-i*610/(actors.length-1),y:fork&&actors.length===3?[175,95,250][i]:175}));
  const compactLayout={width:360,height:Math.ceil(nodes.length/2)*145+47,positions:fork&&actors.length===3?[{x:265,y:132},{x:95,y:60},{x:95,y:205}]:nodes.map((_,i)=>({x:i%2===0?265:95,y:60+Math.floor(i/2)*145}))};
  const route=stage.route.map(i=>nodes[i]);

@@ -300,11 +300,11 @@ const lesson = {
   "quiz": {
     "question": "چه چیزی بن‌بست را از انتظار عادی جدا می‌کند؟",
     "options": [
-      "چرخهٔ انتظار",
       "وجود TCP",
-      "تعداد ستون‌ها"
+      "تعداد ستون‌ها",
+      "چرخهٔ انتظار"
     ],
-    "correct": 0,
+    "correct": 2,
     "explanation": "در بن‌بست، تراکنش‌ها در چرخه به هم وابسته‌اند."
   },
   "references": [
@@ -318,10 +318,10 @@ const lesson = {
     }
   ],
   "field": {
-    "task": "در یک PostgreSQL آزمایشی با دو اتصال و جدول نمونه، SELECT FOR UPDATE را روی یک ردیف اجرا کنید.",
+    "task": "در PostgreSQL محلی یک جدول demo آزمایشی بسازید، سپس در دو اتصال مستقل SELECT FOR UPDATE را روی یک ردیف اجرا کنید.",
     "observe": "اتصال دوم تا آزاد شدن قفل یا timeout منتظر می‌ماند.",
     "limit": "فقط دیتابیس محلی/آزمایشی؛ statement_timeout تنظیم کنید و هر دو تراکنش را rollback کنید.",
-    "command": "-- Session A\nBEGIN;\nSELECT * FROM demo WHERE id=1 FOR UPDATE;\n-- Session B (same disposable table)\nBEGIN;\nSET LOCAL lock_timeout='2s';\nSELECT * FROM demo WHERE id=1 FOR UPDATE;\nROLLBACK;\n-- Session A\nROLLBACK;",
+    "command": "-- Setup in an isolated test database\nCREATE TABLE demo(id integer PRIMARY KEY);\nINSERT INTO demo VALUES (1);\n-- Session A\nBEGIN;\nSELECT * FROM demo WHERE id=1 FOR UPDATE;\n-- Session B\nBEGIN;\nSET LOCAL lock_timeout='2s';\nSELECT * FROM demo WHERE id=1 FOR UPDATE;\nROLLBACK;\n-- Session A\nROLLBACK;",
     "next": {
       "slug": "connection-pooling",
       "label": "Connection Pooling",

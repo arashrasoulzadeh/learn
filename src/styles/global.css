@@ -305,3 +305,9 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .data-state-items>span{display:block;border:1px solid var(--line);border-radius:5px;padding:3px 6px;overflow-wrap:anywhere}
 .data-state-items>span[data-state=ok]{border-color:var(--accent);color:var(--accent)}
 .data-state-items>span[data-state=warn]{border-color:var(--danger);color:var(--danger)}
+
+.data-key-page{display:flex;flex-wrap:wrap;gap:3px}
+.data-key-page>span{border:1px solid var(--line);border-radius:4px;padding:4px 6px}
+.data-key-page>span[data-match=true]{border-color:var(--accent);color:var(--accent)}
+.data-balance b{font-size:15px;line-height:1.55}
+.shard-load{display:grid;gap:5px}.shard-load-track{display:block;height:7px;background:var(--line);border-radius:5px;overflow:hidden}.shard-load-track i{height:100%;display:block;background:var(--accent);border-radius:5px}.shard-load-track i[data-hot=true]{background:var(--danger)}.shard-load small{font-size:9px;color:var(--muted)}

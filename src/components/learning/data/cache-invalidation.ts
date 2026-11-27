@@ -321,11 +321,11 @@ const lesson = {
   "quiz": {
     "question": "آیا commit در DB به خودی خود یک Redis مستقل را به‌روز می‌کند؟",
     "options": [
-      "خیر",
       "بله همیشه",
-      "فقط با GET"
+      "فقط با GET",
+      "خیر"
     ],
-    "correct": 0,
+    "correct": 2,
     "explanation": "هماهنگی کش باید به‌طور صریح طراحی شود."
   },
   "references": [

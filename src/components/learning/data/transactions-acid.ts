@@ -296,11 +296,11 @@ const lesson = {
   "quiz": {
     "question": "کدام ویژگی مانع ثبت تنها نیمی از انتقال می‌شود؟",
     "options": [
-      "Atomicity",
       "Indexing",
+      "Atomicity",
       "Replication"
     ],
-    "correct": 0,
+    "correct": 1,
     "explanation": "Atomicity تغییرات واحد تراکنش را همه یا هیچ ثبت می‌کند."
   },
   "references": [

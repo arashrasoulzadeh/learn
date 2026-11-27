@@ -3,7 +3,16 @@ import {faNumber} from './LabUI';
 type Props={kind:string;title:string;labels:readonly string[];values:readonly string[];context:string;step:number;tone?:'success'|'error'};
 function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   let items:ReactNode=null;
-  if(['sql-nosql','database-index','b-tree','transactions-acid','database-locking','connection-pooling','caching','cache-invalidation','replication','sharding'].includes(kind)){
+  if(kind==='sharding'&&index>0&&/\d+ requests/.test(value)){
+    const count=Number(value.match(/(\d+) requests/)?.[1]??0);
+    items=<span className="shard-load"><span>{value}</span><span className="shard-load-track"><i style={{width:Math.min(count,100)+'%'}} data-hot={count>=80}/></span><small>0–100 requests (model)</small></span>;
+  }else if(kind==='b-tree'&&index>0){
+    items=<span className="data-key-page">{value.split(' | ').map((part,i)=><span key={i} data-match={part.includes('✓')}>{part}</span>)}</span>;
+  }else if(kind==='connection-pooling'&&index===1){
+    items=<span className="data-state-items pool-slots">{value.split(' | ').map((part,i)=><span key={i} data-state={part.startsWith('FREE')?'ok':/FULL|leak/i.test(part)?'warn':'neutral'}>{part}</span>)}</span>;
+  }else if(kind==='transactions-acid'&&index>0){
+    items=<span className="data-balance"><b>{value}</b></span>;
+  }else if(['sql-nosql','database-index','b-tree','transactions-acid','database-locking','connection-pooling','caching','cache-invalidation','replication','sharding'].includes(kind)){
     items=<span className="data-state-items">{value.split(' | ').map((part,i)=><span key={i} data-state={/^(MISS|WAIT|BLOCKED|STALE|ROLLBACK|FULL|LAG|CONFLICT)/i.test(part)?'warn':/^(HIT|COMMIT|READY|FREE|SYNC)/i.test(part)?'ok':'neutral'}>{part}</span>)}</span>;
   }else if(kind==='process-thread'&&index===1){
     const valueMatch=value.match(/counter=(\d+)/);
