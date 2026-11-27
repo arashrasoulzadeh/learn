@@ -1,4 +1,4 @@
-import type {BackendLesson} from './types';
+import type {BackendLesson} from '../backend/types';
 const lesson = {
   "slug": "jwt",
   "title": "JWT — توکن امضاشده و اعتبارسنجی",
@@ -113,7 +113,7 @@ const lesson = {
         {
           "name": "بررسی امضا",
           "short": "بررسی امضا",
-          "detail": "API الگوریتم را با سیاست ثابت کنترل می‌کند و کلید معتبر را از پیکربندی قابل اعتماد می‌گیرد؛ سپس خود verifier امضای توکن را بررسی می‌کند. مسیر رفت‌وبرگشت در نمودار دریافت کلید و نتیجهٔ بررسی را خلاصه می‌کند.",
+          "detail": "API کلید عمومی را از پیکربندی مورد اعتماد انتخاب می‌کند؛ بررسی امضا در خود verifier انجام می‌شود. در این مدل دریافت کلید و بررسی محلی در یک مرحله خلاصه شده‌اند. امضا معتبر است.",
           "route": [
             1,
             2
@@ -130,8 +130,8 @@ const lesson = {
           ],
           "roundTrip": true,
           "flightLabels": [
-            "verify",
-            "valid sig"
+            "lookup key",
+            "trusted public key"
           ],
           "diagnostic": "Verifier از issuer/JWKS و الگوریتم مورد اعتماد استفاده می‌کند؛ امضا را با کلید دلخواه header نپذیرید."
         },
@@ -294,7 +294,7 @@ const lesson = {
         {
           "name": "بررسی امضای ناموفق",
           "short": "بررسی امضا",
-          "detail": "تغییر payload باعث عدم تطابق امضا با ورودی امضاشده می‌شود.",
+          "detail": "API کلید عمومی را از پیکربندی مورد اعتماد انتخاب می‌کند؛ بررسی امضا در خود verifier انجام می‌شود. در این مدل دریافت کلید و بررسی محلی در یک مرحله خلاصه شده‌اند. امضا با payload تغییرکرده تطابق ندارد.",
           "route": [
             1,
             2
@@ -312,8 +312,8 @@ const lesson = {
           "roundTrip": true,
           "tone": "error",
           "flightLabels": [
-            "verify",
-            "bad sig"
+            "lookup key",
+            "trusted public key"
           ],
           "diagnostic": "تغییر payload بدون امضای درست اعتبار JWS را خراب می‌کند؛ parser جای verifier نیست."
         },

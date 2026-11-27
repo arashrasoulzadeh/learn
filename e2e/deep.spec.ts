@@ -1,4 +1,27 @@
-import {test,expect} from '@playwright/test';
+import {test,expect,type Locator} from '@playwright/test';
+async function assertTraceGeometry(row:Locator){
+ const issues=await row.evaluate(el=>{
+  const lane=el.querySelector<HTMLElement>('.deep-lane-row')!;
+  const signal=lane.querySelector<HTMLElement>('.deep-signal')!;
+  const label=signal.querySelector<HTMLElement>('span')!;
+  const lines=Array.from(lane.querySelectorAll<HTMLElement>('.deep-lane-line'));
+  const r=lane.getBoundingClientRect(),s=signal.getBoundingClientRect(),b=label.getBoundingClientRect();
+  const centers=lines.map(line=>line.getBoundingClientRect().left);
+  const a=Number(signal.dataset.from),z=Number(signal.dataset.to);
+  const errors:string[]=[];
+  if(getComputedStyle(lane).display!=='grid')errors.push('lane grid lost');
+  if(centers.some((x,i)=>i>0&&x-centers[i-1]<8))errors.push('collapsed lanes');
+  if(s.width<8||s.left<r.left-2||s.right>r.right+2)errors.push('signal outside lanes');
+  if(b.width>s.width+2||label.offsetHeight>lane.clientHeight+2)errors.push('clipped message label');
+  if(a!==z){
+   const arrow=signal.querySelector<HTMLElement>('i')!;
+   const start=s.left+arrow.offsetLeft,end=start+arrow.offsetWidth;
+   if(Math.abs(start-centers[Math.min(a,z)])>3||Math.abs(end-centers[Math.max(a,z)])>3)errors.push('arrow does not connect participant centers');
+  }
+  return errors;
+ });
+ expect(issues).toEqual([]);
+}
 const fixtures=[
   [
     "networking",
@@ -242,6 +265,7 @@ for(const [category,slug,key,first,second] of fixtures){
     await expect(player.locator('[data-revealed=true]')).toHaveCount(i+1);
     await expect(player.locator('.deep-current p')).not.toBeEmpty();
     await expect(events.nth(i).locator('.deep-signal')).toHaveCount(1);
+    await assertTraceGeometry(events.nth(i));
    }
    await expect(player.locator('[data-value="'+key+'"]')).toHaveText(mode===0?first:second);
    await expect(player.getByRole('status')).toContainText('نتیجهٔ آزمایش');
@@ -260,6 +284,7 @@ for(const [category,slug,key,first,second] of fixtures){
   await player.getByRole('button',{name:'پخش آزمایش',exact:true}).click();
   await expect(player.locator('[data-revealed=true]').first()).toBeVisible({timeout:6000});
   await player.getByRole('button',{name:'توقف آزمایش',exact:true}).click();
+  await assertTraceGeometry(player.locator('.deep-event-row[data-revealed=true]').first());
   await page.screenshot({path:'test-results/deep/'+slug+'-mobile.png',animations:'disabled'});
   await dialog.getByRole('button',{name:'بستن پنجره',exact:true}).click();
   await expect(dialog).not.toBeVisible();

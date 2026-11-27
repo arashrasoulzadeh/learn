@@ -1,4 +1,4 @@
-import type {BackendLesson} from './types';
+import type {BackendLesson} from '../backend/types';
 const lesson = {
   "slug": "authentication",
   "title": "Authentication — احراز هویت",
@@ -105,7 +105,7 @@ const lesson = {
         {
           "name": "بررسی verifier ذخیره‌شده",
           "short": "بررسی گذرواژه",
-          "detail": "سرویس حساب و اطلاعات hash نمک‌دار را پیدا می‌کند و با تابع اعتبارسنجی مناسب گذرواژه را بررسی می‌کند.",
+          "detail": "سرویس حساب و اطلاعات hash نمک‌دار را پیدا می‌کند و با تابع اعتبارسنجی مناسب گذرواژه را بررسی می‌کند. مخزن حساب فقط verifier ذخیره‌شده را می‌دهد؛ سرویس ورود خودش تابع password verify را اجرا می‌کند.",
           "route": [
             1,
             2
@@ -122,8 +122,8 @@ const lesson = {
           ],
           "roundTrip": true,
           "flightLabels": [
-            "verify",
-            "match"
+            "lookup account",
+            "stored verifier"
           ],
           "diagnostic": "salt و هزینهٔ الگوریتم password hashing در verifier ذخیره می‌شوند؛ hash سریع مناسب رمز نیست."
         },
@@ -207,7 +207,7 @@ const lesson = {
         {
           "name": "عدم تطابق اعتبار",
           "short": "عدم تطابق",
-          "detail": "تابع بررسی گذرواژه نتیجهٔ ناموفق برمی‌گرداند.",
+          "detail": "تابع بررسی گذرواژه نتیجهٔ ناموفق برمی‌گرداند. مخزن حساب فقط verifier ذخیره‌شده را می‌دهد؛ سرویس ورود خودش تابع password verify را اجرا می‌کند.",
           "route": [
             1,
             2
@@ -225,8 +225,8 @@ const lesson = {
           "roundTrip": true,
           "tone": "error",
           "flightLabels": [
-            "verify",
-            "mismatch"
+            "lookup account",
+            "stored verifier"
           ],
           "diagnostic": "پیام عمومی و رفتار زمانی مناسب برای حساب ناموجود و رمز غلط از افشای حساب کم می‌کند."
         },

@@ -193,9 +193,9 @@ const lesson = {
           ],
           "packet": "DEL",
           "input": "DEL product:42",
-          "output": "MISS",
+          "output": "DEL=1; next GET misses",
           "result": "کش قدیمی حذف شد.",
-          "explanation": "اگر حذف شکست بخورد، retry یا outbox/سازوکار هماهنگی لازم است.",
+          "explanation": "اگر حذف شکست بخورد، retry یا outbox/سازوکار هماهنگی لازم است. در Redis پاسخ DEL تعداد کلیدهای حذف‌شده است؛ در این مثال ۱. MISS وضعیت خواندن بعدی است نه پاسخ خود DEL.",
           "state": [
             "Invalidated",
             "MISS",
@@ -204,7 +204,7 @@ const lesson = {
           "roundTrip": true,
           "flightLabels": [
             "DEL",
-            "MISS"
+            "integer 1"
           ],
           "diagnostic": "DEL پس از commit هم اگر fail شود نیاز به retry/outbox دارد؛ دو سیستم اتمیک نیستند."
         },
@@ -325,7 +325,7 @@ const lesson = {
           "input": "W deletes key",
           "output": "MISS",
           "result": "کش خالی شد.",
-          "explanation": "DEL صرفاً ورودی فعلی را حذف می‌کند؛ جلوی نوشتن آینده را نمی‌گیرد.",
+          "explanation": "DEL صرفاً ورودی فعلی را حذف می‌کند؛ جلوی نوشتن آینده را نمی‌گیرد. اگر کلید از قبل موجود نباشد Redis DEL مقدار ۰ می‌دهد؛ در هر صورت refill دیررس هنوز ممکن است.",
           "state": [
             "R holds v1",
             "MISS",

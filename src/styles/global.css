@@ -61,9 +61,9 @@ html[lang=fa] body,html[lang=fa] h1,html[lang=fa] h2,html[lang=fa] h3,html[lang=
 .request-progress span{display:block;height:100%;background:var(--accent);border-radius:inherit;transition:width .25s ease}
 .request-canvas{min-width:0;gap:8px;border-radius:var(--lab-radius);background:radial-gradient(ellipse at 50% 50%,#274a4d26,transparent 72%),var(--panel);padding:clamp(10px,1.65vw,24px)}
 .lab-canvas-title{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:12px;flex:none}
-.lab-canvas-title strong{color:var(--ink);font-weight:600}
-.lab-canvas-title span{display:inline-flex;align-items:center;gap:6px}
-.lab-canvas-title span::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.lab-canvas-title>strong{color:var(--ink);font-weight:600}
+.lab-canvas-title>span{display:inline-flex;align-items:center;gap:6px}
+.lab-canvas-title>span::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .request-canvas svg{flex:1;min-height:0}
 .request-detail{gap:10px;direction:rtl;text-align:start}
 .request-stage,.request-message{border-radius:var(--lab-radius);background:var(--panel);padding:16px;min-width:0}
@@ -386,7 +386,7 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .tls-trust[data-trust=valid]{color:var(--accent)}.tls-trust[data-trust=invalid]{color:var(--danger)}.endpoint-state b{color:var(--accent)}
 @media(min-width:1000px) and (min-height:740px){.request-canvas{padding:12px 14px}.request-canvas .flow-diagram{min-height:145px;height:0;flex:1 1 0;max-height:none}.request-canvas .protocol-exchange{padding:7px 10px}.request-canvas .flow-legend{font-size:10px;gap:7px}}
 @media(max-width:999px){.request-canvas{overflow:visible}.request-canvas .flow-diagram[data-layout=wide]{aspect-ratio:auto;height:auto}}
-@media(max-width:600px){.request-canvas>.protocol-state .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}.request-canvas>.protocol-state .state-cell:last-child{grid-column:1/-1}.flight-chip{font-size:10px}.flight-replay{min-height:36px}.request-canvas .flow-diagram[data-layout=compact]{aspect-ratio:auto}.lab-canvas-title{align-items:flex-start}.lab-canvas-title strong{font-size:12px}}
+@media(max-width:600px){.request-canvas>.protocol-state .state-cells{grid-template-columns:repeat(2,minmax(0,1fr))}.request-canvas>.protocol-state .state-cell:last-child{grid-column:1/-1}.flight-chip{font-size:10px}.flight-replay{min-height:36px}.request-canvas .flow-diagram[data-layout=compact]{aspect-ratio:auto}.lab-canvas-title{align-items:flex-start}.lab-canvas-title>strong{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.flight-chip{transition:none}}
 
 /* A scrollable flex column must start at the top. Centering oversized content
@@ -394,7 +394,7 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 .request-canvas{justify-content:flex-start;align-items:stretch;overflow-x:hidden}
 .request-canvas>:not(.flow-diagram){flex-shrink:0}
 .lab-canvas-title{min-width:0;position:relative;z-index:1}
-.lab-canvas-title strong{min-width:0;overflow-wrap:anywhere}
+.lab-canvas-title>strong{min-width:0;overflow-wrap:anywhere}
 .lab-canvas-title .deep-launch-button>span::before{display:none}
 .request-experience .request-canvas>.protocol-state[data-protocol] .state-cell{min-width:0}
 @media(min-width:1000px){
@@ -415,4 +415,21 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
  .request-experience .request-canvas>.protocol-state[data-protocol] .state-cell{grid-column:auto}
  .request-experience .request-canvas>.protocol-state[data-protocol] .state-cell:last-child{grid-column:1/-1}
  .lab-canvas-title .deep-launch-button{white-space:normal;min-height:40px!important}
+}
+
+/* Isolate the trace from the surrounding canvas title. Keep all lanes
+   aligned and allow long event labels to grow the row instead of clipping. */
+.deep-dialog{font-size:14px;line-height:1.65}
+.deep-trace-head>div{gap:0;align-items:center}
+.deep-trace-head{border-inline:1px solid transparent}
+.deep-lane-row{display:grid;grid-template-rows:minmax(45px,auto);height:auto;min-width:0}
+.deep-signal,.deep-unrevealed{margin:0;min-width:0;padding:3px 0}
+.deep-signal>span{max-width:100%;overflow-wrap:anywhere;white-space:normal}
+.deep-local>span{max-width:calc(100% - 4px)}
+.deep-event-row{min-height:51px;height:auto}
+.deep-event-name{overflow-wrap:anywhere}
+@media(max-width:740px){
+ .deep-lane-row{height:auto;grid-template-rows:minmax(49px,auto)}
+ .deep-trace-head>div>span{font-size:9px}
+ .deep-signal>span{padding:3px 2px}
 }

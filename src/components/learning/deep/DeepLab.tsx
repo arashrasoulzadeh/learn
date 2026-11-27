@@ -22,7 +22,7 @@ function TracePlayer({lesson}:{lesson:DeepLesson}){
    <span className="deep-tick">{row.at}</span>
    <span className="deep-lane-row" style={{gridTemplateColumns:'repeat('+lesson.lanes.length+', minmax(0, 1fr))'}}>
     {lesson.lanes.map((_,j)=><i key={j} className="deep-lane-line" style={{gridColumn:j+1}}/>)}
-    {visible&&<span className={'deep-signal'+(from===to?' deep-local':'')} data-direction={direction} style={{gridColumn:(lo+1)+' / '+(hi+2)}}><i/><span key={active?'active-'+step:'event-'+i}>{row.wire}</span></span>}
+    {visible&&<span className={'deep-signal'+(from===to?' deep-local':'')} data-direction={direction} data-from={from} data-to={to} style={{gridColumn:(lo+1)+' / '+(hi+2)}}><i style={{left:(50/(hi-lo+1))+'%',right:(50/(hi-lo+1))+'%'}}/><span key={active?'active-'+step:'event-'+i}>{row.wire}</span></span>}
     {!visible&&<span className="deep-unrevealed" style={{gridColumn:(from+1)+' / '+(from+2)}}>···</span>}
    </span>
    <span className="deep-event-name">{visible?row.name:'رویداد '+faNumber(i+1)}</span>

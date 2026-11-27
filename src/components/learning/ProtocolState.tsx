@@ -31,13 +31,14 @@ function StateValue({kind,index,value}:{kind:string;index:number;value:string}){
   }else if(kind==='jwt'&&index===0&&value==='header | payload | signature'){
     items=<span className="jwt-parts">{['header','payload','signature'].map((part,i)=><span key={part} data-part={i}>{part}</span>)}</span>;
   }else if(kind==='stack-heap'&&index===0){
-    items=<span className="backend-stack">{value.split(' | ').reverse().map((frame,i)=><span key={i} data-top={i===0}>{frame}{i===0&&<small> TOP</small>}</span>)}</span>;
+    items=<span className="backend-stack">{value.split(' | ').reverse().map((frame,i)=><span key={i} data-top={i===0&&!/^(empty|—|stack limit reached)$/i.test(frame)}>{frame}{i===0&&!/^(empty|—|stack limit reached)$/i.test(frame)&&<small> TOP</small>}</span>)}</span>;
   }else if(kind==='event-loop'&&index===0&&/^[A-D]( [A-D])*$/.test(value)){
     items=<span className="state-token-list">{value.split(' ').map((v,i)=><span key={i}>{v}</span>)}</span>;
   }else if((kind==='async-await'&&index===1)||(kind==='event-loop'&&index>0)){
     items=<span className="state-token-list backend-queue">{value.split(' | ').map((v,i)=><span key={i} data-state={/rejected/i.test(v)?'error':/fulfilled/i.test(v)?'success':'pending'}>{v}</span>)}</span>;
   }else if((kind==='authentication'||kind==='authorization'||kind==='jwt')&&index===2){
-    const denied=/deny|denied|anonymous|rejected/i.test(value),allowed=/200|authenticated|allow|verified/i.test(value)&&!denied;
+    const denied=/\b(?:deny|denied|rejected|401|403)\b/i.test(value);
+    const allowed=!denied&&(kind==='authentication'?/^(Identity verified|Session user=\d+|Authenticated)$/.test(value):/^(Allow|200 Allow)$/.test(value));
     items=<span className="backend-decision" data-decision={denied?'deny':allowed?'allow':'pending'}>{denied?'× ':allowed?'✓ ':'· '}{value}</span>;
   }else if(kind==='rest-api'&&index===1){
     items=<span className="backend-resource">{value.split(' · ').map((v,i)=><span key={i}>{v}</span>)}</span>;
