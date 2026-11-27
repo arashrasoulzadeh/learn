@@ -89,3 +89,26 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 @media(min-width:1000px) and (min-height:740px){.request-detail{padding-inline-end:4px!important}.request-canvas{min-height:0}.request-canvas svg{height:0;flex:1 1 0;max-height:none}}
 @media(max-width:999px){.request-experience{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto}.request-timeline{grid-template-columns:repeat(3,minmax(0,1fr))}.request-canvas svg{height:auto;max-height:none;flex:none}.request-detail{overflow:visible}.request-toolbar{align-items:end}.request-counter{flex:1;max-width:155px}}
 @media(max-width:600px){.learning-screen{gap:12px}.request-toolbar{padding:10px;gap:10px}.request-toolbar .lab-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(95px,.55fr);width:100%;align-items:end}.request-toolbar .lab-controls label:first-child{min-width:0}.request-toolbar select{width:100%;font-size:12px}.lab-playback-buttons{grid-column:1/-1}.request-toolbar .primary,.request-toolbar .secondary{min-height:40px;padding:7px 11px}.request-counter{max-width:none;flex-basis:100%}.request-canvas{padding:9px}.request-stage,.request-message{padding:13px}.request-step{min-height:54px}.request-step strong{font-size:11px}}
+
+/* Teaching-specific details, shared with future protocol labs. */
+.request-overview{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--bg)}
+.request-address{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+.request-method,.lab-message-tag{display:inline-flex;align-items:center;flex:none;padding:3px 8px;border-radius:6px;color:var(--accent);background:#79e3c116;font:600 11px/1.5 ui-monospace,monospace}
+.request-address code{direction:ltr;unicode-bidi:isolate;color:var(--ink);font:12px/1.6 ui-monospace,monospace;overflow-wrap:anywhere;min-width:0}
+.request-result{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex:none}
+.request-result-dot{width:7px;height:7px;flex:none;border-radius:50%;background:currentColor}
+.request-result[data-tone=success],.lab-message-tag[data-tone=success]{color:var(--accent)}
+.request-result[data-tone=error],.lab-message-tag[data-tone=error]{color:var(--danger)}
+.lab-message-tag[data-tone=error]{background:#ff989818}
+.protocol-exchange{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:11px;flex:none}
+.protocol-exchange div{display:grid;gap:4px;min-width:0}
+.protocol-kicker{color:var(--accent);font-size:11px;font-weight:600}
+.protocol-exchange strong{color:var(--ink);font-size:13px;font-weight:600;line-height:1.65}
+.protocol-exchange code{font:11px/1.65 ui-monospace,monospace;direction:ltr;unicode-bidi:isolate;color:var(--muted);overflow-wrap:anywhere;max-width:48%;text-align:left}
+.request-canvas{gap:12px}
+.request-detail .request-message pre{font-size:12px}
+.request-detail .request-message.waiting pre{color:var(--muted);font-family:Vazirmatn,Tahoma,Arial,sans-serif}
+.request-step[aria-current=step]::before{content:'';position:absolute;inset-block-start:9px;inset-inline-end:9px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.request-step[data-done=true]::before{content:'✓';position:absolute;inset-block-start:6px;inset-inline-end:9px;color:var(--accent);font-size:11px}
+@media(min-width:1000px) and (max-height:850px){.request-overview{padding:7px 10px}.protocol-exchange{padding:8px 10px}.request-canvas{gap:8px}}
+@media(max-width:600px){.request-overview,.protocol-exchange{align-items:flex-start;flex-wrap:wrap;gap:6px;padding:9px}.request-address{flex-basis:100%}.request-result{padding-inline-start:2px}.protocol-exchange code{max-width:100%;width:100%;text-align:left}.request-canvas{gap:8px}.request-address code{font-size:10px}}

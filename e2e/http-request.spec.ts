@@ -104,3 +104,31 @@ test('polished learning layout keeps visual order RTL and controls accessible',a
   await expect(timeline.nth(5)).toHaveAttribute('aria-current','step');
   await page.screenshot({path:'test-results/http-mobile.png',animations:'disabled',fullPage:true});
 });
+
+
+test('HTTP lesson exposes live address, stage result and status without breaking protocol direction',async({page})=>{
+  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/learn/',{waitUntil:'domcontentloaded'});
+  const lab=page.getByRole('region',{name:'آموزش تعاملی درخواست HTTP'});
+  await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+  const overview=lab.locator('.request-overview');
+  await expect(overview.locator('code')).toHaveText('https://shop.example/api/products/42');
+  const steps=lab.getByRole('navigation',{name:'مراحل درخواست'}).getByRole('button');
+  await steps.nth(1).click();
+  await expect(lab.locator('.protocol-exchange')).toContainText('نشانی سرور پیدا شده است.');
+  await lab.getByRole('button',{name:'پخش',exact:true}).click();
+  await expect(lab.locator('animateMotion')).toHaveAttribute('path','M 700 220 L 500 78 L 700 220');
+  await lab.getByRole('button',{name:'توقف',exact:true}).click();
+  await lab.getByLabel('سناریو').selectOption('missing');
+  await expect(overview.locator('code')).toHaveText('https://shop.example/api/products/999');
+  await steps.nth(7).click();
+  await expect(overview.locator('.request-result')).toHaveAttribute('data-tone','error');
+  await expect(overview).toContainText('404 Not Found');
+  await expect(lab.locator('.request-message').last().locator('.lab-message-tag')).toHaveText('404');
+  await expect(lab.locator('.request-message pre').last()).toHaveAttribute('dir','ltr');
+  await page.screenshot({path:'test-results/http-response-desktop.png',animations:'disabled'});
+  await page.setViewportSize({width:390,height:844});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
+  await page.screenshot({path:'test-results/http-response-mobile.png',animations:'disabled',fullPage:true});
+});

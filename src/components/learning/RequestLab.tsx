@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {usePlayback,LabSelect,LabToolbar,LabTimeline,LabStage,LabMessage,LabNote,LabScreen} from './LabUI';
 import {FlowDiagram,type FlowEdge} from './FlowDiagram';
+import {RequestOverview,ProtocolExchange} from './RequestDetails';
 
 const stages = [
   {name:'آماده‌سازی درخواست',short:'مرورگر',from:0,to:0,label:'تجزیهٔ آدرس و تعیین نوع درخواست',detail:'مرورگر آدرس را تجزیه می‌کند، متد درخواست را انتخاب می‌کند و حافظهٔ نهان خود را بررسی می‌کند. در این شبیه‌سازی فرض می‌کنیم داده در حافظهٔ نهان نیست و اتصال جدیدی لازم است.'},
@@ -28,6 +29,17 @@ const scenarios = {
 };
 type Scenario = keyof typeof scenarios;
 const edges:FlowEdge[]=[[0,1],[0,2],[2,3],[3,4]];
+const stageNotes=[
+  {phase:'آماده‌سازی',result:'آدرس و متد مشخص شده‌اند.',example:'https://shop.example/api/products/42'},
+  {phase:'آماده‌سازی',result:'نشانی سرور پیدا شده است.',example:'shop.example → 192.0.2.10'},
+  {phase:'برقراری ارتباط',result:'اتصال TCP آماده است.',example:'SYN / SYN-ACK / ACK'},
+  {phase:'برقراری ارتباط',result:'کانال رمزنگاری‌شده آماده است.',example:'TLS · HTTPS'},
+  {phase:'ارسال و پردازش',result:'درخواست به پراکسی رسیده است.',example:'HTTP/1.1'},
+  {phase:'ارسال و پردازش',result:'مسیر و منطق درخواست مشخص شده‌اند.',example:'Route → Handler'},
+  {phase:'ارسال و پردازش',result:'عملیات داده انجام می‌شود.',example:'Database query'},
+  {phase:'دریافت نتیجه',result:'پاسخ به مرورگر برمی‌گردد.',example:'Status + Headers + Body'},
+  {phase:'دریافت نتیجه',result:'چرخهٔ درخواست کامل شده است.',example:'Parse → Render'}
+];
 const scenarioOptions=[{value:'get',label:'دریافت موفق · GET ۲۰۰'},{value:'post',label:'ایجاد موفق · POST ۲۰۱'},{value:'missing',label:'یافت نشد · GET ۴۰۴'},{value:'error',label:'خطای سرور · GET ۵۰۰'}];
 export default function RequestLab(){
   const playback=usePlayback(stages.length);
@@ -35,16 +47,24 @@ export default function RequestLab(){
   const [scenario,setScenario]=useState<Scenario>('get');
   const s=scenarios[scenario],stage=stages[step];
   const route=stage.from===stage.to?[]:step===7?[nodes[stage.from],nodes[2],nodes[stage.to]]:[nodes[stage.from],nodes[stage.to]];
+  const returnRoute=[1,2,3,6].includes(step)?[...route].reverse():undefined;
+  const packetLabel=step===1?'DNS':step===2?'TCP':step===3?'TLS':step===4?s.method:step===5?'HTTP':step===6?'DB':step===7?s.status.split(' ')[0]:undefined;
+  const responseVisible=step>=7;
+  const outcome=Number(s.status.slice(0,3))>=400?'error':'success';
   const activeNodes=step===7?[0,2,3]:[stage.from,stage.to];
-  const accent=step>=7&&(scenario==='missing'||scenario==='error')?'var(--danger)':'var(--accent)';
+  const accent=step>=7&&outcome==='error'?'var(--danger)':step===7?'var(--blue)':'var(--accent)';
+  const example=step===0?'https://shop.example'+s.path:step===4?s.method+' '+s.path:step>=7?s.status:stageNotes[step].example;
   const requestBody=s.method==='POST'?'{"name":"Mouse"}':'';
   const request=s.method+' '+s.path+' HTTP/1.1\nHost: shop.example\nAccept: application/json'+(requestBody?'\nContent-Type: application/json\nContent-Length: '+requestBody.length+'\n\n'+requestBody:'\n');
   const response='HTTP/1.1 '+s.status+'\nContent-Type: application/json\nContent-Length: '+s.body.length+'\nCache-Control: no-store\n\n'+s.body;
 
   const detail=step===6&&scenario==='error'?'عملیات پایگاه داده به‌طور غیرمنتظره شکست می‌خورد. برنامه خطا را به پاسخ عمومی ۵۰۰ تبدیل می‌کند.':step===8&&scenario==='missing'?'کلاینت یک پاسخ معتبر HTTP دریافت می‌کند، اما محصول موردنظر پیدا نشده است. رابط کاربری می‌تواند پیام «یافت نشد» را نمایش دهد.':stage.detail;
   return <LabScreen label="آموزش تعاملی درخواست HTTP"
+    overview={<RequestOverview method={s.method} path={s.path} status={responseVisible?s.status:undefined} outcome={outcome}/>}
+    graphFooter={<ProtocolExchange phase={stageNotes[step].phase} result={step===6&&scenario==='error'?'عملیات داده ناموفق بود.':stageNotes[step].result} example={example}/>}
+    
     toolbar={<LabToolbar playback={playback} count={stages.length}><LabSelect label="سناریو" value={scenario} options={scenarioOptions} onChange={v=>{setScenario(v as Scenario);jump(0);}}/></LabToolbar>}
-    graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={step+'-'+scenario+'-'+speed} label={stage.name} caption={stage.label} captionDirection={step===2?'ltr':'rtl'}/>}
-    detail={<><LabStage name={stage.name} label={stage.short}>{detail}</LabStage><LabMessage title="درخواست" content={step>=4?request:undefined} waiting="در انتظار ارسال…"/><LabMessage title="پاسخ" content={step>=7?response:undefined} waiting="در انتظار پاسخ…"/><LabNote>این شبیه‌سازی یک اتصال جدید HTTPS بر بستر TCP را با HTTP/1.1 نشان می‌دهد. اتصال‌ها می‌توانند دوباره استفاده شوند و HTTP/3 از QUIC استفاده می‌کند. هیچ درخواست واقعی به شبکه ارسال نمی‌شود.</LabNote></>}
+    graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={activeNodes} route={route} playing={playing} speed={speed} accent={accent} animationKey={step+'-'+scenario+'-'+speed} label={stage.name} caption={stage.label} captionDirection={step===2?'ltr':'rtl'} returnRoute={returnRoute} packetLabel={packetLabel}/>}
+    detail={<><LabStage name={stage.name} label={stage.short}>{detail}</LabStage><LabMessage title="درخواست" content={step>=4?request:undefined} waiting="هنوز درخواست HTTP ارسال نشده است." tag={step>=4?s.method:undefined}/><LabMessage title="پاسخ" content={responseVisible?response:undefined} waiting="هنوز پاسخی از سرور دریافت نشده است." tag={responseVisible?s.status.slice(0,3):undefined} tone={responseVisible?outcome:undefined}/><LabNote>این شبیه‌سازی یک اتصال جدید HTTPS بر بستر TCP را با HTTP/1.1 نشان می‌دهد. اتصال‌ها می‌توانند دوباره استفاده شوند و HTTP/3 از QUIC استفاده می‌کند. هیچ درخواست واقعی به شبکه ارسال نمی‌شود.</LabNote></>}
     timeline={<LabTimeline steps={stages} step={step} onChange={jump} label="مراحل درخواست"/>}/>;
 }

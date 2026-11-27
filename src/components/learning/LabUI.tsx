@@ -49,10 +49,10 @@ export function LabTimeline({steps,step,onChange,label='مراحل درس'}:{ste
 export function LabStage({name,label,children}:{name:string;label:string;children:ReactNode}){
   return <section className="request-stage" aria-live="polite"><span className="lab-label">{label}</span><h2>{name}</h2><p>{children}</p></section>;
 }
-export function LabMessage({title,content,waiting}:{title:string;content?:string;waiting:string}){
-  return <section className={'request-message'+(content===undefined?' waiting':'')}><p className="eyebrow">{title}</p><pre dir={content===undefined?'rtl':'ltr'}>{content??waiting}</pre></section>;
+export function LabMessage({title,content,waiting,tag,tone}:{title:string;content?:string;waiting:string;tag?:string;tone?:'success'|'error'}){
+  return <section className={'request-message'+(content===undefined?' waiting':'')}><p className="eyebrow">{title}{tag&&<bdi className="lab-message-tag" data-tone={tone??'neutral'} dir="ltr">{tag}</bdi>}</p><pre dir={content===undefined?'rtl':'ltr'}>{content??waiting}</pre></section>;
 }
 export function LabNote({children}:{children:ReactNode}){return <p className="request-note">{children}</p>;}
-export function LabScreen({label,toolbar,graph,detail,timeline}:{label:string;toolbar:ReactNode;graph:ReactNode;detail:ReactNode;timeline:ReactNode}){
-  return <section className="request-experience" aria-label={label}>{toolbar}<div className="request-canvas"><div className="lab-canvas-title"><strong>نمایش تصویری</strong><span>شبیه‌سازی</span></div>{graph}</div><div className="request-detail">{detail}</div>{timeline}</section>;
+export function LabScreen({label,toolbar,graph,detail,timeline,overview,graphFooter}:{label:string;toolbar:ReactNode;graph:ReactNode;detail:ReactNode;timeline:ReactNode;overview?:ReactNode;graphFooter?:ReactNode}){
+  return <section className="request-experience" aria-label={label}>{toolbar}<div className="request-canvas"><div className="lab-canvas-title"><strong>نمایش تصویری</strong><span>شبیه‌سازی</span></div>{overview}{graph}{graphFooter}</div><div className="request-detail">{detail}</div>{timeline}</section>;
 }
