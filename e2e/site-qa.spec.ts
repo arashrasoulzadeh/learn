@@ -65,7 +65,7 @@ test(slug+' — Persian lesson and every quiz option gives feedback',async({page
   await page.goto('/learn/concepts/server-infrastructure/'+slug+'/');
   await expect(page.locator('html')).toHaveAttribute('lang','fa');
   await expect(page.getByRole('heading',{name:'مدل ذهنی',exact:true})).toBeVisible();
-  await expect(page.locator('.learning-content [lang=en][dir=ltr] .server-lab')).toBeVisible();
+  await expect(page.locator('.learning-content .server-lab')).toBeVisible();
   const quizzes=page.locator('section.lab').filter({has:page.locator('.quiz-option')});
   await expect(quizzes).toHaveCount(2);
   for(const quiz of await quizzes.all()){

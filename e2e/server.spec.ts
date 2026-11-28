@@ -40,7 +40,7 @@ test.describe('Server & Infrastructure product audit',()=>{
    for(let i=0;i<stepCount;i++){
     await steps.nth(i).click();
     await expect(steps.nth(i)).toHaveAttribute('aria-current','step');
-    await expect(lab.locator('.lab-stage small')).toContainText('STEP '+String(i+1)+' OF '+String(stepCount));
+    await expect(lab.locator('.lab-stage small')).toContainText('مرحله '+(i+1).toLocaleString('fa-IR')+' از '+stepCount.toLocaleString('fa-IR'));
     await expect(lab.locator('.lab-stage strong')).not.toBeEmpty();
    }
   }
