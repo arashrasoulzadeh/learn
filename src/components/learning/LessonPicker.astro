@@ -1,5 +1,5 @@
 ---
-import { catalog, lessonUrl } from '../../lib/content';
+import { catalog, lessonUrl, url } from '../../lib/content';
 import { deepLessons } from './deep/index';
 import { mainTitles } from './mainTitles';
 const { currentId } = Astro.props as {currentId:string};
@@ -59,6 +59,7 @@ const compact=(label:string)=>label.length>18?label.slice(0,17)+'…':label;
           </nav>
         </section>)}
       </div>
+      <nav class="picker-library" aria-label="کتابخانهٔ کامل"><a href={url("catalog/")}>همهٔ آموزش‌ها ({concepts.length.toLocaleString("fa-IR")})</a><a href={url("catalog/#server-infrastructure")}>درس‌های زیرساخت سرور</a><a href={url("search/")}>جست‌وجوی درس‌ها</a></nav>
     </div>
   </dialog>
 </div>
@@ -124,6 +125,7 @@ const compact=(label:string)=>label.length>18?label.slice(0,17)+'…':label;
   .picker-tabs button[aria-selected=true] span{color:var(--accent)}
   .picker-tabs button:hover{border-color:var(--accent)}
   .picker-tabs button:focus-visible{outline-offset:-3px}
+  .picker-library{display:flex;flex-wrap:wrap;gap:8px 18px;flex:none;padding:10px 24px;border-top:1px solid var(--line);font-size:12px}.picker-library a{padding:5px 0}.picker-library a:focus-visible{outline-offset:2px}
   .picker-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:15px 24px 24px}
   .picker-section-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
   .picker-section-head h3{margin:0;font-size:15px;letter-spacing:0;line-height:1.6}

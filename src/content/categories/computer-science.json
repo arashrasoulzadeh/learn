@@ -2,5 +2,12 @@
   "title": "علوم کامپیوتر",
   "description": "الگوریتم‌ها، هم‌روندی و حافظه.",
   "icon": "∑",
-  "order": 9
+  "order": 9,
+  "relatedTags": [
+    "process-thread",
+    "stack-heap",
+    "async-await",
+    "event-loop",
+    "b-tree"
+  ]
 }

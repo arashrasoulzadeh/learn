@@ -47,7 +47,7 @@ test('tabbed lesson gallery previews all fifty lessons and supports keyboard, mo
  await expect(page).toHaveURL(/\/system-design\/raft\/$/);
  await trigger.click();
  await expect(tabs.nth(4)).toHaveAttribute('aria-selected','true');
- await expect(dialog.getByRole('link').last()).toHaveAttribute('aria-current','page');
+ await expect(dialog.getByRole('tabpanel').getByRole('link').last()).toHaveAttribute('aria-current','page');
  await dialog.getByRole('button',{name:'بستن انتخاب درس'}).click();
  await expect(dialog).not.toBeVisible();
  await expect(trigger).toBeFocused();

@@ -3,18 +3,22 @@ import Base from '../layouts/Base.astro';
 import LessonCard from '../components/LessonCard.astro';
 import { catalog } from '../lib/content';
 const {categories, concepts}=await catalog();
+const categoryLessons = (c: typeof categories[number]) => concepts.filter(x => x.data.category.id === c.id || c.data.relatedTags.some(tag => x.data.tags.includes(tag)));
+const sections = categories.map(c => ({category:c,lessons:categoryLessons(c)})).filter(s=>s.lessons.length);
 ---
 <Base title="آموزش‌ها" page="catalog">
   <section class="page-head"><p class="eyebrow">کتابخانهٔ آموزشی</p><h1>مفاهیم را کشف کنید.</h1><p class="lede">مفهوم بعدی را برای یادگیری انتخاب کنید.</p></section>
   <div class="catalog-filter"><label for="filter">فیلتر آموزش‌ها</label><input id="filter" type="search" placeholder="HTTP، الگوهای طراحی، کش…" /></div>
-  {categories.map(c=><section class="section catalog-section" id={c.id}><h2>{c.data.icon} {c.data.title}</h2><p class="muted">{c.data.description}</p><div class="lesson-grid">{concepts.filter(x=>x.data.category.id===c.id).map(lesson=><LessonCard lesson={lesson}/>)}</div>{!concepts.some(x=>x.data.category.id===c.id)&&<p class="muted">آموزش‌ها به‌زودی اضافه می‌شوند.</p>}</section>)}
+  <nav aria-label="دسته‌بندی آموزش‌ها" class="catalog-filter" style="display:flex;flex-wrap:wrap;gap:12px">{sections.map(({category:c})=><a href={"#"+c.id}>{c.data.title}</a>)}</nav>
+  {sections.map(({category:c,lessons})=><section class="section catalog-section" id={c.id}><h2>{c.data.icon} {c.data.title}</h2><p class="muted">{c.data.description}</p><div class="lesson-grid">{lessons.map(lesson=><LessonCard lesson={lesson}/>)}</div></section>)}
   <p id="no-results" hidden role="status">آموزش مطابق جست‌وجو یافت نشد.</p>
   <script>
+    import { normalizeSearch } from '../lib/search-normalize';
     const input=document.querySelector<HTMLInputElement>('#filter');
     input?.addEventListener('input',()=>{
-      const q=input.value.toLowerCase().trim(); let n=0;
+      const q=normalizeSearch(input.value); let n=0;
       document.querySelectorAll<HTMLElement>('.catalog-section').forEach(section=>{
-        let visible=0; section.querySelectorAll<HTMLElement>('.lesson-card').forEach(card=>{const match=(card.textContent+' '+section.querySelector('h2')?.textContent).toLowerCase().includes(q);card.hidden=!match;if(match){visible++;n++;}});
+        let visible=0; section.querySelectorAll<HTMLElement>('.lesson-card').forEach(card=>{const haystack=normalizeSearch((card.textContent??'')+' '+(card.dataset.search??'')+' '+(section.querySelector('h2')?.textContent??''));const match=q.split(' ').every(term=>haystack.includes(term));card.hidden=!match;if(match){visible++;n++;}});
         section.hidden=!!q&&!visible;
       });
       const empty=document.querySelector<HTMLElement>('#no-results'); if(empty)empty.hidden=!q||n>0;

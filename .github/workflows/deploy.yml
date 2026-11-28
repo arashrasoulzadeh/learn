@@ -21,7 +21,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install
+      - name: Install dependencies
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Capture dependency audit and lockfile
+        run: |
+          mkdir -p qa-dependencies
+          cp package-lock.json qa-dependencies/package-lock.json
+          npm audit --json > qa-dependencies/npm-audit.json || true
+          node -e "const a=require('./qa-dependencies/npm-audit.json'); console.log(JSON.stringify(a.metadata||a.error)); for(const [name,v] of Object.entries(a.vulnerabilities||{})) console.log(name,v.severity,JSON.stringify(v.fixAvailable));"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-${{ github.run_attempt }}
+          path: qa-dependencies
       - run: npm run check:server
       - run: npm run check:network
       - run: npm run check:backend
@@ -33,6 +44,9 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Security gate for production
+        if: github.ref == 'refs/heads/main'
+        run: npm audit --audit-level=high
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -47,9 +61,27 @@ jobs:
         with:
           name: ${{ steps.artifact_name.outputs.name }}
           path: dist
+  cross-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - run: npm run build
+      - run: npx playwright install --with-deps firefox webkit
+      - run: npx playwright test --config playwright.cross-browser.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cross-browser-qa-${{ github.run_attempt }}
+          path: test-results
+          if-no-files-found: ignore
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, cross-browser]
     runs-on: ubuntu-latest
     permissions:
       pages: write

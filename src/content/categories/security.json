@@ -2,5 +2,12 @@
   "title": "امنیت",
   "description": "احراز هویت، کنترل دسترسی و ارتباط امن.",
   "icon": "◈",
-  "order": 8
+  "order": 8,
+  "relatedTags": [
+    "authentication",
+    "authorization",
+    "jwt",
+    "tls-https",
+    "cookies-sessions"
+  ]
 }

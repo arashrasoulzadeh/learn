@@ -5,11 +5,12 @@ import {url} from '../lib/content';
 <Base title="جست‌وجو" page="search">
   <section class="page-head"><p class="eyebrow">جست‌وجوی تمام‌متن</p><h1>یک مفهوم پیدا کنید.</h1><p class="lede">در توضیحات، مثال‌ها و عنوان آموزش‌ها جست‌وجو کنید.</p></section>
   <link rel="stylesheet" href={url('pagefind/pagefind-ui.css')} />
-  <div id="search"></div>
+  <div id="search" data-script-url={url("pagefind/pagefind-ui.js")} data-base-url={url()}></div>
   <p id="search-fallback"><a href={url('catalog/')}>مرور آموزش‌ها</a> در صورت در دسترس نبودن نمایهٔ جست‌وجو.</p>
-  <script is:inline define:vars={{scriptUrl:url('pagefind/pagefind-ui.js'),baseUrl:url()}}>
-    const script=document.createElement('script');script.src=scriptUrl;
-    script.onload=()=>{new window.PagefindUI({element:'#search',baseUrl,showImages:false,showSubResults:true,translations:{placeholder:'جست‌وجو…',clear_search:'پاک کردن',load_more:'نمایش بیشتر',search_label:'جست‌وجو در سایت',filters_label:'فیلترها',zero_results:'نتیجه‌ای برای [SEARCH_TERM] یافت نشد',one_result:'یک نتیجه برای [SEARCH_TERM]',many_results:'[COUNT] نتیجه برای [SEARCH_TERM]',searching:'در حال جست‌وجوی [SEARCH_TERM]…'}});document.getElementById('search-fallback').hidden=true;};
+  <script is:inline>
+    const root=document.getElementById('search');
+    const script=document.createElement('script');script.src=root.dataset.scriptUrl;
+    script.onload=()=>{try{new window.PagefindUI({element:'#search',baseUrl:root.dataset.baseUrl,showImages:false,showSubResults:true,translations:{placeholder:'جست‌وجو…',clear_search:'پاک کردن',load_more:'نمایش بیشتر',search_label:'جست‌وجو در سایت',filters_label:'فیلترها',zero_results:'نتیجه‌ای برای [SEARCH_TERM] یافت نشد',one_result:'یک نتیجه برای [SEARCH_TERM]',many_results:'[COUNT] نتیجه برای [SEARCH_TERM]',searching:'در حال جست‌وجوی [SEARCH_TERM]…'}});document.getElementById('search-fallback').hidden=true;}catch(error){console.error('Search initialization failed',error);}};
     document.head.appendChild(script);
   </script>
 </Base>

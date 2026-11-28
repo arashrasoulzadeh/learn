@@ -4,6 +4,7 @@ import LearningHeader from '../components/learning/LearningHeader.astro';
 import { renderLesson, lessonUrl, type Lesson } from '../lib/content';
 const { lesson, isHome = false } = Astro.props as { lesson: Lesson; isHome?: boolean };
 const { Content } = await renderLesson(lesson);
+const legacyEnglish = lesson.id.startsWith('server-infrastructure/');
 const canonical = new URL(lessonUrl(lesson.id), Astro.site);
 ---
 <!doctype html>
@@ -19,7 +20,7 @@ const canonical = new URL(lessonUrl(lesson.id), Astro.site);
 <body class="learning-page">
   <main class="learning-screen" data-pagefind-body={isHome ? undefined : ''} data-pagefind-ignore={isHome ? 'all' : undefined}>
     <LearningHeader title={lesson.data.title} currentId={lesson.id} />
-    <div class="learning-content"><Content /></div>
+    <div class="learning-content" lang={legacyEnglish?"en":undefined} dir={legacyEnglish?"ltr":undefined}>{legacyEnglish && <p lang="fa" dir="rtl" class="muted">این درس از مجموعهٔ قدیمی زیرساخت سرور است و متن اصلی آن انگلیسی است.</p>}<Content /></div>
   </main>
 </body>
 </html>

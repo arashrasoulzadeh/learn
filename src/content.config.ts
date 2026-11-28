@@ -2,7 +2,7 @@ import { defineCollection, z, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 const categories = defineCollection({
   loader: glob({ base: './src/content/categories', pattern: '*.json' }),
-  schema: z.object({ title: z.string(), description: z.string(), icon: z.string(), order: z.number().int() })
+  schema: z.object({ title: z.string(), description: z.string(), icon: z.string(), order: z.number().int(), relatedTags: z.array(z.string()).default([]) })
 });
 const concepts = defineCollection({
   loader: glob({ base: './src/content/concepts', pattern: '**/*.mdx' }),

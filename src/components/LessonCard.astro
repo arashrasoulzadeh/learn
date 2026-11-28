@@ -3,10 +3,10 @@ import { lessonUrl, type Lesson } from '../lib/content';
 const { lesson } = Astro.props as { lesson: Lesson };
 const levels={beginner:'مقدماتی',intermediate:'متوسط',advanced:'پیشرفته'};
 ---
-<a class="lesson-card" href={lessonUrl(lesson.id)} data-lesson={lesson.id}>
+<a class="lesson-card" href={lessonUrl(lesson.id)} data-lesson={lesson.id} data-search={[lesson.id,...lesson.data.tags].join(" ")}>
   <div class="eyebrow">{levels[lesson.data.difficulty]} · {lesson.data.estimatedMinutes.toLocaleString('fa-IR')} دقیقه</div>
-  <h3>{lesson.data.title}</h3>
-  <p>{lesson.data.description}</p>
+  <h3 lang={lesson.id.startsWith("server-infrastructure/")?"en":undefined} dir="auto">{lesson.data.title}</h3>
+  <p lang={lesson.id.startsWith("server-infrastructure/")?"en":undefined} dir="auto">{lesson.data.description}</p>
   <div class="card-bottom"><span data-progress={lesson.id}>آموزش تعاملی</span><span aria-hidden="true">↗</span></div>
 </a>
 <script>
