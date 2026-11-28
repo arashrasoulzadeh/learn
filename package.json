@@ -25,13 +25,13 @@
   "dependencies": {
     "astro": "7.4.13",
     "@astrojs/mdx": "8.1.6",
-    "@astrojs/react": "latest",
+    "@astrojs/react": "7.1.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "pagefind": "^1.3.0"
   },
   "devDependencies": {
-    "@astrojs/check": "latest",
+    "@astrojs/check": "0.9.12",
     "typescript": "^5.8.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

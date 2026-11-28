@@ -22,12 +22,12 @@ jobs:
         with:
           node-version: '24'
       - name: Install dependencies
-        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+        run: npm ci
       - name: Capture dependency audit and lockfile
         run: |
           mkdir -p qa-dependencies
           cp package-lock.json qa-dependencies/package-lock.json
-          node -e "const fs=require('node:fs');const s=fs.readFileSync('package-lock.json','utf8');for(const line of s.split('\\n')) console.log('LOCKFILE:'+line);"
+
           npm audit --json > qa-dependencies/npm-audit.json || true
           node -e "const a=require('./qa-dependencies/npm-audit.json'); console.log(JSON.stringify(a.metadata||a.error)); for(const [name,v] of Object.entries(a.vulnerabilities||{})) console.log(name,v.severity,JSON.stringify(v.fixAvailable));"
       - uses: actions/upload-artifact@v4
@@ -46,7 +46,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - name: Accessibility report
-        if: always()
+        if: ${{ !cancelled() && hashFiles('dist/index.html') != '' }}
         run: npx playwright test --config playwright.accessibility.config.ts
       - name: Security gate
         run: npm audit --audit-level=high
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps firefox webkit
       - run: npx playwright test --config playwright.cross-browser.config.ts
@@ -82,9 +82,54 @@ jobs:
           name: cross-browser-qa-${{ github.run_attempt }}
           path: test-results
           if-no-files-found: ignore
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Check external educational references
+        run: node scripts/check-reference-links.mjs
+      - name: Lighthouse reports
+        if: ${{ !cancelled() && hashFiles('dist/index.html') != '' }}
+        run: |
+          mkdir -p qa-reports
+          npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/learn-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4321/learn/ >/dev/null && break; sleep 1; done
+          curl -fsS http://127.0.0.1:4321/learn/ >/dev/null
+          export CHROME_PATH="$(node -e 'console.log(require("playwright").chromium.executablePath())')"
+          npx --yes lighthouse@latest --version
+          for page in home catalog search data server; do
+            case "$page" in
+              home) path="" ;;
+              catalog) path="catalog/" ;;
+              search) path="search/" ;;
+              data) path="concepts/databases/transactions-acid/" ;;
+              server) path="concepts/server-infrastructure/load-balancing/" ;;
+            esac
+            for device in mobile desktop; do
+              extra=""
+              if [ "$device" = desktop ]; then extra="--preset=desktop"; fi
+              npx --yes lighthouse@latest "http://127.0.0.1:4321/learn/$path" --quiet --output=json --output-path="qa-reports/lighthouse-$page-$device.json" --chrome-flags="--headless --no-sandbox" $extra
+            done
+          done
+          node -e "const fs=require('fs');for(const f of fs.readdirSync('qa-reports').filter(f=>f.startsWith('lighthouse-'))){const r=require('./qa-reports/'+f);console.log(f,JSON.stringify(Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score]))));}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-reports-${{ github.run_attempt }}
+          path: qa-reports
+          if-no-files-found: ignore
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: [build, cross-browser]
+    needs: [build, cross-browser, quality]
     runs-on: ubuntu-latest
     permissions:
       pages: write

@@ -75,3 +75,36 @@ test.describe('Server & Infrastructure product audit',()=>{
   }
  });
 });
+
+test('server teaching models show consistent capacity, removed endpoints and counterfactual session recovery',async({page})=>{
+  const open=async(slug:string)=>{
+    await page.goto(lessonUrl(slug));
+    const lab=page.locator('.server-lab');
+    await lab.scrollIntoViewIfNeeded();
+    await expect(lab).toHaveAttribute('data-hydrated','true');
+    return lab;
+  };
+  let lab=await open('load-balancing');
+  await lab.locator('.step-button').nth(2).click();
+  await expect(lab.locator('svg')).toContainText('7 / 3');
+  await lab.locator('.step-button').nth(3).click();
+  await expect(lab.locator('svg')).toContainText('N/A');
+  await lab.locator('.step-button').nth(4).click();
+  await expect(lab.locator('svg')).toContainText('4 / 6');
+  lab=await open('horizontal-scaling');
+  await lab.locator('.step-button').nth(3).click();
+  await expect(lab.locator('svg')).toContainText('10 req/s');
+  lab=await open('service-discovery');
+  await lab.locator('.step-button').last().click();
+  // The retired address is shown once, on the explicitly removed node, not in the live registry.
+  await expect(lab.locator('svg text').filter({hasText:'10.0.0.12:443'})).toHaveCount(1);
+  lab=await open('vertical-scaling');
+  await lab.locator('.step-button').last().click();
+  await expect(lab.locator('svg')).toContainText('capacity 0 req/s');
+  lab=await open('failover');
+  await lab.locator('.step-button').last().click();
+  await expect(lab.locator('.lab-stage')).toContainText('idempotency');
+  lab=await open('session-affinity');
+  await lab.locator('.step-button').last().click();
+  await expect(lab.locator('.lab-stage')).toContainText('طراحی جایگزین');
+});
