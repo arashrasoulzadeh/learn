@@ -1,6 +1,6 @@
 ---
-title: "Replication"
-description: "Follow committed changes from a primary through a replication log to a replica, then separate delay, stale reads and apply saturation."
+title: "Replication — همانندسازی"
+description: "مسیر تغییرات ثبت‌شده از Primary تا Replica و تفاوت تأخیر، خواندن کهنه و اشباع اعمال تغییر."
 category: server-infrastructure
 difficulty: intermediate
 estimatedMinutes: 17
@@ -11,15 +11,13 @@ import { ReplicationLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-In asynchronous replication, a successful write on the Primary does **not** imply that every Replica already contains the same state.
+در همانندسازی ناهمگام، ثبت موفق نوشتن روی Primary به معنی مشاهده همان وضعیت در همه Replicaها نیست. تغییر می‌تواند در Primary ثبت شده باشد اما هنوز در مسیر انتقال یا انتظار اعمال روی Replica باشد. این فاصله بر خواندن داده کهنه و بازیابی پس از خرابی اثر دارد.
 
-A write can be committed on Primary, waiting in a replication stream, and not yet applied on Replica. That gap matters for stale reads and for failover safety.
+## مدل ذهنی
 
-## Mental model
-
-Keep three states separate:
+سه وضعیت را جدا کنید: تغییر ثبت‌شده روی Primary، تغییر در انتظار همانندسازی، و تغییر اعمال‌شده روی Replica. در این مدل آموزشی اختلاف تعداد تغییرات ثبت‌شده و اعمال‌شده، عقب‌ماندگی است. Replica می‌تواند سالم و در عین حال عقب باشد.
 
 ```text
 Committed on Primary
@@ -29,27 +27,27 @@ Pending replication changes
 Applied on Replica
 ```
 
-For this teaching model:
-
 ```text
 replication lag = committed changes - applied changes
 ```
 
-A Replica can be healthy and still be behind.
-
-<Callout title="Healthy is not fresh">
-  Health answers whether the Replica is operating. Freshness answers how closely its applied state follows the Primary. Read routing and failover decisions often need both.
+<Callout title="سالم بودن معادل به‌روز بودن نیست">
+  سلامت نشان می‌دهد Replica کار می‌کند؛ تازگی نشان می‌دهد چقدر از Primary عقب است. انتخاب مقصد خواندن و failover ممکن است به هر دو نیاز داشته باشد.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-The lab keeps the topology fixed: **Primary → Replication Log → Replica**. Only the versions, pending changes and rates change.
+توپولوژی Primary → Replication Log → Replica ثابت است؛ نسخه‌ها، تغییرات معلق و نرخ‌ها را دنبال کنید.
 
-<ReplicationLab client:visible />
+<div lang="en" dir="ltr">
+  <ReplicationLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-Imagine an account record update commits as version 43 on Primary while Replica is still version 42:
+وقتی نسخه ۴۳ روی Primary ثبت شده و Replica هنوز نسخه ۴۲ دارد، خواندن از Replica می‌تواند مقدار قدیمی بدهد. برای read-after-write باید سیاست مسیریابی این نیاز سازگاری را لحاظ کند.
+
+اگر Replica توان اعمال ۸ تغییر در ثانیه داشته باشد، ۶ تغییر در ثانیه با تأخیر ثابت ۲ ثانیه می‌تواند صف محدود ایجاد کند. اما ۱۲ تغییر ورودی و ۸ اعمال در ثانیه پس از گرم‌شدن سیستم، تقریباً ۴ تغییر در ثانیه به عقب‌ماندگی اضافه می‌کند. افت ورودی به ۲ در ثانیه می‌تواند صف را تخلیه کند. در پایگاه داده واقعی، WAL/binlog، مرز تراکنش، شبکه، دسته‌بندی و تأخیر ذخیره‌سازی مؤثرند.
 
 ```text
 Primary: v43
@@ -57,37 +55,27 @@ Pending: 1 change
 Replica: v42
 ```
 
-A read sent to Primary can observe v43. A read sent to Replica can still observe v42. If the product requires read-after-write behavior, the routing policy must account for that consistency requirement.
+## خطاهای رایج و ملاحظات
 
-Delay and overload are different. Suppose Replica can apply 8 changes/s:
+- خواندن کهنه: تغییر ثبت‌شده هنوز روی Replica دیده نمی‌شود.
+- نرخ ورودی بیشتر از نرخ اعمال: صف پیوسته رشد می‌کند.
+- failover ناامن: Replica ممکن است تغییرات لازم را نداشته باشد.
+- حذف اشتباه یا خرابی منطقی هم ممکن است منتشر شود؛ replication جای backup نیست.
+- تأیید همگام می‌تواند دوام را بهتر کند اما هزینه هماهنگی و تأخیر دارد.
 
-- 6 writes/s with a fixed 2-second delay can create a **bounded window** of pending changes.
-- 12 writes/s with only 8 applies/s creates a net backlog of about 4 changes/s after warm-up.
-- If writes later fall to 2/s, the unused apply capacity can drain old backlog.
+فاصله LSN، زمان عقب‌ماندگی، عمر قدیمی‌ترین تغییر معلق و نرخ ثبت و اعمال را پایش کنید.
 
-In a real database, replication protocols, batching, network delay, WAL/binlog behavior, storage latency and transaction boundaries make the details richer. The core distinction remains: **transport delay** and **apply saturation** are not the same failure.
+## سنجش یادگیری
 
-## Failure modes and trade-offs
+<Quiz client:visible question="Primary در ثانیه ۱۲ تغییر دریافت می‌کند و Replica هشت تغییر اعمال می‌کند. عقب‌ماندگی پس از گرم‌شدن چه می‌شود؟" options={["حدود ۴ تغییر در ثانیه رشد می‌کند","چون Replica سالم است صفر می‌ماند","Primary خودکار به ۸ کاهش می‌یابد","Replication به backup تبدیل می‌شود"]} correct={0} explanation="وقتی نرخ ورودی بیش از توان پایدار اعمال است، کار اعمال‌نشده انباشته می‌شود." />
 
-- **Stale reads.** Replica reads may lag behind recently committed writes.
-- **Growing lag.** If incoming change rate exceeds apply throughput, the Replica cannot catch up.
-- **Unsafe failover.** Promoting a Replica that has not applied the required changes can increase data-loss exposure.
-- **Bad writes replicate too.** Replication is not a historical backup. A logical delete or corruption can propagate.
-- **Synchronous acknowledgment costs latency.** Waiting for additional nodes can improve durability guarantees but adds coordination.
+<Quiz client:visible question="چرا replication همان backup نیست؟" options={["حذف یا خرابی منطقی ممکن است به Replica هم برسد","Backup داده ندارد","Replica هیچ ذخیره دائمی ندارد","Replication فقط روی HTTP است"]} correct={0} explanation="نسخه پشتیبان یا بازیابی نقطه‌ای برای برگرداندن وضعیت تاریخی طراحی می‌شود." />
 
-Monitor version/LSN gap, lag time, oldest pending change age, write rate, apply rate and catch-up time.
+## جمع‌بندی
 
-## Check your understanding
+تغییر ثبت‌شده، معلق و اعمال‌شده یکسان نیستند. تازگی خواندن و ایمنی failover به موقعیت واقعی تغییر در این مسیر وابسته‌اند.
 
-<Quiz client:visible question="Primary receives 12 changes/s and Replica can apply 8 changes/s. After warm-up, what happens to lag?" options={['It tends to grow by about 4 changes/s','It must remain zero because Replica is healthy','The Primary automatically slows to 8/s','Replication becomes a backup']} correct={0} explanation="When incoming change rate exceeds sustained apply capacity, unapplied work accumulates." />
-
-<Quiz client:visible question="Why is replication not the same as backup?" options={['A live Replica can receive the same bad delete or corruption','Backups cannot contain data','Replicas never use durable storage','Replication only works over HTTP']} correct={0} explanation="Replication follows current changes. Backup or point-in-time recovery is designed to recover earlier historical state." />
-
-## Takeaway
-
-Replication is a pipeline from **committed** to **pending** to **applied**. Read freshness and failover safety depend on where a change is in that pipeline, not merely on whether the Replica process is alive.
-
-## References
+## منابع
 
 - [PostgreSQL: Warm Standby and Streaming Replication](https://www.postgresql.org/docs/current/warm-standby.html)
 - [PostgreSQL: Monitoring Replication](https://www.postgresql.org/docs/current/monitoring-stats.html#MONITORING-PG-STAT-REPLICATION-VIEW)

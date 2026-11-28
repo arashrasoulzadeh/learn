@@ -29,7 +29,7 @@ test.describe('Server & Infrastructure product audit',()=>{
   page.on('pageerror',error=>errors.push(error.message));
   for(const [slug,title,stepCount] of lessons){
    await page.goto(lessonUrl(slug));
-   await expect(page.getByRole('heading',{level:1,name:title})).toBeVisible();
+   await expect(page.getByRole('heading',{level:1,name:new RegExp('^'+title+' — ')})).toBeVisible();
    const lab=page.locator('.server-lab');
    await expect(lab).toBeVisible();
    await lab.scrollIntoViewIfNeeded();

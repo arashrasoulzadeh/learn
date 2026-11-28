@@ -1,6 +1,6 @@
 ---
-title: "Service Discovery"
-description: "Resolve a stable service name to concrete endpoints, observe stale-cache failure, and refresh to a replacement instance."
+title: "Service Discovery — کشف سرویس"
+description: "حل نام پایدار به endpointهای فعلی، شکست کش قدیمی و کشف نمونه جایگزین."
 category: server-infrastructure
 difficulty: intermediate
 estimatedMinutes: 16
@@ -11,15 +11,13 @@ import { ServiceDiscoveryLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-Checkout needs Orders, but individual Orders instances are replaceable. Their IP addresses can change after deployments, rescheduling or failures.
+Checkout به Orders نیاز دارد ولی نمونه‌های Orders قابل جایگزینی هستند. IP پس از deploy، reschedule یا خرابی تغییر می‌کند. وابستگی به IP ثابت می‌تواند جایگزینی معمول نمونه را به قطعی کلاینت تبدیل کند.
 
-Hard-coding one IP makes normal instance churn a client outage.
+## مدل ذهنی
 
-## Mental model
-
-Separate **service identity** from **instance location**:
+هویت سرویس را از محل اجرای نمونه جدا کنید. کلاینت می‌تواند نام پایدار را حل کند، مقصد فعلی را انتخاب کند و اتصال برقرار کند. در برخی سازوکارها TTL یا watch مدت اعتبار داده کش‌شده را تعیین می‌کند.
 
 ```text
 stable identity: orders.service
@@ -28,52 +26,47 @@ runtime endpoint set:
   10.0.0.19:443
 ```
 
-The caller resolves the stable name, receives a set of current endpoints, and dials one endpoint. A TTL or watch mechanism controls how long that endpoint data is considered current.
-
-<Callout title="An endpoint is disposable runtime data">
-  Source code should depend on the service identity. Resolved IPs belong to the current deployment state and may disappear.
+<Callout title="Endpoint داده موقت زمان اجراست">
+  کد باید به هویت سرویس وابسته باشد. IP حل‌شده بخشی از وضعیت جاری deployment است و ممکن است از بین برود.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-The lab deliberately removes one endpoint after it was cached. Watch the difference between the **name still being valid** and the **old dial failing**.
+یک endpoint بعد از کش شدن حذف می‌شود. تفاوت معتبر ماندن نام و شکست اتصال به IP قدیمی را دنبال کنید.
 
-<ServiceDiscoveryLab client:visible />
+<div lang="en" dir="ltr">
+  <ServiceDiscoveryLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-Kubernetes gives Services DNS names. A caller can use a Service name rather than a Pod IP. Other systems use service registries or DNS records populated by orchestration.
+Kubernetes Service می‌تواند نام DNS داشته باشد؛ نوع معمول Service به IP مجازی و نوع headless می‌تواند به IP نمونه‌ها حل شود. سیستم‌های دیگر registry یا DNS مدیریت‌شده دارند. کلاینت مقاوم discovery را با مدیریت خطای اتصال، retry محدود و توزیع بار ترکیب می‌کند.
 
-A stale endpoint window is normal in eventually refreshed discovery. Robust callers often combine discovery with connection errors, retries and load-balancing logic.
+TTL کوتاه داده تازه‌تر و هزینه حل بیشتر، TTL بلند هزینه کمتر و پنجره داده قدیمی طولانی‌تر دارد. رفتار دقیق به resolver، کتابخانه کلاینت و سازوکار discovery وابسته است.
 
-TTL is a trade-off:
 
-- shorter TTL → fresher endpoint data, more resolution work;
-- longer TTL → fewer resolutions, larger stale window.
 
-Exact behavior depends on the resolver, client library and discovery mechanism.
+## خطاهای رایج و ملاحظات
 
-## Failure modes and trade-offs
+- IP ثابت: جایگزینی عادی باعث قطعی می‌شود.
+- کش قدیمی: اتصال به endpoint حذف‌شده.
+- خرابی registry: حل نام جدید ممکن نیست حتی اگر اتصال قبلی زنده باشد.
+- refresh هم‌زمان کلاینت‌ها باعث بار ناگهانی می‌شود.
+- بدون ثبت IP منتخب، تشخیص خطای اتصال دشوار است.
 
-- **Hard-coded IPs** turn routine replacement into outage.
-- **Stale cache** keeps dialing a removed endpoint.
-- **Registry outage** prevents new resolutions even if existing connections still work.
-- **Thundering refresh** makes many clients re-resolve at once.
-- **No observability of resolved IP** makes connection failures difficult to diagnose.
+نام منطقی سرویس و مقصد واقعی هر اتصال ناموفق را ثبت کنید.
 
-Log both the logical service name and the concrete endpoint selected for each failed connection.
+## سنجش یادگیری
 
-## Check your understanding
+<Quiz client:visible question="IP 10.0.0.12 حذف می‌شود. چرا orders.service می‌تواند همچنان معتبر باشد؟" options={["نام سرویس می‌تواند به مقصدهای فعلی دیگر حل شود","IP هرگز تغییر نمی‌کند","DNS همه IPها را localhost می‌کند","Discovery نیاز به شبکه را حذف می‌کند"]} correct={0} explanation="هویت منطقی سرویس می‌تواند با تغییر آدرس نمونه‌ها پایدار بماند." />
 
-<Quiz client:visible question="10.0.0.12 disappears. Why can orders.service still be a valid dependency?" options={['The service identity can resolve to other current endpoints','IP addresses never change','DNS turns every IP into localhost','Service discovery removes the need for networking']} correct={0} explanation="The logical service can remain available while individual instance addresses change." />
+<Quiz client:visible question="عیب TTL بسیار بلند در discovery چیست؟" options={["پنجره endpoint قدیمی بزرگ‌تر می‌شود","HTTP method بیشتر می‌شود","CPU سرویس بیشتر می‌شود","TLS متن ساده می‌شود"]} correct={0} explanation="کلاینت ممکن است مدتی آدرس نمونه‌ای را در کش داشته باشد که دیگر وجود ندارد." />
 
-<Quiz client:visible question="What is the main trade-off of a very long discovery TTL?" options={['A larger stale-endpoint window','More HTTP methods','More CPU cores on the service','TLS becomes plaintext']} correct={0} explanation="Long-lived cached endpoint data can remain valid in the client after an instance has disappeared." />
+## جمع‌بندی
 
-## Takeaway
+هویت پایدار → مجموعه مقصد جاری → اتصال. آدرس نمونه موقت است و سیاست refresh باید آگاهانه انتخاب شود.
 
-Service discovery is **stable identity → current endpoint set → connection**. Treat endpoint addresses as temporary, observe stale-dial failures explicitly, and choose refresh behavior deliberately.
-
-## References
+## منابع
 
 - [Kubernetes: DNS for Services and Pods](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 - [Kubernetes: Service](https://kubernetes.io/docs/concepts/services-networking/service/)

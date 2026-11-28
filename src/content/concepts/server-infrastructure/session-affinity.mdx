@@ -1,6 +1,6 @@
 ---
-title: "Session Affinity"
-description: "Trace an affinity cookie to local session state, observe load skew and instance failure, then move session state outside the process."
+title: "Session Affinity — چسبندگی نشست"
+description: "ردگیری کوکی مسیریابی، وضعیت محلی، توزیع نامتوازن و انتقال نشست به ذخیره مشترک."
 category: server-infrastructure
 difficulty: intermediate
 estimatedMinutes: 16
@@ -11,75 +11,69 @@ import { SessionAffinityLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-User A has a shopping cart stored only in App 1 memory. A load balancer can keep sending that user back to App 1, but that does not make the cart durable.
+سبد کاربر A فقط در حافظه App 1 است. load balancer می‌تواند کاربر را دوباره به App 1 بفرستد، اما این کار سبد را پایدار نمی‌کند. Affinity مشکل نزدیکی مسیریابی را حل می‌کند و ممکن است کاربر را به یک فرایند وابسته کند.
 
-Affinity solves a **routing locality** problem. It can also create a new coupling between one user and one process.
+## مدل ذهنی
 
-## Mental model
-
-First request:
+در درخواست اول کوکی route وجود ندارد؛ توزیع‌کننده App 1 را انتخاب می‌کند و می‌تواند Set-Cookie: route=app1 بدهد. درخواست بعدی این کوکی را می‌فرستد تا App 1 دوباره انتخاب شود. وضعیت محلی session A در مدل cart=3 است.
 
 ```http
 GET /cart
 Cookie: (none)
 ```
 
-The balancer chooses App 1 and can return:
-
 ```http
 Set-Cookie: route=app1
 ```
-
-Next request:
 
 ```http
 GET /cart
 Cookie: route=app1
 ```
 
-The load balancer selects App 1 again, where local session A contains `cart=3`.
-
-<Callout title="A routing cookie is not durable storage">
-  If App 1 disappears, the cookie can still exist while the process-local session is gone. Affinity preserves locality only while the target remains usable.
+<Callout title="کوکی مسیریابی ذخیره پایدار نیست">
+  اگر App 1 از بین برود، کوکی ممکن است هنوز وجود داشته باشد ولی نشست محلی از دست رفته باشد. Affinity تا زمانی مفید است که مقصد قابل استفاده است.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-Watch the cookie, the per-instance load, the failure and the final move to shared session state.
+کوکی، بار هر نمونه، خرابی و انتقال وضعیت به ذخیره مشترک را دنبال کنید.
 
-<SessionAffinityLab client:visible />
+<div lang="en" dir="ltr">
+  <SessionAffinityLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-Kubernetes Services can use `sessionAffinity: ClientIP`, which is based on client IP rather than a cookie. Reverse proxies and application gateways can implement other affinity mechanisms. The exact key matters because NAT, proxies and mobile networks can change apparent client identity.
+Kubernetes Service می‌تواند sessionAffinity: ClientIP داشته باشد که بر IP استوار است، نه کوکی. پراکسی‌ها و gatewayها روش‌های دیگری دارند. NAT، پراکسی و شبکه موبایل بر هویت مشاهده‌شده اثر می‌گذارند.
 
-Affinity can hide load skew. App 1 might reach 90% utilization while App 2 sits at 30%. A fleet average of 60% looks fine even though one target is close to saturation.
+اگر App 1 به ۹۰٪ و App 2 به ۳۰٪ مصرف برسند، میانگین ۶۰٪ مشکل نقطه داغ را پنهان می‌کند. انتقال نشست به ذخیره مشترک یا طراحی App بدون وضعیت محلی، مسیریابی را از یک فرایند جدا می‌کند؛ ذخیره مشترک خود وابستگی با هزینه تأخیر و دسترس‌پذیری است.
 
-Moving session state to a shared store is one way to decouple routing from one process. Another is to design the application to keep user state in durable backend systems and make App instances stateless. Both choices have their own latency and availability trade-offs.
 
-## Failure modes and trade-offs
 
-- **Hot target:** sticky users accumulate unevenly.
-- **Target failure:** the affinity key still names a dead or draining target.
-- **Process-local session loss:** state disappears with the instance.
-- **Rebalancing is harder:** removing a target disrupts pinned users.
-- **Shared session store becomes a dependency:** durability improves but a new network/storage path exists.
+## خطاهای رایج و ملاحظات
 
-Measure per-instance load, affinity hit rate, session recovery failures and distribution skew.
+- تجمع نامتوازن کاربران چسبنده.
+- کوکی یا کلید هنوز به نمونه خراب یا draining اشاره دارد.
+- وضعیت محلی با فرایند از بین می‌رود.
+- rebalancing کاربران pinned را مختل می‌کند.
+- ذخیره نشست مشترک وابستگی جدید ایجاد می‌کند.
 
-## Check your understanding
+بار هر نمونه، نرخ affinity hit، شکست بازیابی نشست و عدم توازن بار را پایش کنید.
 
-<Quiz client:visible question="User A still has cookie route=app1, but App 1 failed. What does the cookie guarantee?" options={['Only the previous routing preference, not the survival of local session state','That cart data is durable','That App 2 already has the session','That the failed process will restart instantly']} correct={0} explanation="Affinity information and session durability are separate concerns." />
+## سنجش یادگیری
 
-<Quiz client:visible question="Why can affinity make a fleet average misleading?" options={['Sticky users can create per-instance load skew','Cookies always increase CPU by 100%','Affinity disables metrics','All users become one request']} correct={0} explanation="One instance can be hot while another is underused, even when the overall average looks healthy." />
+<Quiz client:visible question="کوکی route=app1 هنوز هست اما App 1 خراب شده. کوکی چه چیزی را تضمین می‌کند؟" options={["فقط ترجیح مسیریابی قبلی، نه بقای نشست محلی","دوام داده سبد","وجود نشست روی App 2","restart فوری فرایند خراب"]} correct={0} explanation="اطلاعات affinity و دوام نشست دو موضوع جدا هستند." />
 
-## Takeaway
+<Quiz client:visible question="چرا affinity می‌تواند میانگین مصرف مجموعه سرورها را گمراه‌کننده کند؟" options={["کاربران چسبنده بار هر نمونه را نامتوازن می‌کنند","کوکی همیشه CPU را دو برابر می‌کند","Affinity metrics را غیرفعال می‌کند","همه کاربران یک درخواست می‌شوند"]} correct={0} explanation="یک نمونه می‌تواند نزدیک اشباع و نمونه دیگر کم‌مصرف باشد، حتی اگر میانگین خوب به نظر برسد." />
 
-Session affinity says **“prefer the same target”**, not **“this state is safe.”** Treat routing locality, load distribution and session durability as separate design decisions.
+## جمع‌بندی
 
-## References
+Affinity یعنی ترجیح مقصد یکسان، نه ایمن بودن داده. نزدیکی مسیریابی، توزیع بار و دوام نشست را جداگانه طراحی کنید.
+
+## منابع
 
 - [Kubernetes: Service session affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity)
 - [RFC 6265: HTTP State Management Mechanism](https://www.rfc-editor.org/rfc/rfc6265)

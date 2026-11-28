@@ -1,6 +1,6 @@
 ---
-title: "Failover"
-description: "Execute a safe database failover as a sequence: detect, fence the old writer, verify freshness, promote, move the endpoint and retry."
+title: "Failover — جابه‌جایی پس از خرابی"
+description: "تشخیص خرابی، fencing نویسنده قبلی، بررسی تازگی، ارتقا، تغییر مقصد و retry."
 category: server-infrastructure
 difficulty: advanced
 estimatedMinutes: 18
@@ -11,15 +11,13 @@ import { FailoverLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-A Primary stops responding. “Make the Replica Primary” is not enough.
+Primary پاسخ نمی‌دهد. صرفاً Primary کردن Replica کافی نیست: اگر نویسنده قدیمی هنوز امکان نوشتن داشته باشد، دو نویسنده متعارض ایجاد می‌شوند. اگر Replica عقب باشد، ارتقا می‌تواند نقطه بازیابی را بدتر کند.
 
-If the old Primary can still write after a new node is promoted, the system can have two writers. If the Replica is behind, promotion can expose a worse recovery point.
+## مدل ذهنی
 
-## Mental model
-
-Treat failover as an ordered safety protocol:
+Failover را به عنوان پروتکل مرتب ایمنی ببینید: تشخیص، fencing نویسنده قبلی، بررسی تازگی نامزد، ارتقا، جابه‌جایی endpoint پایدار و retry. در مدل هر دو گره پیش از خرابی در LSN 120 هستند.
 
 ```text
 detect
@@ -35,47 +33,47 @@ move stable endpoint
 retry
 ```
 
-The lesson uses one concrete replication position: both nodes are at **LSN 120** before failure.
-
-<Callout title="Fence before promote">
-  Failure detection tells you that the old writer is not responding from one observer's perspective. Fencing is what prevents that writer from later returning and accepting conflicting writes.
+<Callout title="پیش از ارتقا، نویسنده قبلی را مهار کنید">
+  تشخیص خرابی فقط نشان می‌دهد نویسنده از دید یک مشاهده‌گر پاسخ نمی‌دهد؛ fencing مانع بازگشت و پذیرش نوشتن متعارض توسط آن می‌شود.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-Follow one INSERT through `db.internal`. The endpoint remains stable while the writable database node changes.
+یک INSERT را از طریق db.internal دنبال کنید. نام ثابت می‌ماند و گره مجاز به نوشتن تغییر می‌کند.
 
-<FailoverLab client:visible />
+<div lang="en" dir="ltr">
+  <FailoverLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-Fencing can be implemented in many ways: power control, storage lease, consensus membership, cloud API isolation, or a strongly controlled lock/epoch mechanism. The exact mechanism depends on the system.
+Fencing ممکن است با قطع برق، lease ذخیره‌سازی، عضویت مبتنی بر consensus، ایزوله کردن با API ابری یا epoch کنترل‌شده انجام شود. راهکار به سیستم وابسته است.
 
-Freshness also needs an explicit rule. In PostgreSQL, WAL positions and replication state can help determine how far a standby has replayed. A production failover system needs a policy for acceptable data-loss risk, not merely “Replica process is running.”
+در PostgreSQL موقعیت WAL و وضعیت replay به ارزیابی تازگی کمک می‌کند. سیاست واقعی باید ریسک از دست رفتن داده و RPO مجاز را تعریف کند. endpoint پایدار باعث می‌شود تغییر نقش پایگاه داده الزاماً deploy برنامه را لازم نداشته باشد.
 
-Stable endpoints matter because application clients should not need a deploy just because the database role moved.
 
-## Failure modes and trade-offs
 
-- **Promote before fencing:** possible split-brain.
-- **False failure detection:** unnecessary role change.
-- **Stale candidate:** unacceptable RPO or missing committed data.
-- **Endpoint convergence is slow:** clients keep dialing the old location.
-- **Retry is unsafe:** ambiguous writes can be duplicated if the operation is not designed for retries.
+## خطاهای رایج و ملاحظات
 
-Record the detection time, fencing result, replication position, promotion time and endpoint switch in the incident timeline.
+- ارتقا قبل از fencing: خطر split-brain.
+- تشخیص کاذب: تغییر نقش غیرضروری.
+- نامزد عقب‌مانده: ریسک داده ثبت‌شده از دست‌رفته.
+- همگرایی کند endpoint: اتصال به مقصد قدیمی.
+- retry ناامن: نوشتن مبهم ممکن است دوباره انجام شود.
 
-## Check your understanding
+زمان تشخیص، نتیجه fencing، موقعیت replication، زمان ارتقا و تغییر endpoint را در گزارش حادثه ثبت کنید.
 
-<Quiz client:visible question="Why is fencing required before promoting a new writable Primary?" options={['To prevent the old writer from accepting conflicting writes','To increase CSS performance','To add more HTTP headers','To make the Replica physically larger']} correct={0} explanation="Failover safety requires preventing two nodes from acting as writable Primary at the same time." />
+## سنجش یادگیری
 
-<Quiz client:visible question="What does matching LSN 120 on the candidate provide in this lesson?" options={['Evidence that it has reached the modeled committed position','Proof that all future writes are safe','A DNS hostname','A CPU benchmark']} correct={0} explanation="Replication position is evidence about candidate freshness. Real failover policy decides what evidence is sufficient." />
+<Quiz client:visible question="چرا پیش از ارتقای Primary قابل نوشتن به fencing نیاز داریم؟" options={["برای جلوگیری از نوشتن متعارض نویسنده قدیمی","برای بهبود CSS","برای headerهای HTTP بیشتر","برای افزایش اندازه Replica"]} correct={0} explanation="نباید هم‌زمان دو گره به صورت ناسازگار نقش نویسنده را ایفا کنند." />
 
-## Takeaway
+<Quiz client:visible question="برابری LSN 120 نامزد در این مدل چه نشان می‌دهد؟" options={["شاهدی از رسیدن به موقعیت ثبت‌شده مدل","تضمین ایمنی همه نوشتن‌های آینده","نام DNS","benchmark CPU"]} correct={0} explanation="موقعیت replication شواهد تازگی است؛ سیاست واقعی تعیین می‌کند چه شواهدی کافی است." />
 
-Failover is a **sequence**, not a color change in a diagram. Detect → fence → verify freshness → promote → reroute → retry. Safety depends on the order.
+## جمع‌بندی
 
-## References
+Failover توالی اقدام است: detect → fence → verify → promote → reroute → retry. ترتیب برای ایمنی مهم است.
+
+## منابع
 
 - [PostgreSQL: Failover](https://www.postgresql.org/docs/current/warm-standby-failover.html)
 - [PostgreSQL: Write-Ahead Logging](https://www.postgresql.org/docs/current/wal-intro.html)

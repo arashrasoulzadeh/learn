@@ -1,6 +1,6 @@
 ---
-title: "Connection Pooling"
-description: "Follow numbered database connections as requests borrow, return and reuse them, then see why a full pool should apply backpressure."
+title: "Connection Pooling — استخر اتصال"
+description: "قرض گرفتن و بازگرداندن اتصال‌های پایگاه داده و اعمال backpressure در استخر پر."
 category: server-infrastructure
 difficulty: intermediate
 estimatedMinutes: 16
@@ -11,68 +11,61 @@ import { ConnectionPoolingLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-Opening a database connection can involve TCP setup, TLS, authentication and server-side session allocation. Doing that for every HTTP request adds latency and can create a connection storm.
+ساخت اتصال پایگاه داده می‌تواند TCP، TLS، احراز هویت و تخصیص نشست سمت سرور داشته باشد. ساخت اتصال برای هر HTTP request تأخیر و خطر طوفان اتصال ایجاد می‌کند. استخر تعداد محدودی اتصال آماده را میان کارها به اشتراک می‌گذارد.
 
-A pool keeps a bounded number of usable connections and lends them to application work.
+## مدل ذهنی
 
-## Mental model
-
-The lifecycle is explicit:
+چرخه را به صورت قرض گرفتن، اجرای query، بازگرداندن و استفاده مجدد ببینید. استخر چهار اتصال چهار جایگاه دارد. اگر همه مشغول باشند، درخواست بعدی باید مطابق سیاست منتظر بماند، timeout شود یا رد شود؛ اتصال نامحدود محدودیت ظرفیت را از بین می‌برد.
 
 ```text
 borrow → query → return → reuse
 ```
 
-A pool of four connections has four slots. When all four are in use, the next request has three honest choices: wait, time out, or fail according to policy. Silently opening unbounded extra sessions defeats the capacity guard.
-
-<Callout title="A pool is also admission control">
-  Reuse improves latency, but the bound is just as important. The pool protects the database from the application's full request concurrency.
+<Callout title="استخر ابزار کنترل پذیرش نیز هست">
+  استفاده مجدد تأخیر را کم می‌کند؛ محدودیت تعداد اتصال از پایگاه داده در برابر تمام هم‌زمانی درخواست‌های برنامه محافظت می‌کند.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-Requests A–E share four numbered connections. Watch slot #1 get reused, then watch E wait when every slot is busy.
+درخواست‌های A تا E چهار اتصال شماره‌دار را به اشتراک می‌گذارند؛ استفاده مجدد از اتصال ۱ و انتظار E را مشاهده کنید.
 
-<ConnectionPoolingLab client:visible />
+<div lang="en" dir="ltr">
+  <ConnectionPoolingLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-Suppose PostgreSQL can safely dedicate 200 sessions to an application fleet. If there are 20 App instances and each has a local pool size of 20, the theoretical maximum is 400 connections—already twice the intended budget.
+اگر PostgreSQL برای مجموعه برنامه ۲۰۰ نشست اختصاص دهد و ۲۰ نمونه App هر کدام استخر ۲۰تایی داشته باشند، حداکثر نظری ۴۰۰ اتصال است؛ دو برابر بودجه. نقطه شروع اندازه‌گیری، بودجه اتصال تقسیم بر بیشینه تعداد نمونه‌هاست. اتصال مدیریتی رزرو، برنامه‌های دیگر، مدت تراکنش و هدف صف را هم لحاظ کنید.
 
-A simple budgeting starting point is:
+استخر می‌تواند درون فرایند یا بیرونی باشد. Transaction pooling و session pooling معناهای متفاوتی دارند؛ فرض نکنید prepared statement، جدول موقت و session variable در همه حالت‌ها رفتار یکسان دارند.
 
 ```text
 per-instance pool budget
 ≈ database connection budget / maximum App instance count
 ```
 
-Real sizing also accounts for reserved admin connections, other applications, transaction duration, query concurrency and queueing targets.
+## خطاهای رایج و ملاحظات
 
-Connection pools can be in-process or external. Transaction pooling has different session-state semantics from session pooling; do not assume prepared statements, temp tables or session variables behave identically across pooling modes.
+- استخر بیش از حد بزرگ: فشار حافظه و scheduler و طوفان اتصال.
+- استخر کوچک: انتظار با وجود ظرفیت آزاد پایگاه داده.
+- تراکنش طولانی یا اتصال بازنگشته: سایر درخواست‌ها گرسنه می‌مانند.
+- نبود timeout برای checkout: انتظار نامحدود.
 
-## Failure modes and trade-offs
+تعداد اتصال مشغول، زمان انتظار، نرخ checkout timeout و نشست‌های فعال پایگاه داده را پایش کنید.
 
-- **Pool too large:** database memory and scheduler overhead grow; the fleet can create a connection storm.
-- **Pool too small:** requests wait even though the database could safely handle more work.
-- **Long transactions:** connections stay checked out and starve other requests.
-- **Leaked checkouts:** a connection never returns to the available set.
-- **No checkout timeout:** requests can wait indefinitely under saturation.
+## سنجش یادگیری
 
-Measure in-use connections, pool wait time, checkout timeout rate and database active sessions.
+<Quiz client:visible question="چهار اتصال استخر مشغول‌اند. درخواست E در طراحی محدود چه کند؟" options={["طبق سیاست منتظر بماند یا timeout شود","همیشه اتصال پنجم بسازد","پایگاه داده را restart کند","نام جدول SQL را تغییر دهد"]} correct={0} explanation="استخر محدود backpressure اعمال می‌کند و بی‌صدا از بودجه عبور نمی‌کند." />
 
-## Check your understanding
+<Quiz client:visible question="۲۰ نمونه App هر کدام حداکثر ۲۰ اتصال دارند. سقف نظری کل چند اتصال است؟" options={["20","40","200","400"]} correct={3} explanation="اندازه استخر محلی است ولی فشار پایگاه داده سراسری است: ۲۰ × ۲۰ = ۴۰۰." />
 
-<Quiz client:visible question="A pool has four connections and all four are busy. What should request E do in a bounded design?" options={['Wait or time out according to policy','Always open connection #5','Restart the database','Change the SQL table name']} correct={0} explanation="A bounded pool applies backpressure instead of silently exceeding its connection budget." />
+## جمع‌بندی
 
-<Quiz client:visible question="Twenty App instances each allow 20 database connections. What is the fleet-level theoretical maximum?" options={['20','40','200','400']} correct={3} explanation="Pool size is local, but database pressure is fleet-wide: 20 × 20 = 400." />
+چرخه اتصال را واقعی ببینید: قرض گرفتن، استفاده، بازگرداندن، استفاده مجدد. اندازه استخر از بودجه کل پایگاه داده می‌آید و انتظار باید قابل مشاهده باشد.
 
-## Takeaway
-
-Connection pooling is not a magical “reuse” box. Track real slots: **borrow → use → return → reuse**. Size the pool from the database's fleet-wide connection budget and make waiting visible.
-
-## References
+## منابع
 
 - [PostgreSQL: Resource Consumption / Connections](https://www.postgresql.org/docs/current/runtime-config-connection.html)
 - [PgBouncer: Features](https://www.pgbouncer.org/features.html)

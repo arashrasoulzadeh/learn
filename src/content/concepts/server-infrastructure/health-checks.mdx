@@ -1,6 +1,6 @@
 ---
-title: "Health Checks"
-description: "Separate liveness from readiness with real /live and /ready responses, a failed database dependency and a changing routing set."
+title: "Health Checks — بررسی سلامت"
+description: "تفاوت liveness و readiness، وابستگی خراب و تغییر مجموعه مقصدهای مجاز."
 category: server-infrastructure
 difficulty: intermediate
 estimatedMinutes: 15
@@ -11,67 +11,65 @@ import { HealthChecksLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-An application process can be running while being unable to serve a correct user request.
+فرایند برنامه ممکن است زنده باشد اما نتواند پاسخ درست بدهد. اگر App 2 به پایگاه داده حیاتی وابسته باشد و آن پایگاه داده از دسترس خارج شود، راه‌اندازی دوباره App الزاماً کمکی نمی‌کند. برای پذیرش ترافیک، آماده بودن مهم است.
 
-If App 2 needs a critical database and that database is unavailable, restarting the App process may not help. What matters for traffic is whether the instance is **ready** to serve.
+## مدل ذهنی
 
-## Mental model
-
-Use different questions for different probes:
+Liveness بررسی می‌کند آیا فرایند باید به کار ادامه دهد. Readiness مشخص می‌کند آیا ترافیک جدید باید به این نمونه هدایت شود. پس از خرابی پایگاه داده، /live می‌تواند 200 و /ready می‌تواند 503 برگرداند.
 
 ```text
 /live  → Is this process alive enough to keep running?
 /ready → Should new user traffic be routed here right now?
 ```
 
-A possible state after a database failure is:
-
 ```http
 GET /live  → 200 OK
 GET /ready → 503 Service Unavailable
 ```
 
-<Callout title="Probe semantics matter more than endpoint names">
-  Liveness and readiness are roles. The exact endpoint names and implementation are choices. Design the check around the action the platform will take when it fails.
+<Callout title="معنای probe مهم‌تر از نام endpoint است">
+  Liveness و readiness نقش‌اند، نه نام اجباری URL. بررسی را بر اساس اقدامی طراحی کنید که پلتفرم پس از شکست انجام خواهد داد.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-App 2 stays alive while its Critical DB fails. Watch the probe results and the load balancer's ready set separately.
+App 2 زنده می‌ماند اما DB حیاتی آن از دسترس خارج می‌شود. نتیجه probe و مجموعه مقصدهای آماده را جداگانه دنبال کنید.
 
-<HealthChecksLab client:visible />
+<div lang="en" dir="ltr">
+  <HealthChecksLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-A readiness handler can test whether the process has initialized and whether dependencies required for its primary request path are usable.
+Readiness می‌تواند پایان initialization و امکان استفاده از وابستگی ضروری مسیر اصلی را بررسی کند. مراقب probe عمیق و پرهزینه باشید؛ بررسی هم‌زمان پایگاه داده توسط همه نمونه‌ها خود بار اضافه می‌کند. شکست سرویس اختیاری analytics نباید الزاماً کل سرویس را از ترافیک خارج کند.
 
-Be careful with deep dependency checks. If every App instance probes the same database aggressively, the health mechanism itself can add load. If a non-critical analytics dependency fails, making the entire service unready might reduce availability unnecessarily.
+در Kubernetes، readiness در پذیرش ترافیک Service اثر دارد، liveness برای تصمیم restart و startup برای محافظت از نمونه‌های دیرآماده استفاده می‌شود.
 
-Kubernetes uses readiness probes to decide whether a Pod should receive Service traffic. Liveness probes are used for container restart decisions. Startup probes can protect slow-starting workloads from premature liveness failures.
 
-## Failure modes and trade-offs
 
-- **Shallow probe:** always returns 200 even when the instance cannot serve.
-- **Overly deep probe:** one optional dependency removes every instance.
-- **Flapping:** thresholds are too sensitive to brief latency spikes.
-- **Probe storm:** many instances run expensive checks too frequently.
-- **Liveness depends on the same failing external system:** restarts amplify an external outage.
+## خطاهای رایج و ملاحظات
 
-Monitor ready target count, probe failure reasons, routing-set churn and user-visible error rate.
+- probe سطحی همیشه ۲۰۰ می‌دهد حتی وقتی سرویس آماده نیست.
+- probe بیش از حد عمیق، خرابی یک وابستگی اختیاری را به همه نمونه‌ها منتشر می‌کند.
+- threshold حساس باعث flapping می‌شود.
+- probe storm بار اضافه تولید می‌کند.
+- liveness وابسته به سرویس خارجی خراب، طوفان restart ایجاد می‌کند.
 
-## Check your understanding
+تعداد مقصد آماده، علت شکست، تغییرات مجموعه routing و خطای قابل مشاهده کاربر را پایش کنید.
 
-<Quiz client:visible question="App 2 is running, but its critical database is unavailable. Which result can be correct?" options={['/live 200 and /ready 503','/live 503 and /ready 200 is always required','Both must always be identical','Readiness is unrelated to routing']} correct={0} explanation="The process can be alive while unable to serve the request path that depends on the database." />
+## سنجش یادگیری
 
-<Quiz client:visible question="What should happen after readiness fails consistently?" options={['Remove the target from normal traffic routing','Immediately delete the database','Increase the HTTP method count','Change every client URL']} correct={0} explanation="Readiness is commonly used as a traffic-admission signal." />
+<Quiz client:visible question="App 2 در حال اجراست ولی پایگاه داده حیاتی آن در دسترس نیست. کدام نتیجه ممکن است درست باشد؟" options={["/live 200 و /ready 503","همیشه /live 503 و /ready 200","هر دو باید یکسان باشند","Readiness به مسیریابی ربط ندارد"]} correct={0} explanation="فرایند می‌تواند زنده باشد اما مسیر درخواست وابسته به پایگاه داده قابل استفاده نباشد." />
 
-## Takeaway
+<Quiz client:visible question="پس از شکست پایدار readiness چه اقدامی مناسب است؟" options={["خارج کردن مقصد از ترافیک عادی","حذف فوری پایگاه داده","افزایش تعداد HTTP method","تغییر URL همه کلاینت‌ها"]} correct={0} explanation="Readiness معمولاً سیگنال پذیرش ترافیک است." />
 
-Health is not one boolean. Define the question, the probe and the action together. **Liveness protects process recovery; readiness protects user traffic.**
+## جمع‌بندی
 
-## References
+سلامت یک boolean واحد نیست. سؤال، probe و اقدام پس از شکست را با هم تعریف کنید؛ liveness برای بازیابی فرایند و readiness برای پذیرش ترافیک است.
+
+## منابع
 
 - [Kubernetes: Configure Liveness, Readiness and Startup Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 - [Kubernetes: Pod Lifecycle](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/)

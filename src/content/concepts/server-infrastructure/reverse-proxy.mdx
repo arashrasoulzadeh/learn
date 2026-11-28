@@ -1,6 +1,6 @@
 ---
-title: "Reverse Proxy"
-description: "Trace one real HTTP request through TLS termination, Host/Path inspection, route matching, upstream forwarding and a 502 failure."
+title: "Reverse Proxy — پراکسی معکوس"
+description: "ردگیری HTTP از پایان TLS و انتخاب مسیر تا upstream و خطای 502."
 category: server-infrastructure
 difficulty: beginner
 estimatedMinutes: 15
@@ -11,15 +11,13 @@ import { ReverseProxyLab } from '@/components/learning/ServerLabs';
 import Quiz from '@/components/learning/Quiz';
 import Callout from '@/components/learning/Callout.astro';
 
-## The problem
+## مسئله
 
-A browser calls `https://api.example.com/api/orders`. The client should not need to know whether Orders currently runs on port 8080, three containers, or a different internal host tomorrow.
+مرورگر به https://api.example.com/api/orders درخواست می‌دهد. نباید لازم باشد بداند Orders اکنون روی پورت 8080 یا چند کانتینر اجرا می‌شود. Reverse Proxy مرز عمومی پایدار فراهم می‌کند، سیاست لبه را اعمال می‌کند و درخواست را به upstream منتخب می‌فرستد.
 
-A Reverse Proxy creates a stable public edge. It receives the public connection, applies edge-level policy and forwards the request to the selected internal upstream.
+## مدل ذهنی
 
-## Mental model
-
-Follow one concrete request:
+درخواست واقعی زیر را دنبال کنید. پراکسی می‌تواند TLS را خاتمه دهد و Host و Path لازم برای مسیریابی را بخواند. اعتبارسنجی سفارش، قیمت و ذخیره‌سازی همچنان مسئولیت سرویس API هستند.
 
 ```http
 GET /api/orders HTTP/1.1
@@ -27,28 +25,28 @@ Host: api.example.com
 Accept: application/json
 ```
 
-A simple route table might be:
-
 ```text
 /api/*  → API :8080
 /app/*  → Web :3000
 ```
 
-The proxy can terminate TLS and inspect the Host and Path needed for routing. The API still owns order validation, pricing and persistence.
-
-<Callout title="Edge policy, not domain ownership">
-  TLS termination, routing, coarse access policy and timeouts are natural edge concerns. Order pricing or inventory rules belong to the service that owns those concepts.
+<Callout title="سیاست لبه، نه مالکیت منطق دامنه">
+  TLS termination، مسیریابی، سیاست دسترسی سطح لبه و timeout می‌توانند مسئولیت پراکسی باشند. قوانین قیمت و موجودی در سرویس مالک دامنه باقی می‌مانند.
 </Callout>
 
-## Interactive lab
+## آزمایش تعاملی
 
-Do not read this as a static architecture diagram. Step through the **same request** and watch exactly what information becomes available and what decision follows.
+همان درخواست را مرحله‌به‌مرحله اجرا کنید تا اطلاعات ورودی و تصمیم مسیریابی در هر مرحله دیده شود.
 
-<ReverseProxyLab client:visible />
+<div lang="en" dir="ltr">
+  <ReverseProxyLab client:visible />
+</div>
 
-## Practical example
+## مثال عملی
 
-A minimal NGINX-style configuration can express the same idea:
+پیکربندی NGINX زیر فقط مثال آموزشی است. در محیط واقعی به گواهی و کلید TLS، headerهای مناسب، timeout، logging و راهبرد سلامت upstream نیز نیاز دارید.
+
+اگر /api/orders با مسیر API منطبق باشد اما اتصال به upstream برقرار نشود، پراکسی می‌تواند 502 Bad Gateway برگرداند. این با پاسخ عمدی 4xx یا 5xx از برنامه‌ای که درخواست را دریافت کرده متفاوت است.
 
 ```nginx
 server {
@@ -65,31 +63,27 @@ server {
 }
 ```
 
-This snippet is illustrative. Production configuration also needs appropriate headers, timeout policy, TLS configuration, logging and upstream health strategy.
+## خطاهای رایج و ملاحظات
 
-If `/api/orders` matches the API route but the proxy cannot establish the upstream connection, the proxy can return **502 Bad Gateway**. That is different from the API successfully receiving the request and intentionally returning a 4xx or 5xx application response.
+- قانون مسیر اشتباه: درخواست به مقصد نامناسب می‌رسد.
+- timeout کوتاه یا بلند نامناسب: خطای کاذب یا اشغال منابع.
+- upstream ناسالم هنوز مجاز است.
+- مصرف TLS، buffering و routing در لبه گلوگاه می‌شود.
+- انتقال منطق دامنه به پراکسی، آزمون و تغییر مالکیت را دشوار می‌کند.
 
-## Failure modes and trade-offs
+P99 لبه، خطاهای اتصال upstream، توزیع status، تعداد مقصد سالم و حجم درخواست هر مسیر را پایش کنید.
 
-- **Wrong route rule.** A valid request reaches the wrong upstream or no upstream.
-- **Bad timeout policy.** Too short causes false failures; too long ties up edge resources.
-- **Unhealthy upstreams remain eligible.** The proxy keeps forwarding to targets that cannot serve.
-- **The edge becomes a bottleneck.** TLS, buffering and routing consume real resources.
-- **Business logic drifts into the proxy.** Ownership becomes difficult to test and evolve.
+## سنجش یادگیری
 
-Useful signals: edge P99, upstream connection failures, upstream response status distribution, healthy upstream count and route-level request volume.
+<Quiz client:visible question="برای انتخاب مسیر API در GET /api/orders پراکسی مسیرمحور به چه اطلاعاتی نیاز دارد؟" options={["Path و در برخی پیکربندی‌ها Host","گذرواژه پایگاه داده","قیمت نهایی سفارش","اندازه صفحه مرورگر"]} correct={0} explanation="مسیریابی از metadata مانند Host و Path استفاده می‌کند؛ محاسبات دامنه وظیفه سرویس است." />
 
-## Check your understanding
+<Quiz client:visible question="مسیر /api درست است ولی اتصال به API :8080 برقرار نمی‌شود. نتیجه معمول در لبه چیست؟" options={["502 Bad Gateway","201 Created","304 Not Modified","DNS MX response"]} correct={0} explanation="502 می‌تواند نشان دهد پراکسی نتوانسته پاسخ معتبر upstream بگیرد." />
 
-<Quiz client:visible question="For GET /api/orders, what information does a path-based Reverse Proxy need to choose the API route?" options={['The HTTP path, and sometimes Host','The database password','The final order price','The browser screen size']} correct={0} explanation="Routing decisions commonly use HTTP metadata such as Host and Path. Domain calculations belong to the upstream service." />
+## جمع‌بندی
 
-<Quiz client:visible question="The /api route matches, but the proxy cannot connect to API :8080. Which failure is a typical edge result?" options={['502 Bad Gateway','201 Created','304 Not Modified','DNS MX response']} correct={0} explanation="502 commonly indicates the proxy received the client request but could not obtain a valid response from its upstream." />
+Reverse Proxy مرز عمومی و نقطه تصمیم انتخاب upstream است: دریافت، پایان TLS، بررسی metadata، انتخاب مسیر، ارسال و بازگرداندن پاسخ.
 
-## Takeaway
-
-A Reverse Proxy is a **public boundary plus an upstream-selection decision**. Trace the concrete request: receive → terminate TLS → inspect metadata → match rule → forward → relay response. Keep business behavior behind that boundary.
-
-## References
+## منابع
 
 - [NGINX: Proxying HTTP Traffic](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/)
 - [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)

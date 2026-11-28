@@ -15,14 +15,14 @@ const lessons=[
  ['session-affinity','SessionAffinityLab']
 ];
 const headings=[
- '## The problem',
- '## Mental model',
- '## Interactive lab',
- '## Practical example',
- '## Failure modes and trade-offs',
- '## Check your understanding',
- '## Takeaway',
- '## References'
+ '## مسئله',
+ '## مدل ذهنی',
+ '## آزمایش تعاملی',
+ '## مثال عملی',
+ '## خطاهای رایج و ملاحظات',
+ '## سنجش یادگیری',
+ '## جمع‌بندی',
+ '## منابع'
 ];
 const failures=[];
 for(const [slug,component] of lessons){
