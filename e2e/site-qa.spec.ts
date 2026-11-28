@@ -71,7 +71,7 @@ test(slug+' — English language marked and every quiz option gives feedback',as
     const options=quiz.locator('.quiz-option');
     let correct=0;
     for(const option of await options.all()){
-      await expect(page.locator('astro-island').filter({has:quiz})).not.toHaveAttribute('ssr','');
+      await expect(quiz.locator('xpath=ancestor::astro-island[1]')).not.toHaveAttribute('ssr','');
       await option.click();
       const feedback=quiz.locator('.quiz-feedback');
       await expect(feedback).toBeVisible();

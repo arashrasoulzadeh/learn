@@ -20,13 +20,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
       - name: Install dependencies
         run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
       - name: Capture dependency audit and lockfile
         run: |
           mkdir -p qa-dependencies
           cp package-lock.json qa-dependencies/package-lock.json
+          node -e "const fs=require('node:fs');const s=fs.readFileSync('package-lock.json','utf8');for(const line of s.split('\\n')) console.log('LOCKFILE:'+line);"
           npm audit --json > qa-dependencies/npm-audit.json || true
           node -e "const a=require('./qa-dependencies/npm-audit.json'); console.log(JSON.stringify(a.metadata||a.error)); for(const [name,v] of Object.entries(a.vulnerabilities||{})) console.log(name,v.severity,JSON.stringify(v.fixAvailable));"
       - uses: actions/upload-artifact@v4
@@ -44,8 +45,10 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - name: Security gate for production
-        if: github.ref == 'refs/heads/main'
+      - name: Accessibility report
+        if: always()
+        run: npx playwright test --config playwright.accessibility.config.ts
+      - name: Security gate
         run: npm audit --audit-level=high
       - uses: actions/upload-artifact@v4
         if: always()
@@ -68,7 +71,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
       - run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
       - run: npm run build
       - run: npx playwright install --with-deps firefox webkit

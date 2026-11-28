@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -23,18 +23,19 @@
     "check:advanced": "node --experimental-strip-types scripts/check-advanced-lessons.mjs"
   },
   "dependencies": {
-    "astro": "^5.16.16",
-    "@astrojs/mdx": "^4.0.0",
-    "@astrojs/react": "^4.4.0",
+    "astro": "7.4.13",
+    "@astrojs/mdx": "8.1.6",
+    "@astrojs/react": "latest",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "pagefind": "^1.3.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
+    "@astrojs/check": "latest",
     "typescript": "^5.8.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@playwright/test": "^1.57.0"
+    "@playwright/test": "^1.57.0",
+    "@axe-core/playwright": "^4.10.2"
   }
 }
