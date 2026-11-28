@@ -564,3 +564,45 @@ test('five-level picker and cross-level practice links',async({page})=>{
  await eda.locator('.practice-next').click();
  await expect(page).toHaveURL(/\/system-design\/reverse-proxy\/$/);
 });
+
+
+test.describe('level four code-first workshops',()=>{
+ const levelFour=fixtures.slice(0,10);
+ for(const [category,slug] of levelFour){
+  test(slug+' — predict, compare code, reset and mobile',async({page})=>{
+   await page.setViewportSize({width:1440,height:900});
+   await page.goto('/learn/concepts/'+category+'/'+slug+'/',{waitUntil:'domcontentloaded'});
+   const lab=page.locator('[data-lesson="'+slug+'"]');
+   await expect(page.locator('astro-island').filter({has:lab})).not.toHaveAttribute('ssr','');
+   const workshop=lab.getByRole('region',{name:'کارگاه طراحی با کد'});
+   const ids=slug==='solid'?['srp','ocp','lsp','isp','dip']:[null];
+   for(const id of ids){
+    if(id)await lab.getByLabel('سناریو').selectOption(id);
+    await expect(workshop.locator('pre')).toHaveCount(1);
+    const reveal=workshop.getByRole('button',{name:'۴. مقایسه کد و نتیجه'});
+    await expect(reveal).toBeDisabled();
+    let correctCount=0;
+    for(const choice of await workshop.locator('.workshop-choices button').all()){
+     await choice.click();
+     await expect(workshop.getByRole('status')).toBeVisible();
+     if(await workshop.getByRole('status').getAttribute('data-correct')==='true')correctCount++;
+     await reveal.click();
+     await expect(workshop.locator('pre')).toHaveCount(2);
+     await expect(workshop.locator('.workshop-results code')).toHaveCount(2);
+    }
+    expect(correctCount).toBe(1);
+   }
+   await page.screenshot({path:'test-results/advanced/'+slug+'-workshop-desktop.png',animations:'disabled'});
+   await page.setViewportSize({width:390,height:844});
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(1);
+   await workshop.getByRole('button',{name:'مشاهدهٔ شبیه‌سازی تکمیلی ↓'}).click();
+   await expect(lab.getByRole('heading',{name:'شبیه‌سازی تکمیلی طراحی'})).toBeFocused();
+   await workshop.locator('h2').scrollIntoViewIfNeeded();
+   await page.screenshot({path:'test-results/advanced/'+slug+'-workshop-mobile.png',fullPage:true,animations:'disabled'});
+  });
+ }
+ test('level five retains its existing learning interface',async({page})=>{
+  await page.goto('/learn/concepts/system-design/raft/');
+  await expect(page.getByRole('region',{name:'کارگاه طراحی با کد'})).toHaveCount(0);
+ });
+});

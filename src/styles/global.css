@@ -436,3 +436,32 @@ html[lang=fa] .request-message pre[dir=rtl]{text-align:start}
 
 /* Concept-specific system-design state visualizations. */
 .advanced-token-bucket,.advanced-breaker,.advanced-capacity,.advanced-raft{display:grid;gap:6px;min-width:0}.advanced-token-cells,.advanced-breaker-modes,.advanced-log-badges{display:flex;flex-wrap:wrap;gap:4px}.advanced-token-cells i{display:block;width:17px;height:17px;border-radius:4px;background:var(--bg);border:1px solid var(--line);transition:background .3s}.advanced-token-cells i[data-filled=true]{background:var(--accent);border-color:var(--accent)}.advanced-token-bucket small,.advanced-capacity small{font-size:9px;color:var(--muted)}.advanced-breaker-modes b,.advanced-log-badges b{font:9px/1.5 ui-monospace,monospace;border:1px solid var(--line);border-radius:4px;padding:3px 4px;color:var(--muted)}.advanced-breaker-modes b[data-current=true]{color:var(--accent);border-color:var(--accent);background:#79e3c118}.advanced-breaker-modes b[data-current=true][data-mode=OPEN]{color:var(--danger);border-color:var(--danger);background:#ff989814}.advanced-breaker-modes b[data-current=true][data-mode=HALF_OPEN]{color:var(--blue);border-color:var(--blue)}.advanced-log-badges b[data-commit=true]{color:var(--accent);border-color:var(--accent)}.advanced-capacity-track{height:6px;background:var(--line);border-radius:5px;overflow:hidden}.advanced-capacity-track i{height:100%;display:block;background:var(--accent);transition:width .3s}.advanced-lease{border:1px solid var(--accent);padding:4px 6px;border-radius:5px}.advanced-lease[data-expired=true]{border-color:var(--danger);color:var(--danger)}@media(prefers-reduced-motion:reduce){.advanced-token-cells i,.advanced-capacity-track i{transition:none}}
+
+
+/* Level four: problem-first code workshop, then the supplementary trace. */
+.architecture-workshop{display:grid;gap:12px;padding:clamp(12px,2vw,20px);border:1px solid var(--line);border-radius:12px;background:var(--panel);min-width:0;margin-bottom:12px}
+.architecture-workshop h2{font-size:clamp(19px,2vw,25px);line-height:1.55;margin:5px 0}
+.architecture-workshop h3{font-size:14px;line-height:1.65;margin:0 0 6px}
+.architecture-workshop p{font-size:14px;line-height:1.9;margin:0;overflow-wrap:anywhere}
+.workshop-kicker{font-size:12px;color:var(--accent);font-weight:700}
+.workshop-change{background:var(--panel2);padding:10px 12px;border-radius:8px;border-inline-start:3px solid var(--blue)}
+.workshop-change strong{font-size:12px;color:var(--blue)}
+.workshop-code{min-width:0}
+.workshop-code pre{margin:0;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:12px/1.65 ui-monospace,monospace;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}
+.workshop-choices{display:grid;gap:7px;min-width:0}
+.workshop-choices button{justify-content:flex-start;text-align:start;font-size:13px;white-space:normal;overflow-wrap:anywhere;min-height:44px}
+.workshop-choices button[aria-pressed=true]{border-color:var(--accent);background:var(--panel2)}
+.workshop-feedback{border-inline-start:3px solid var(--danger);padding:8px 12px;background:var(--panel2)}
+.workshop-feedback[data-correct=true]{border-inline-start-color:var(--accent)}
+.workshop-feedback strong{font-size:13px}
+.workshop-reveal,.workshop-simulation{justify-self:start;max-width:100%;font-size:13px;min-height:44px}
+.workshop-comparison{display:grid;gap:10px;min-width:0;border-top:1px solid var(--line);padding-top:12px}
+.workshop-comparison h3{margin:0}
+.workshop-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.workshop-results>div{display:grid;gap:5px;min-width:0;background:var(--panel2);border-radius:8px;padding:10px}
+.workshop-results strong{font-size:12px}
+.workshop-results code{font:12px/1.6 ui-monospace,monospace;overflow-wrap:anywhere;text-align:left}
+.workshop-results>div:last-child{border:1px solid var(--accent)}
+.architecture-trace-heading{font-size:14px;margin:12px 0 6px;line-height:1.7}
+.architecture-trace-heading:focus{outline:2px solid var(--blue);outline-offset:2px}
+@media(max-width:480px){.workshop-results{grid-template-columns:minmax(0,1fr)}}

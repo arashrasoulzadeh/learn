@@ -1,4 +1,6 @@
-import {useState} from 'react';
+import {useRef,useState} from 'react';
+import ArchitectureWorkshop from '../advanced/ArchitectureWorkshop';
+import {workshopFor} from '../advanced/workshops';
 import DeepLab from '../deep/DeepLab';
 import {mainTitles} from '../mainTitles';
 import {usePlayback,LabSelect,LabToolbar,LabTimeline,LabStage,LabMessage,LabNote,LabScreen} from '../LabUI';
@@ -17,6 +19,8 @@ export default function BackendLab({lesson}:{lesson:BackendLesson}){
  const {step,playing,speed,jump,pause,preview,motionVersion,replayStep}=playback;
  const stage=scenario.steps[step]??scenario.steps[0];
  const select=(value:string)=>{setId(value);jump(0);};
+ const workshop=lesson.order>=31&&lesson.order<=40?workshopFor(lesson.slug,id):undefined;
+ const traceHeading=useRef<HTMLHeadingElement>(null);
  const actors=scenario.actors??lesson.actors,edges=scenario.edges??lesson.edges;
  const fork=['event-loop','sharding','replication','database-locking','transactions-acid','b-tree','caching','cache-invalidation','database-index','observer','monolith-microservices','load-balancing','cap-theorem','raft','solid','factory'].includes(lesson.slug);
  const diamond=lesson.slug==='distributed-lock';
@@ -27,7 +31,7 @@ export default function BackendLab({lesson}:{lesson:BackendLesson}){
  return <div className="network-lab backend-lab" data-lesson={lesson.slug} data-model={lesson.model}>
  <LabScreen graphTitle={mainTitles[lesson.slug]} headingActions={<DeepLab slug={lesson.slug} onOpen={pause}/>} label={lesson.title+' — آموزش تعاملی'} stepKey={id+'-'+step}
  toolbar={<LabToolbar playback={playback} count={scenario.steps.length} actions={<><LearningExtras pitfall={lesson.pitfall} takeaway={lesson.takeaway} quiz={lesson.quiz} references={lesson.references} terms={lesson.teaching.terms} fieldExercise={lesson.field} onOpen={pause}/><EdgeCases current={id} onSelect={select} onOpen={pause} cases={lesson.scenarios.filter(s=>s.edgeCase).map(s=>({id:s.id,label:s.label,explanation:s.edgeCase!}))}/></>}><LabSelect label="سناریو" value={id} options={lesson.scenarios.map(s=>({value:s.id,label:s.label}))} onChange={select}/></LabToolbar>}
- overview={<><div className="network-overview"><strong>{scenario.label}</strong><code dir="ltr">{scenario.example}</code></div><div className="backend-prediction" aria-label="سؤال پیش‌بینی"><span>قبل از مشاهدهٔ نتیجه</span><p>{scenario.prediction}</p></div></>}
+ overview={<>{workshop&&<><ArchitectureWorkshop key={lesson.slug==='solid'?id:lesson.slug} workshop={workshop} onSimulation={()=>{traceHeading.current?.focus({preventScroll:true});traceHeading.current?.scrollIntoView({block:'start',behavior:'auto'});}}/><h2 ref={traceHeading} tabIndex={-1} className="architecture-trace-heading">شبیه‌سازی تکمیلی طراحی</h2></>}<div className="network-overview"><strong>{scenario.label}</strong><code dir="ltr">{scenario.example}</code></div><div className="backend-prediction" aria-label="سؤال پیش‌بینی"><span>قبل از مشاهدهٔ نتیجه</span><p>{scenario.prediction}</p></div></>}
  graph={<FlowDiagram nodes={nodes} edges={edges} activeNodes={stage.route} route={route} playing={playing} preview={preview} motionVersion={motionVersion} onReplay={replayStep} flightLabels={stage.flightLabels} drop={stage.drop} speed={speed} accent={accent} animationKey={id+'-'+step+'-'+speed} label={stage.name} caption={stage.name} returnRoute={stage.roundTrip?[...route].reverse():undefined} packetLabel={stage.packet} compactLayout={compactLayout}/>}
  stateView={<ProtocolState showContext={false} kind={scenario.id==='isolation'?'process-isolation':lesson.slug} title={lesson.visual.title} labels={scenario.id==='isolation'?['فرایند A','کانال IPC','فرایند B']:lesson.visual.labels} values={stage.state} previousValues={step>0?scenario.steps[step-1]?.state:undefined} context={lesson.visual.context} step={step} tone={stage.tone}/>}
       graphFooter={<ProtocolExchange phase={stage.short} result={stage.result} example={stage.packet}/>}
