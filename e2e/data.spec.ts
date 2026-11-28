@@ -347,7 +347,7 @@ for(const [slug,scenarios,quizAnswer,practiceAnswer,edge,edgeStage,stateText] of
  });
 }
 
-test('JWT continues to level three and the picker lists all fifty lessons in order',async({page})=>{
+test('JWT continues to level three and the picker opens the current level in order',async({page})=>{
  await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
  await page.goto('/learn/concepts/software-engineering/jwt/',{waitUntil:'domcontentloaded'});
  const jwt=page.locator('[data-lesson="jwt"]');
@@ -356,11 +356,11 @@ test('JWT continues to level three and the picker lists all fifty lessons in ord
  await jwt.locator('.practice-option').nth(1).click();
  await jwt.locator('.practice-next').click();
  await expect(page).toHaveURL(/\/databases\/sql-nosql\/$/);
- await page.locator('#lesson-picker summary').click();
+ await page.locator('#lesson-picker .picker-trigger').click();
  const nav=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
- await expect(nav.getByRole('link')).toHaveCount(50);
- for(let i=0;i<lessons.length;i++)await expect(nav.getByRole('link').nth(i+20)).toHaveAttribute('href','/learn/concepts/databases/'+lessons[i][0]+'/');
- await expect(nav.getByRole('link').nth(20)).toHaveAttribute('aria-current','page');
- await nav.getByRole('link').nth(29).click();
+ await expect(nav.getByRole('link')).toHaveCount(10);
+ for(let i=0;i<lessons.length;i++)await expect(nav.getByRole('link').nth(i)).toHaveAttribute('href','/learn/concepts/databases/'+lessons[i][0]+'/');
+ await expect(nav.getByRole('link').nth(0)).toHaveAttribute('aria-current','page');
+ await nav.getByRole('link').nth(9).click();
  await expect(page).toHaveURL(/\/databases\/sharding\/$/);
 });

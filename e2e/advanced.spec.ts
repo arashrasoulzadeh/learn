@@ -549,11 +549,14 @@ test('five-level picker and cross-level practice links',async({page})=>{
  await lab.locator('.practice-option').nth(1).click();
  await lab.locator('.practice-next').click();
  await expect(page).toHaveURL(/\/design-patterns\/solid\/$/);
- await page.locator('#lesson-picker summary').click();
+ await page.locator('#lesson-picker .picker-trigger').click();
  const nav=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'});
- await expect(nav.getByRole('link')).toHaveCount(50);
- for(let i=0;i<fixtures.length;i++)await expect(nav.getByRole('link').nth(i+30)).toHaveAttribute('href','/learn/concepts/'+fixtures[i][0]+'/'+fixtures[i][1]+'/');
- await nav.getByRole('link').nth(39).click();
+ await expect(nav.getByRole('link')).toHaveCount(10);
+ for(let i=0;i<10;i++)await expect(nav.getByRole('link').nth(i)).toHaveAttribute('href','/learn/concepts/'+fixtures[i][0]+'/'+fixtures[i][1]+'/');
+ await page.getByRole('tab',{name:/سطح پنجم/}).click();
+ for(let i=0;i<10;i++)await expect(nav.getByRole('link').nth(i)).toHaveAttribute('href','/learn/concepts/'+fixtures[i+10][0]+'/'+fixtures[i+10][1]+'/');
+ await page.getByRole('tab',{name:/سطح چهارم/}).click();
+ await nav.getByRole('link').nth(9).click();
  const eda=page.locator('[data-lesson=event-driven-architecture]');
  await expect(page.locator('astro-island').filter({has:eda})).not.toHaveAttribute('ssr','');
  await eda.getByRole('navigation',{name:'مراحل درس'}).getByRole('button').last().click();

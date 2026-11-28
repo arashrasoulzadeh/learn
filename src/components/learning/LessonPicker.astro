@@ -1,21 +1,152 @@
 ---
 import { catalog, lessonUrl } from '../../lib/content';
-import Popover from './Popover.astro';
+import { deepLessons } from './deep/index';
+import { mainTitles } from './mainTitles';
 const { currentId } = Astro.props as {currentId:string};
 const { concepts } = await catalog();
-const groups = [{id:'web-basics',title:'سطح اول · مبانی وب و شبکه'},{id:'backend-basics',title:'سطح دوم · مهندسی نرم‌افزار و بک‌اند'},{id:'data-basics',title:'سطح سوم · پایگاه داده و ذخیره‌سازی'},{id:'architecture-patterns',title:'سطح چهارم · الگوهای طراحی و معماری'},{id:'advanced-system-design',title:'سطح پنجم · طراحی سیستم‌های پیشرفته'}];
+const groups = [
+  {id:'web-basics',level:'سطح اول',title:'وب و شبکه'},
+  {id:'backend-basics',level:'سطح دوم',title:'مهندسی نرم‌افزار و بک‌اند'},
+  {id:'data-basics',level:'سطح سوم',title:'پایگاه داده و ذخیره‌سازی'},
+  {id:'architecture-patterns',level:'سطح چهارم',title:'الگوهای طراحی و معماری'},
+  {id:'advanced-system-design',level:'سطح پنجم',title:'طراحی سیستم‌های پیشرفته'}
+].map(group=>({...group,lessons:concepts.filter(item=>item.data.learningPath===group.id)}));
+const currentGroup=groups.find(group=>group.lessons.some(item=>item.id===currentId))?.id??groups[0].id;
+const x=(lane:number,count:number)=>count>0?(lane+.5)*240/count:120;
+const compact=(label:string)=>label.length>18?label.slice(0,17)+'…':label;
 ---
-<Popover label="انتخاب درس" id="lesson-picker"><svg slot="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v15"/></svg>
-  <nav aria-label="درس‌های قابل انتخاب">
-    {groups.map(group=><section aria-label={group.title}><p class="picker-heading">{group.title}</p>{concepts.filter(item=>item.data.learningPath===group.id).map(item=><a href={lessonUrl(item.id)} aria-current={item.id===currentId?'page':undefined}><span class="picker-number">{item.data.order.toLocaleString('fa-IR')}</span><span class="picker-name">{item.data.title}</span>{item.id===currentId&&<span aria-hidden="true">✓</span>}</a>)}</section>)}
-  </nav>
-</Popover>
+<div id="lesson-picker" data-pagefind-ignore="all">
+  <button type="button" class="picker-trigger" aria-haspopup="dialog" aria-controls="lesson-picker-dialog" aria-expanded="false">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v15"/></svg>
+    انتخاب درس
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg>
+  </button>
+  <dialog id="lesson-picker-dialog" aria-labelledby="lesson-picker-title" data-current-group={currentGroup}>
+    <div class="picker-shell">
+      <header class="picker-header">
+        <div><p class="picker-kicker">مسیر یادگیری · {groups.reduce((sum,g)=>sum+g.lessons.length,0).toLocaleString('fa-IR')} درس تعاملی</p><h2 id="lesson-picker-title">انتخاب درس</h2><p class="picker-subtitle">سطح مورد نظر را انتخاب کنید و پیش‌نمایش هر درس را ببینید.</p></div>
+        <button type="button" class="picker-close" aria-label="بستن انتخاب درس">×</button>
+      </header>
+      <div class="picker-tabs" role="tablist" aria-label="سطوح یادگیری">
+        {groups.map(group=><button type="button" role="tab" id={`picker-tab-${group.id}`} aria-controls={`picker-panel-${group.id}`} aria-selected={group.id===currentGroup?'true':'false'} tabindex={group.id===currentGroup?0:-1} data-group={group.id}><span>{group.level}</span><small>{group.title}</small></button>)}
+      </div>
+      <div class="picker-scroll">
+        {groups.map(group=><section class="picker-panel" role="tabpanel" id={`picker-panel-${group.id}`} aria-labelledby={`picker-tab-${group.id}`} hidden={group.id!==currentGroup}>
+          <div class="picker-section-head"><h3>{group.title}</h3><span>{group.lessons.length.toLocaleString('fa-IR')} درس</span></div>
+          <nav class="picker-grid" aria-label="درس‌های قابل انتخاب">
+            {group.lessons.map(item=>{
+              const slug=item.id.split('/').pop()!;
+              const trace=deepLessons[slug];
+              const lanes=trace?.lanes??[];
+              const events=trace?.cases[0]?.events.slice(0,3)??[];
+              return <a class="picker-card" href={lessonUrl(item.id)} aria-current={item.id===currentId?'page':undefined} aria-label={item.data.title}>
+                <div class="picker-preview" aria-hidden="true" data-preview={slug}>
+                  <div class="preview-top"><span><i/> شبیه‌سازی</span><span class="preview-number">{item.data.order.toLocaleString('fa-IR',{minimumIntegerDigits:2})}</span></div>
+                  <div class="preview-lanes" style={`grid-template-columns:repeat(${Math.max(1,lanes.length)},minmax(0,1fr))`}>{lanes.map(lane=><span title={lane}>{compact(lane)}</span>)}</div>
+                  <svg viewBox="0 0 240 62" class="preview-graph" fill="none" preserveAspectRatio="none">
+                    {lanes.map((_,i)=><line x1={x(i,lanes.length)} y1="0" x2={x(i,lanes.length)} y2="62" stroke="var(--line)" stroke-dasharray="3 3"/>)}
+                    {events.map((event,i)=>{
+                      const from=x(event.lane,lanes.length),to=x(event.to??event.lane,lanes.length),y=11+i*20,sign=to>=from?1:-1;
+                      const color=event.tone==='error'?'var(--danger)':i===0?'var(--accent)':'var(--blue)';
+                      return from===to?<circle cx={from} cy={y} r="4" fill={color}/>:<g stroke={color} stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1={from} y1={y} x2={to} y2={y}/><polyline points={`${to-sign*5},${y-3} ${to},${y} ${to-sign*5},${y+3}`}/><circle cx={(from+to)/2} cy={y} r="2.8" fill={color}/></g>
+                    })}
+                  </svg>
+                  <div class="preview-caption">{mainTitles[slug]??item.data.title}</div>
+                </div>
+                <div class="picker-card-body"><h4>{item.data.title}</h4><p>{item.data.description}</p><div class="picker-card-foot"><span>{item.data.estimatedMinutes.toLocaleString('fa-IR')} دقیقه</span>{item.id===currentId?<strong>✓ درس فعلی</strong>:<strong>شروع درس ←</strong>}</div></div>
+              </a>
+            })}
+          </nav>
+        </section>)}
+      </div>
+    </div>
+  </dialog>
+</div>
+<script>
+  const picker=document.querySelector<HTMLElement>('#lesson-picker');
+  if(picker){
+    const trigger=picker.querySelector<HTMLButtonElement>('.picker-trigger')!;
+    const dialog=picker.querySelector<HTMLDialogElement>('dialog')!;
+    const close=dialog.querySelector<HTMLButtonElement>('.picker-close')!;
+    const scroll=dialog.querySelector<HTMLElement>('.picker-scroll')!;
+    const tabs=Array.from(dialog.querySelectorAll<HTMLButtonElement>('[role=tab]'));
+    const panels=Array.from(dialog.querySelectorAll<HTMLElement>('[role=tabpanel]'));
+    function activate(tab:HTMLButtonElement,focus=false){
+      tabs.forEach(item=>{const selected=item===tab;item.setAttribute('aria-selected',String(selected));item.tabIndex=selected?0:-1;});
+      panels.forEach(panel=>panel.hidden=panel.id!==tab.getAttribute('aria-controls'));
+      scroll.scrollTop=0;
+      if(focus)tab.focus();
+      tab.scrollIntoView({block:'nearest',inline:'nearest'});
+    }
+    trigger.addEventListener('click',()=>{
+      dialog.showModal();
+      trigger.setAttribute('aria-expanded','true');
+      activate(tabs.find(tab=>tab.dataset.group===dialog.dataset.currentGroup)??tabs[0]);
+      close.focus();
+    });
+    close.addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
+    dialog.addEventListener('close',()=>{trigger.setAttribute('aria-expanded','false');trigger.focus({preventScroll:true});});
+    tabs.forEach((tab,i)=>{
+      tab.addEventListener('click',()=>activate(tab));
+      tab.addEventListener('keydown',event=>{
+        let next:number;
+        switch(event.key){
+          case 'ArrowLeft':next=(i+1)%tabs.length;break;
+          case 'ArrowRight':next=(i+tabs.length-1)%tabs.length;break;
+          case 'Home':next=0;break;
+          case 'End':next=tabs.length-1;break;
+          default:return;
+        }
+        event.preventDefault();activate(tabs[next],true);
+      });
+    });
+  }
+</script>
 <style>
-  nav{max-height:min(65vh,460px);overflow-y:auto;scrollbar-width:thin}
-  .picker-number{flex:none;color:var(--muted);font-size:12px;width:1.5rem;text-align:center}.picker-name{flex:1;min-width:0}
-  nav section+section{border-top:1px solid var(--line);margin-top:8px;padding-top:10px}
-  .picker-heading{font-size:12px;color:var(--muted);margin:2px 6px 8px}
-  a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 10px;border:1px solid transparent;border-radius:9px;color:var(--ink);font-size:14px;line-height:1.6}
-  a[aria-current=page]{border-color:#79e3c133}
-  a:hover,a[aria-current=page]{background:var(--panel2);color:var(--accent);text-decoration:none}
+  #lesson-picker{flex:none}
+  .picker-trigger,.picker-close{display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;min-height:42px;padding:9px 12px;white-space:nowrap}
+  .picker-trigger:hover,.picker-close:hover,.picker-trigger[aria-expanded=true]{border-color:var(--accent);color:var(--accent)}
+  dialog{position:fixed;inset:0;margin:auto;padding:0;width:min(1140px,calc(100vw - 32px));max-width:none;max-height:min(90dvh,900px);border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--ink);box-shadow:0 24px 80px #0009;overflow:hidden;text-align:start;direction:rtl}
+  dialog::backdrop{background:#070c16bd;backdrop-filter:blur(4px)}
+  :global(body:has(#lesson-picker-dialog[open])){overflow:hidden}
+  .picker-shell{display:flex;flex-direction:column;max-height:min(90dvh,900px);min-height:0}
+  .picker-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 24px 15px;flex:none}
+  .picker-header h2{font-size:clamp(20px,3vw,27px);line-height:1.5;margin:0 0 3px;letter-spacing:0}
+  .picker-kicker{font-size:11px;font-weight:700;color:var(--accent);margin:0 0 3px}
+  .picker-subtitle{font-size:13px;color:var(--muted);margin:0}
+  .picker-close{font-size:24px;padding:0;width:42px;flex:none;line-height:1}
+  .picker-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:0 24px 14px;border-bottom:1px solid var(--line);flex:none;overflow-x:auto;scrollbar-width:thin}
+  .picker-tabs button{min-width:0;display:grid;gap:2px;text-align:start;background:var(--bg);color:var(--muted);padding:10px 12px;border:1px solid var(--line);border-radius:10px;line-height:1.5}
+  .picker-tabs button span{font-size:13px;font-weight:700;color:var(--ink)}
+  .picker-tabs button small{font-size:11px;color:inherit;white-space:normal}
+  .picker-tabs button[aria-selected=true]{border-color:var(--accent);background:#79e3c113;color:var(--accent)}
+  .picker-tabs button[aria-selected=true] span{color:var(--accent)}
+  .picker-tabs button:hover{border-color:var(--accent)}
+  .picker-tabs button:focus-visible{outline-offset:-3px}
+  .picker-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:15px 24px 24px}
+  .picker-section-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+  .picker-section-head h3{margin:0;font-size:15px;letter-spacing:0;line-height:1.6}
+  .picker-section-head>span{font-size:12px;color:var(--muted)}
+  .picker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .picker-card{min-width:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);overflow:hidden;transition:border-color .15s,background .15s}
+  .picker-card:hover,.picker-card[aria-current=page]{border-color:var(--accent);background:var(--panel2);text-decoration:none}
+  .picker-card:focus-visible{outline-offset:-3px}
+  .picker-preview{padding:9px 9px 7px;background:radial-gradient(ellipse at center,#79e3c10d,transparent 80%),var(--panel2);border-bottom:1px solid var(--line);min-width:0;display:grid;gap:5px}
+  .preview-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:10px}
+  .preview-top>span:first-child{display:flex;gap:4px;align-items:center}
+  .preview-top i{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .preview-number{color:var(--accent);font-weight:700}
+  .preview-lanes{display:grid;gap:3px;direction:ltr}
+  .preview-lanes span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;border:1px solid var(--line);background:var(--bg);padding:3px 1px;border-radius:4px;font-size:9px;unicode-bidi:plaintext;color:var(--ink)}
+  .preview-graph{display:block;width:100%;height:46px;direction:ltr}
+  .preview-caption{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .picker-card-body{display:flex;flex-direction:column;gap:6px;flex:1;padding:11px}
+  .picker-card h4{font-size:13px;line-height:1.6;margin:0;font-weight:700;overflow-wrap:anywhere}
+  .picker-card p{color:var(--muted);font-size:11px;line-height:1.75;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .picker-card-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:7px;margin-top:auto;font-size:10px;color:var(--muted)}
+  .picker-card-foot strong{color:var(--accent);font-weight:600}
+  @media(max-width:900px){.picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.picker-tabs{grid-template-columns:repeat(5,minmax(130px,1fr))}}
+  @media(max-width:620px){dialog{width:calc(100vw - 16px);max-height:94dvh;border-radius:15px}.picker-shell{max-height:94dvh}.picker-header{padding:14px 12px 10px}.picker-tabs{padding:0 12px 10px;grid-template-columns:repeat(5,minmax(122px,1fr))}.picker-scroll{padding:12px}.picker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.picker-card-body{padding:8px}.picker-preview{padding:7px}.picker-card h4{font-size:12px}.picker-subtitle{font-size:12px}.preview-lanes span{font-size:8px}.preview-graph{height:40px}}
+  @media(max-width:340px){.picker-grid{grid-template-columns:1fr}}
 </style>

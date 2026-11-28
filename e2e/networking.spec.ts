@@ -111,14 +111,14 @@ for(const lesson of curriculum){
 test('level-one picker lists all ten lessons in order and navigates to DNS',async({page})=>{
   await page.route('**/*',route=>new URL(route.request().url()).origin==='http://127.0.0.1:4321'?route.continue():route.abort());
   await page.goto('/learn/',{waitUntil:'domcontentloaded'});
-  await page.locator('#lesson-picker summary').click();
+  await page.locator('#lesson-picker .picker-trigger').click();
   const links=page.getByRole('navigation',{name:'درس‌های قابل انتخاب'}).getByRole('link');
-  await expect(links).toHaveCount(50);
+  await expect(links).toHaveCount(10);
   const slugs=['http-request',...curriculum.map(l=>l.slug)];
   for(let i=0;i<slugs.length;i++)await expect(links.nth(i)).toHaveAttribute('href','/learn/concepts/networking/'+slugs[i]+'/');
   await links.nth(1).click();
   await expect(page).toHaveURL(/\/networking\/dns\/$/);
-  await page.locator('#lesson-picker summary').click();
+  await page.locator('#lesson-picker .picker-trigger').click();
   await expect(links.nth(1)).toHaveAttribute('aria-current','page');
 });
 
